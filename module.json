@@ -1,0 +1,34 @@
+{
+  "id": "tft-sheets",
+  "title": "TFT Sheets",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Courage",
+      "flags": {}
+    },
+    {
+      "name": "Yue",
+      "flags": {}
+    }
+  ],
+  "esmodules": ["tftsheets.js"],
+  "flags": {
+    "canUpload": true
+  },
+  "styles": ["styles/lobcorpStylesheet.css"],
+  "relationships": {
+    "systems": [
+      {
+        "id": "wod5e",
+        "type": "system",
+        "compatibility": {}
+      }
+    ]
+  },
+  "description": ""
+}

@@ -1,0 +1,612 @@
+/* =========================================================
+   FONTS
+   ========================================================= */
+@font-face {
+  font-family: "Railway";
+  src: url("railway-webfont.woff2") format("woff2"),
+       url("railway-webfont.woff")  format("woff");
+  font-weight: normal; font-style: normal;
+}
+@font-face {
+  font-family: "Norwester";
+  src: url("norwester-webfont.woff2") format("woff2"),
+       url("norwester-webfont.woff")  format("woff");
+  font-weight: normal; font-style: normal;
+}
+@font-face {
+  font-family: "GillSansMT";
+  src: url("gil_____-webfont.woff2") format("woff2"),
+       url("gil_____-webfont.woff")  format("woff");
+  font-weight: normal; font-style: normal;
+}
+
+/* =========================================================
+   CSS VARIABLES & ROOT
+   ========================================================= */
+.lobcorp {
+  --actor-background-dark: black;
+  --notched-border-color:  #777459;
+  --main-text-color:       #a3a075;
+  --header-glow:           #ff9442;
+  --header-color:          #ffffa0;
+  --panel-bg:              #0c0c08;
+  --panel-inner-bg:        #1e1e14;
+  --hr-color:              #5f5d44;
+  --dot-empty:             #3a3826;
+  --dot-filled:            #a3a075;
+  --sin-active-color:      #da4c33; /* overridden per-actor in JS */
+}
+
+/* =========================================================
+   SIN TYPE COLORS
+   ========================================================= */
+.lobcorp .WRATH    { color: #da4c33; }
+.lobcorp .LUST     { color: #f0a33f; }
+.lobcorp .SLOTH    { color: #fcd700; }
+.lobcorp .GLUTTONY { color: #b3d42f; }
+.lobcorp .GLOOM    { color: #56b4c9; }
+.lobcorp .PRIDE    { color: #2887cf; }
+.lobcorp .ENVY     { color: #9c69b2; }
+
+/* =========================================================
+   RESOURCE COLORS
+   ========================================================= */
+.lobcorp .health  { --system-dark-color-4: #ff4d4d; }
+.lobcorp .sanity  { --system-dark-color-4: #39a6df; }
+
+/* =========================================================
+   BASE
+   ========================================================= */
+.lobcorp {
+  font-family: "GillSansMT", Arial;
+  color: var(--main-text-color);
+  font-size: 16px;
+  background-color: var(--actor-background-dark);
+}
+.lobcorp .clickable { cursor: pointer; }
+
+/* =========================================================
+   GRID LAYOUT
+   ========================================================= */
+.lobcorp .gridcontainer {
+  display: grid;
+  grid-template-columns: 300px 1fr 1fr 1fr 260px;
+  grid-template-rows: auto auto;
+  gap: 8px;
+  margin: 4px 8px;
+}
+
+/* Grid area assignments */
+.lobcorp .agent        { grid-column: 1;     grid-row: 1; }
+.lobcorp .combat-panel { grid-column: 2 / 5; grid-row: 1; }
+.lobcorp .right-panel  { grid-column: 5;     grid-row: 1; }
+.lobcorp .stats-panel  { grid-column: 1 / 3; grid-row: 2; }
+.lobcorp .skills-panel { grid-column: 3 / 6; grid-row: 2; }
+
+/* =========================================================
+   NOTCHED CORNER STYLE
+   https://stackoverflow.com/a/33122202
+   ========================================================= */
+.lobcorp .notched {
+  background-image:
+    linear-gradient(var(--notched-border-color), var(--notched-border-color)),
+    linear-gradient(var(--notched-border-color), var(--notched-border-color)),
+    linear-gradient(var(--notched-border-color), var(--notched-border-color)),
+    linear-gradient(var(--notched-border-color), var(--notched-border-color)),
+    linear-gradient(
+      to bottom right,
+      transparent          calc(50% - 1px),
+      var(--notched-border-color) calc(50% - 1px),
+      var(--notched-border-color) calc(50% + 1px),
+      black                calc(50% + 1px)
+    ),
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  background-size:
+    2px 100%, 2px 100%, 100% 2px, 100% 2px,
+    25px 25px, 100% 100%, 100% 100%;
+  background-position:
+    0% 25px, 100% 0px, 25px 0%, 0px 100%,
+    0% 0%, 0px 0%, 100% 0px;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+/* =========================================================
+   HEADER TEXT
+   ========================================================= */
+.lobcorp .headertext {
+  color: var(--header-color);
+  text-shadow: 0 0 4px var(--header-glow), 0 0 8px var(--header-glow);
+  padding: 4px 8px 0 0;
+  font-size: 20px;
+  text-align: right;
+  font-family: "Norwester", Arial;
+}
+
+/* =========================================================
+   AGENT PANEL
+   ========================================================= */
+.lobcorp .agent {
+  width: 300px;
+  padding-bottom: 8px;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+.lobcorp .profile {
+  background-color: var(--panel-inner-bg);
+  margin: 8px;
+}
+.lobcorp .inner-profile   { padding: 8px 8px 4px 8px; }
+.lobcorp .profile-img     { border: none; }
+.lobcorp .charname        { margin: 8px 0 0 0; text-align: center; }
+.lobcorp hr               { margin: 2px 0; background: var(--hr-color); }
+.lobcorp .blurbsintext    { display: flex; justify-content: space-between; }
+
+/* =========================================================
+   POINT CONTAINERS (Health / Sanity / Sin)
+   ========================================================= */
+.lobcorp .point-container {
+  border: 1px solid var(--notched-border-color);
+  margin: 12px 12px 4px 12px;
+  text-align: center;
+  position: static;
+}
+.lobcorp .point-container label:first-child {
+  position: relative;
+  padding: 0 4px;
+  bottom: 12px;
+  font-size: 90%;
+  background-color: black;
+}
+.lobcorp .point-container div:has(.resource-counter) {
+  display: grid;
+  grid-template-columns: repeat(10, auto);
+  justify-content: start;
+  column-gap: 4px;
+  padding: 0 16.5px 2px 16.5px;
+}
+.lobcorp .point-container span:has(.resource-counter-step) { display: contents; }
+.lobcorp .point-container .resource-counter-step {
+  width: 20px; height: 20px;
+  position: relative; bottom: 7px;
+  margin: 2px 0;
+}
+.lobcorp .pale {
+  background-color: var(--system-dark-color-4);
+  opacity: 25%;
+}
+
+/* ── Sin Points ─────────────────────────────────────────── */
+.lobcorp .sin-max-input {
+  width: 28px;
+  background: transparent;
+  border: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  font-size: 11px;
+  text-align: center;
+  padding: 0;
+}
+.lobcorp .sin-tracker {
+  padding: 0 16.5px 2px 16.5px;
+}
+.lobcorp .sin-pip-track {
+  display: flex;
+  gap: 3px;
+  justify-content: flex-start;
+  padding-bottom: 8px;
+}
+.lobcorp .sin-pip {
+  width: 20px; height: 20px;
+  background-color: #1a1a12;
+  border: 1px solid var(--sin-active-color);
+  display: inline-block;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  width: 20px; height: 20px;
+  position: relative;
+  bottom: 7px;
+  margin: 2px 0;
+}
+.lobcorp .sin-pip.active {
+  background-color: var(--sin-active-color);
+  box-shadow: 0 0 4px var(--sin-active-color);
+}
+.lobcorp .sin-pip:hover {
+  background-color: color-mix(in srgb, var(--sin-active-color) 40%, transparent);
+}
+.lobcorp .sin-minus,
+.lobcorp .sin-plus {
+  color: var(--main-text-color);
+  font-size: 11px;
+}
+
+/* =========================================================
+   STATUS EFFECTS
+   ========================================================= */
+.lobcorp .stat-panel-section { margin: 8px 12px; }
+.lobcorp .resource-header    { font-size: 90%; color: var(--header-color); }
+.lobcorp .stats-container    { font-size: 90%; }
+
+/* =========================================================
+   COMBAT PANEL
+   ========================================================= */
+.lobcorp .combat-panel {
+  padding: 0 12px 12px 12px;
+  display: flex;
+  flex-direction: column;
+}
+.lobcorp .combat-skills-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  flex: 1;
+  padding: 4px 0;
+}
+.lobcorp .combat-skill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 1px solid var(--notched-border-color);
+  padding-left: 10px;
+  min-width: 0;
+}
+.lobcorp .combat-skill:first-child { border-left: none; padding-left: 0; }
+
+.lobcorp .combat-skill-image {
+  cursor: pointer;
+}
+.lobcorp .combat-skill-image img {
+  width: 100%;
+  max-width: 120px;
+  height: 100px;
+  object-fit: cover;
+  border: 1px solid var(--notched-border-color);
+  display: block;
+}
+.lobcorp .combat-skill-header {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.lobcorp .skill-index {
+  font-size: 12px;
+  color: var(--main-text-color);
+  opacity: 0.7;
+}
+.lobcorp .skill-title {
+  font-family: "Norwester", Arial;
+  font-size: 20px;
+  color: var(--header-color);
+  text-shadow: 0 0 3px var(--header-glow);
+}
+.lobcorp .combat-skill-summary {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--main-text-color);
+  opacity: 0.8;
+  border-left: 2px solid var(--notched-border-color);
+  padding-left: 6px;
+  margin: 2px 0;
+}
+.lobcorp .combat-skill-desc {
+  font-size: 13px;
+  color: var(--main-text-color);
+  line-height: 1.4;
+  overflow-y: auto;
+  max-height: 160px;
+}
+.lobcorp .combat-skill-controls {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: auto;
+}
+.lobcorp .combat-skills-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0.5;
+  font-size: 13px;
+}
+.lobcorp .combat-add-btn {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  padding: 2px 4px;
+  color: var(--main-text-color);
+  cursor: pointer;
+  margin-top: 4px;
+}
+.lobcorp .combat-add-btn:hover { color: var(--header-color); }
+
+/* =========================================================
+   RIGHT PANEL
+   ========================================================= */
+.lobcorp .right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 8px 8px 8px;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+
+/* Resistance section */
+.lobcorp .resistance-section {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--notched-border-color);
+  padding-bottom: 8px;
+}
+.lobcorp .agent-silhouette { flex: 0 0 auto; }
+.lobcorp .silhouette-img {
+  width: 72px; height: 90px;
+  object-fit: cover;
+  object-position: top;
+  filter: grayscale(60%) brightness(0.7);
+  border: 1px solid var(--notched-border-color);
+}
+.lobcorp .resistance-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  font-size: 13px;
+}
+.lobcorp .resist-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lobcorp .resist-row select,
+.lobcorp .resist-row span {
+  font-size: 12px;
+  color: var(--main-text-color);
+  background: transparent;
+  border: none;
+}
+.lobcorp .resist-row select {
+  border-bottom: 1px solid var(--notched-border-color);
+  cursor: pointer;
+}
+
+/* RP entry cards */
+.lobcorp .rp-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+.lobcorp .rp-entry {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.lobcorp .rp-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--notched-border-color);
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+}
+.lobcorp .rp-type {
+  font-size: 11px;
+  color: var(--main-text-color);
+  opacity: 0.65;
+  font-family: "Norwester", Arial;
+  letter-spacing: 0.5px;
+}
+.lobcorp .rp-name {
+  color: var(--header-color);
+  font-size: 12px;
+  flex: 1;
+  text-align: right;
+}
+.lobcorp .rp-name-input input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--notched-border-color);
+  color: var(--header-color);
+  font-size: 12px;
+  width: 100%;
+  text-align: right;
+}
+.lobcorp .rp-desc {
+  font-size: 11px;
+  color: var(--main-text-color);
+  line-height: 1.4;
+  opacity: 0.85;
+}
+.lobcorp .rp-desc-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  font-size: 11px;
+  font-family: "GillSansMT", Arial;
+  resize: vertical;
+  min-height: 44px;
+  padding: 2px 4px;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   STATS AND TRAITS PANEL
+   ========================================================= */
+.lobcorp .stats-panel {
+  padding: 0 10px 12px 10px;
+}
+.lobcorp .stats-groups {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+.lobcorp .attr-group {
+  flex: 1;
+  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Group icon */
+.lobcorp .attr-group-icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+.lobcorp .attr-group[data-group="physical"] .attr-group-icon { color: #da4c33; }
+.lobcorp .attr-group[data-group="social"]   .attr-group-icon { color: #9c69b2; }
+.lobcorp .attr-group[data-group="mental"]   .attr-group-icon { color: #56b4c9; }
+
+/* Attribute rows */
+.lobcorp .attr-group-attrs { width: 100%; }
+.lobcorp .attr-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 3px 0;
+  font-size: 13px;
+}
+.lobcorp .attr-name { flex: 1; white-space: nowrap; }
+.lobcorp .attr-dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.lobcorp .attr-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--notched-border-color);
+  background-color: var(--dot-empty);
+  display: inline-block;
+}
+.lobcorp .attr-dot.filled {
+  background-color: var(--dot-filled);
+  border-color: var(--dot-filled);
+  box-shadow: 0 0 2px var(--dot-filled);
+}
+.lobcorp .attr-edit-btn {
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  margin-left: 2px;
+}
+.lobcorp .attr-row:hover .attr-edit-btn { opacity: 0.7; }
+
+/* Group Roman rating */
+.lobcorp .attr-group-rating {
+  font-family: "Norwester", Arial;
+  font-size: 22px;
+  color: var(--header-color);
+  text-shadow: 0 0 3px var(--header-glow);
+  margin-top: 6px;
+}
+
+/* =========================================================
+   SKILLS AND TALENTS PANEL
+   ========================================================= */
+.lobcorp .skills-panel {
+  padding: 0 10px 12px 10px;
+}
+.lobcorp .skills-columns {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  padding-top: 4px;
+}
+.lobcorp .skill-group-col {
+  flex: 1;
+  min-width: 0;
+}
+.lobcorp .skill-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(95, 93, 68, 0.3);
+}
+.lobcorp .skill-name {
+  flex: 0 0 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lobcorp .skill-specialty {
+  flex: 1;
+  min-width: 0;
+}
+.lobcorp .skill-spec-text {
+  font-size: 11px;
+  color: var(--header-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.lobcorp .skill-spec-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--notched-border-color);
+  color: var(--header-color);
+  font-size: 11px;
+  font-family: "GillSansMT", Arial;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+.lobcorp .skill-spec-input::placeholder { color: rgba(163,160,117,0.3); }
+.lobcorp .skill-dots {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.lobcorp .skill-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--notched-border-color);
+  background-color: var(--dot-empty);
+  display: inline-block;
+}
+.lobcorp .skill-dot.filled {
+  background-color: var(--dot-filled);
+  border-color: var(--dot-filled);
+}
+
+/* =========================================================
+   LOCK BUTTON
+   ========================================================= */
+.lobcorp .lock-btn {
+  position: absolute;
+  top: 6px; right: 6px;
+  background: transparent;
+  border: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.lobcorp .lock-btn:hover { color: var(--header-color); }
+
+/* =========================================================
+   FORM INPUTS — global overrides for all text inputs
+   ========================================================= */
+.lobcorp input[type="text"],
+.lobcorp input[type="number"],
+.lobcorp select {
+  background: transparent;
+  color: var(--main-text-color);
+  border-color: var(--notched-border-color);
+}
+.lobcorp select option { background: #1a1a10; }
