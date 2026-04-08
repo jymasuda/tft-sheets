@@ -240,6 +240,7 @@
           <img src="{{img}}" class="silhouette-img" alt="" />
         </div>
         <div class="resistance-list">
+          {{#each (array 1 2 3 4) as |n|}}
             <div class="resist-row">
               <span class="resist-icon-wrap">
                 {{#if locked}}
@@ -249,6 +250,7 @@
                 {{/if}}
               </span>
             </div>
+          {{/each}}
           {{!-- Fallback if #each array helper is not available --}}
         </div>
       </div>
