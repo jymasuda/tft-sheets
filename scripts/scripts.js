@@ -47,17 +47,11 @@ export const inputCreate = async function (
   const value = doc.getFlag(scope, key) ?? defaultValue;
   const name = `flags.${scope}.${key}`;
 
-  // ── LOCKED path ─────────────────────────────────────────────────────────
-  // unlockTarget is explicitly passed as null to signal "locked mode"
   if (unlockTarget == null) {
-    if (!lockTarget) return;          // guard: element missing from DOM
     lockTarget.insertAdjacentText("afterbegin", value);
     if (key === "sinFlag") lockTarget.classList.add(value);
     return;
   }
-
-  // ── UNLOCKED path ────────────────────────────────────────────────────────
-  if (!unlockTarget) return;          // guard: element missing from DOM
 
   if (selectOptions !== undefined) {
     const arrayOptions = Object.entries(selectOptions).map(([v, l]) => ({ value: v, label: l }));
@@ -133,7 +127,7 @@ export const sinPointsRender = async function (app, html) {
 };
 
 // ---------------------------------------------------------------------------
-// _updateRpEntry — patch one entry inside the rpEntries flag array
+// updateRpEntry — patch one entry inside the rpEntries flag array
 // ---------------------------------------------------------------------------
 export const updateRpEntry = async function (app, id, changes) {
   const scope   = "tft-sheets";
@@ -161,7 +155,7 @@ export const prepareBaseContext = async function (context, actor) {
   context.customRolls      = actorData.customRolls;
   context.conditions       = actorData.conditions;
 
-  // ── Processed attributes ───────────────────────────────────────────────
+  // ── Processed attributes (kept for backward compat) ───────────────────
   if (actorData.sortedAttributes) {
     context.processedAttributes = {};
     for (const [gKey, group] of Object.entries(actorData.sortedAttributes)) {
@@ -202,8 +196,8 @@ export const prepareBaseContext = async function (context, actor) {
     }));
 
   // ── RP entries (dynamic array) ────────────────────────────────────────
-  context.rpEntries  = actor.getFlag(scope, "rpEntries") ?? [];
-  context.rpTypes    = RP_TYPES;           // full type list for the select
+  context.rpEntries = actor.getFlag(scope, "rpEntries") ?? [];
+  context.rpTypes   = RP_TYPES;
 
   // ── Resistance ratings ────────────────────────────────────────────────
   const f = (key, def = "") => actor.getFlag(scope, key) ?? def;
@@ -217,7 +211,6 @@ export const prepareBaseContext = async function (context, actor) {
   context.resistBlack = f("resistBlack", "Normal");
   context.resistPale  = f("resistPale",  "Normal");
 
-  // ── Icon paths ────────────────────────────────────────────────────────
   // ── Damage-type icon paths ────────────────────────────────────────────
   context.iconSlash  = f("iconSlash",  "https://limbuscompany.wiki.gg/images/Slash.png?f764b5&format=original");
   context.iconPierce = f("iconPierce", "https://limbuscompany.wiki.gg/images/Pierce.png?1111a2&format=original");
@@ -236,6 +229,79 @@ export const prepareBaseContext = async function (context, actor) {
 
   // ── Lock state ─────────────────────────────────────────────────────────
   context.locked = actor.getFlag(scope, "sheetLocked") ?? false;
+
+  // ── Stat Groups (Fortitude / Prudence / Temperance / Justice) ─────────
+  //
+  // Each group object:
+  //   key         — DOM identifier / data-group value
+  //   label       — display name shown as the title
+  //   color       — accent colour (hex string)
+  //   iconFlag    — flag key that stores the user-chosen icon path
+  //   iconSrc     — resolved flag value (empty = use defaultIcon)
+  //   defaultIcon — fallback Foundry icon if none assigned yet
+  //   attributes  — array of { key, displayName, value, isSystem }
+  //   rating      — count of attrs at value ≥ 3
+  //   romanRating — Roman-numeral string for rating
+  //   isSystem    — true = uses WoD5E editAttribute action; false = flag-based
+
+  const buildSystemGroup = (srcKey, label, limit, color, iconFlag, defaultIcon) => {
+    const group = actorData.sortedAttributes?.[srcKey];
+    if (!group) return null;
+    const attrs = group.attributes || {};
+    const entries = Object.entries(attrs)
+      .map(([k, v]) => ({
+        key:         k,
+        displayName: v.displayName ?? k,
+        value:       v.value ?? 0,
+        isSystem:    true,
+      }))
+      .slice(0, limit);
+    const rating = entries.filter(a => a.value >= 3).length;
+    return {
+      key:         srcKey,
+      label,
+      color,
+      iconFlag,
+      iconSrc:     f(iconFlag, ""),
+      defaultIcon,
+      attributes:  entries,
+      rating,
+      romanRating: toRoman(rating),
+      isSystem:    true,
+    };
+  };
+
+  // Justice — two fully custom attributes stored as flags
+  const j1name  = f("justiceAttr1Name", "Attribute 1");
+  const j2name  = f("justiceAttr2Name", "Attribute 2");
+  const j1val   = Number(actor.getFlag(scope, "justiceAttr1Val") ?? 0);
+  const j2val   = Number(actor.getFlag(scope, "justiceAttr2Val") ?? 0);
+  const jEntry1 = { key: "justiceAttr1", displayName: j1name, value: j1val, isSystem: false };
+  const jEntry2 = { key: "justiceAttr2", displayName: j2name, value: j2val, isSystem: false };
+  const jEntries = [jEntry1, jEntry2];
+  const jRating  = jEntries.filter(a => a.value >= 3).length;
+
+  const justiceGroup = {
+    key:         "justice",
+    label:       "Justice",
+    color:       "#56b4c9",
+    iconFlag:    "iconJustice",
+    iconSrc:     f("iconJustice", ""),
+    defaultIcon: "https://lobotomycorporation.wiki.gg/images/JusticeIcon.png?ab29a4",
+    attributes:  jEntries,
+    rating:      jRating,
+    romanRating: toRoman(jRating),
+    isSystem:    false,
+  };
+
+  // Display order: Fortitude (top-left), Prudence (top-right),
+  //                Temperance (bottom-left), Justice (bottom-right)
+  context.statGroups = [
+    buildSystemGroup("physical", "Fortitude",  2, "#da4c33", "iconFortitude",  "https://lobotomycorporation.wiki.gg/images/FortitudeIcon.png?9dcd99"),
+    buildSystemGroup("mental",   "Prudence",   2, "#e8e8d8", "iconPrudence",   "https://lobotomycorporation.wiki.gg/images/PrudenceIcon.png?f10fb2"),
+    buildSystemGroup("social",   "Temperance", 3, "#9c69b2", "iconTemperance", "https://lobotomycorporation.wiki.gg/images/TemperanceIcon.png?b942c9"),
+    justiceGroup,
+  ].filter(Boolean);
 
   return context;
 };
