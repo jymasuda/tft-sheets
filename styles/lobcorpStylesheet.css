@@ -336,49 +336,70 @@
   max-height: calc(100vh - 120px);
 }
 
-/* Resistance section */
+/* =========================================================
+   RESISTANCE SECTION — TWO COLUMNS
+   ========================================================= */
 .lobcorp .resistance-section {
   display: flex;
   flex-direction: row;
   gap: 8px;
+  align-items: flex-start;
   margin-bottom: 6px;
   border-bottom: 1px solid var(--notched-border-color);
   padding-bottom: 8px;
+}
+
+.lobcorp .resist-col-header {
+  font-family: "Norwester", Arial;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--header-color);
+  text-shadow: 0 0 3px var(--header-glow);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.lobcorp .resist-divider {
+  width: 1px;
+  align-self: stretch;
+  background-color: var(--notched-border-color);
+  margin: 16px 0 0;
+  opacity: 0.5;
+}
+
+/* Shared label */
+.lobcorp .resist-label {
   flex: 0 0 42px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--main-text-color);
   opacity: 0.75;
 }
-.lobcorp .agent-silhouette { flex: 0 0 auto; }
-.lobcorp .silhouette-img {
-  width: 72px; height: 90px;
-  object-fit: cover;
-  object-position: top;
-  filter: grayscale(60%) brightness(0.7);
-  border: 1px solid var(--notched-border-color);
+
+/* Colour damage column — slightly wider to fit icon */
+.lobcorp .resistance-list--color .resist-row {
+  gap: 4px;
 }
-.lobcorp .resistance-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  font-size: 13px;
-}
-.lobcorp .resist-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.lobcorp .resist-row select,
-.lobcorp .resist-row span {
-  font-size: 12px;
-  color: var(--main-text-color);
-  background: transparent;
+
+/* Colour name labels inherit sin-type colours */
+.lobcorp .resist-label--color.RED   { color: #da4c33; opacity: 1; }
+.lobcorp .resist-label--color.WHITE { color: #e8e8d8; opacity: 1; }
+.lobcorp .resist-label--color.BLACK { color: #9c69b2; opacity: 1; }
+.lobcorp .resist-label--color.PALE  { color: #56b4c9; opacity: 1; }
+
+/* Icon placeholder — swap src in HBS when you have your assets */
+.lobcorp .dmg-type-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: brightness(0.7) sepia(1) saturate(0.6);
   border: none;
 }
-.lobcorp .resist-row select {
-  border-bottom: 1px solid var(--notched-border-color);
-  cursor: pointer;
+
+/* Tighten selects inside the colour column */
+.lobcorp .resistance-list--color select {
+  font-size: 10px;
+  max-width: 62px;
 }
 
 /* RP entry cards */

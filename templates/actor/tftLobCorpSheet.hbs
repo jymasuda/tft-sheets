@@ -240,39 +240,107 @@
     <img src="{{img}}" class="silhouette-img" alt="" />
   </div>
 
+  {{!-- Column 1 : physical damage types --}}
   <div class="resistance-list">
+    <div class="resist-col-header">Physical</div>
 
-    {{!-- Row 1 : Slash --}}
     <div class="resist-row">
       <span class="resist-label">Slash</span>
       {{#if locked}}
-        <span class="resist-display-1">{{resist1}}</span>
+        <span class="resist-display-1"></span>
       {{else}}
         <span class="resist-input-1"></span>
       {{/if}}
     </div>
 
-    {{!-- Row 2 : Pierce --}}
     <div class="resist-row">
       <span class="resist-label">Pierce</span>
       {{#if locked}}
-        <span class="resist-display-2">{{resist2}}</span>
+        <span class="resist-display-2"></span>
       {{else}}
         <span class="resist-input-2"></span>
       {{/if}}
     </div>
 
-    {{!-- Row 3 : Blunt --}}
     <div class="resist-row">
       <span class="resist-label">Blunt</span>
       {{#if locked}}
-        <span class="resist-display-3">{{resist3}}</span>
+        <span class="resist-display-3"></span>
       {{else}}
         <span class="resist-input-3"></span>
       {{/if}}
     </div>
 
-  </div>{{!-- /resistance-list --}}
+  </div>{{!-- /resistance-list col-1 --}}
+
+  {{!-- Divider --}}
+  <div class="resist-divider"></div>
+
+  {{!-- Column 2 : colour damage types --}}
+  <div class="resistance-list resistance-list--color">
+    <div class="resist-col-header">Damage</div>
+
+    {{!-- RED --}}
+    <div class="resist-row">
+      <img
+        class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+        src="{{#if iconRed}}{{iconRed}}{{else}}icons/svg/blood.svg{{/if}}"
+        data-icon-flag="iconRed"
+        alt="RED" title="{{#unless locked}}Click to change icon{{/unless}}" />
+      <span class="resist-label resist-label--color RED">RED</span>
+      {{#if locked}}
+        <span class="resist-display-red"></span>
+      {{else}}
+        <span class="resist-input-red"></span>
+      {{/if}}
+    </div>
+
+    {{!-- WHITE --}}
+    <div class="resist-row">
+      <img
+        class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+        src="{{#if iconWhite}}{{iconWhite}}{{else}}icons/svg/ice-aura.svg{{/if}}"
+        data-icon-flag="iconWhite"
+        alt="WHITE" title="{{#unless locked}}Click to change icon{{/unless}}" />
+      <span class="resist-label resist-label--color WHITE">WHITE</span>
+      {{#if locked}}
+        <span class="resist-display-white"></span>
+      {{else}}
+        <span class="resist-input-white"></span>
+      {{/if}}
+    </div>
+
+    {{!-- BLACK --}}
+    <div class="resist-row">
+      <img
+        class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+        src="{{#if iconBlack}}{{iconBlack}}{{else}}icons/svg/dread.svg{{/if}}"
+        data-icon-flag="iconBlack"
+        alt="BLACK" title="{{#unless locked}}Click to change icon{{/unless}}" />
+      <span class="resist-label resist-label--color BLACK">BLACK</span>
+      {{#if locked}}
+        <span class="resist-display-black"></span>
+      {{else}}
+        <span class="resist-input-black"></span>
+      {{/if}}
+    </div>
+
+    {{!-- PALE --}}
+    <div class="resist-row">
+      <img
+        class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+        src="{{#if iconPale}}{{iconPale}}{{else}}icons/svg/skull.svg{{/if}}"
+        data-icon-flag="iconPale"
+        alt="PALE" title="{{#unless locked}}Click to change icon{{/unless}}" />
+      <span class="resist-label resist-label--color PALE">PALE</span>
+      {{#if locked}}
+        <span class="resist-display-pale"></span>
+      {{else}}
+        <span class="resist-input-pale"></span>
+      {{/if}}
+    </div>
+
+  </div>{{!-- /resistance-list col-2 --}}
 </div>{{!-- /resistance-section --}}
 			{{!-- Right panel entries --}}
       <div class="rp-entries">

@@ -195,5 +195,16 @@ export const prepareBaseContext = async function (context, actor) {
   context.sinCurrent = actor.getFlag(scope, "sinCurrent") ?? 0;
   context.sinMax     = actor.getFlag(scope, "sinMax")     ?? 10;
 
+  // Colour damage resistance ratings
+  context.resistRed   = f("resistRed",   "Normal");
+  context.resistWhite = f("resistWhite", "Normal");
+  context.resistBlack = f("resistBlack", "Normal");
+  context.resistPale  = f("resistPale",  "Normal");
+
+  // Colour damage icon paths (empty = fallback SVG in HBS)
+  context.iconRed   = f("iconRed",   "");
+  context.iconWhite = f("iconWhite", "");
+  context.iconBlack = f("iconBlack", "");
+  context.iconPale  = f("iconPale",  "");
   return context;
 };

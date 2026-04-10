@@ -26,6 +26,16 @@ const RESIST_OPTIONS = {
 };
 
 // ---------------------------------------------------------------------------
+// Colour damage rows: key → flag key for icon path
+// ---------------------------------------------------------------------------
+const COLOR_DAMAGE_ROWS = [
+  { color: "red",   flagKey: "resistRed",   iconFlag: "iconRed"   },
+  { color: "white", flagKey: "resistWhite", iconFlag: "iconWhite" },
+  { color: "black", flagKey: "resistBlack", iconFlag: "iconBlack" },
+  { color: "pale",  flagKey: "resistPale",  iconFlag: "iconPale"  },
+];
+
+// ---------------------------------------------------------------------------
 // Main render hook
 // ---------------------------------------------------------------------------
 Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
@@ -47,13 +57,40 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   // ── Sin points tracker ───────────────────────────────────────────────
   sinPointsRender(app, html);
 
-  // ── Right panel — resistance dropdowns ──────────────────────────────
+  // ── Right panel — physical resistance dropdowns (1-4) ────────────────
+  const physicalLabels = ["Slash", "Pierce", "Blunt", "Ego"];
   for (let n = 1; n <= 4; n++) {
     inputCreate(app, options, "base", `resist${n}`, "Normal",
       html.querySelector(`.resist-input-${n}`),
-      html.querySelector(`.resist-display-${n}`)
+      html.querySelector(`.resist-display-${n}`),
+      RESIST_OPTIONS   // ← was missing; was creating plain text inputs
     );
   }
+
+  // ── Right panel — colour damage resistance dropdowns ─────────────────
+  for (const { color, flagKey } of COLOR_DAMAGE_ROWS) {
+    const capColor = color.charAt(0).toUpperCase() + color.slice(1);
+    inputCreate(app, options, "base", `resist${capColor}`, "Normal",
+      html.querySelector(`.resist-input-${color}`),
+      html.querySelector(`.resist-display-${color}`),
+      RESIST_OPTIONS
+    );
+  }
+
+  // ── Colour damage icons — FilePicker on click (unlocked only) ────────
+  html.querySelectorAll(".dmg-type-icon.clickable").forEach(img => {
+    img.addEventListener("click", () => {
+      const { iconFlag } = img.dataset;
+      if (!iconFlag) return;
+      new FilePicker({
+        type:     "image",
+        current:  app.document.getFlag("tft-sheets", iconFlag) ?? "",
+        callback: async (path) => {
+          await app.document.setFlag("tft-sheets", iconFlag, path);
+        },
+      }).browse();
+    });
+  });
 
   // ── Right panel — named entry fields (EGO Gift, Ally Passive, etc.) ─
   const rpFields = [
@@ -69,8 +106,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     );
   }
 
-  // Description textareas are rendered directly in HBS; bind change events
-  // so they persist immediately without needing a full form submit.
+  // Description textareas persist immediately without a full form submit
   html.querySelectorAll(".rp-desc-textarea").forEach(ta => {
     ta.addEventListener("change", async () => {
       const flagKey = ta.dataset.flagKey;
@@ -78,19 +114,13 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Attribute dots — click to edit via system dialog ────────────────
-  // Dots are rendered in HBS; clicking the edit icon opens the system's
-  // built-in attribute dialog. No custom logic needed here — the system's
-  // squareCounterChange action handles it.
-
   // ── Skill specialty inputs — debounced save ──────────────────────────
   html.querySelectorAll(".skill-spec-input").forEach(input => {
     let debounce;
     input.addEventListener("input", () => {
       clearTimeout(debounce);
       debounce = setTimeout(() => {
-        // The input's name="system.skills.X.specialty" is submitted via
-        // the standard ApplicationV2 form handling on the next render.
+        // name="system.skills.X.specialty" handled by ApplicationV2 form
       }, 600);
     });
   });
