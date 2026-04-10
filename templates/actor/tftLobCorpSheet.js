@@ -4,6 +4,11 @@ import { prepareBaseContext } from "../../scripts/scripts.js";
 export class LobcorpHunter extends HunterActorSheet {
   static DEFAULT_OPTIONS = {
     classes: ["lobcorp"],
+    actions: {
+      // Spread parent actions so we don't accidentally drop any
+      ...HunterActorSheet.DEFAULT_OPTIONS?.actions,
+      toggleLock: LobcorpHunter.#onToggleLock,
+    },
   };
 
   static PARTS = {
@@ -12,15 +17,20 @@ export class LobcorpHunter extends HunterActorSheet {
     },
   };
 
+  // Private static — `this` inside is the sheet instance when called via data-action
+  static async #onToggleLock() {
+    const scope   = "tft-sheets";
+    const current = this.document.getFlag(scope, "sheetLocked") ?? false;
+    await this.document.setFlag(scope, "sheetLocked", !current);
+    // setFlag triggers a re-render automatically; context.locked is now read
+    // fresh from the flag in prepareBaseContext on every render.
+  }
+
   async _preparePartContext(partId, context, options) {
-    // Inherit base context from the parent WoD5e hunter sheet
     context = {
       ...(await super._preparePartContext(partId, context, options)),
     };
-
-    // Enrich with our custom context data
     await prepareBaseContext(context, this.actor);
-
     return context;
   }
 }

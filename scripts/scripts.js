@@ -228,5 +228,8 @@ export const prepareBaseContext = async function (context, actor) {
   context.sinCurrent = actor.getFlag(scope, "sinCurrent") ?? 0;
   context.sinMax     = actor.getFlag(scope, "sinMax")     ?? 10;
 
+  // ── Lock state ─────────────────────────────────────────────────────────
+  context.locked = actor.getFlag(scope, "sheetLocked") ?? false;
+
   return context;
 };

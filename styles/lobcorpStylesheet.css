@@ -439,13 +439,11 @@
    RP ENTRIES — inner scroll
    ========================================================= */
 .lobcorp .rp-entries {
-  flex: 1;
-  min-height: 0;          /* lets flex child shrink below content size */
+  max-height: 260px;   /* ← was flex: 1 with no cap */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  /* Thin custom scrollbar to match the dark theme */
   scrollbar-width: thin;
   scrollbar-color: var(--notched-border-color) transparent;
 }

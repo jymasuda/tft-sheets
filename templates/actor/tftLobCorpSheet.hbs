@@ -366,7 +366,7 @@
     <div class="rp-entry-header">
 
       {{!-- Type --}}
-      {{#if locked}}
+      {{#if ../locked}}
         <span class="rp-type">{{entry.type}}</span>
       {{else}}
         <select
@@ -380,7 +380,7 @@
       {{/if}}
 
       {{!-- Name --}}
-      {{#if locked}}
+      {{#if ../locked}}
         <span class="rp-name">{{entry.name}}</span>
       {{else}}
         <input
@@ -399,7 +399,7 @@
     </div>{{!-- /rp-entry-header --}}
 
     <div class="rp-body">
-      {{#if locked}}
+      {{#if ../locked}}
         <div class="rp-desc">{{entry.desc}}</div>
       {{else}}
         <textarea
@@ -446,7 +446,7 @@
 					<div class="attr-group-attrs">
 					{{#each group.attributes as |attr attrKey|}}
 						<div class="attr-row">
-						<span class="attr-name">{{attr.label}}</span>
+						<span class="attr-name">{{attr.displayName}}</span>
 						<div class="attr-dots">
 							{{#numLoop 5}}
 							<span class="attr-dot {{#if (lte this ../attr.value)}}filled{{/if}}"></span>
@@ -474,11 +474,11 @@
 		<div class="notched skills-panel">
 			<div class="headertext">Skills and Talents</div>
 			<div class="skills-columns">
-				{{#each processedSkills as |group key|}}
+				{{#each sortedSkills as |type key|}}
 				<div class="skill-group-col" data-group="{{key}}">
-					{{#each group.skills as |skill skillKey|}}
+					{{#each type as |skill skillKey|}}
 					<div class="skill-row">
-						<span class="skill-name">{{skill.label}}</span>
+						<span class="skill-name">{{skill.displayName}}</span>
 						<div class="skill-specialty">
 						{{#if locked}}
 							<span class="skill-spec-text">{{skill.specialty}}</span>
