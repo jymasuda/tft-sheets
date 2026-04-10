@@ -423,61 +423,91 @@
 {{/unless}}	
 		</div>
 
-		{{!-- ═══════════════════════════════════════════════════════════
-		     STATS AND TRAITS PANEL — four-virtue 2×2 grid
-		     Attributes are assigned in scripts.js › prepareBaseContext:
-		       Fortitude  = physical[0,1]           (red)
-		       Prudence   = mental[0,1]             (white/amber)
-		       Temperance = social[0,1,2]           (purple)
-		       Justice    = physical[2] + mental[2] (cyan)
-		     To change which attrs belong to each virtue, edit the
-		     indices arrays in the buildCategory calls there.
-		     ═══════════════════════════════════════════════════════════ --}}
-		<div class="notched stats-panel">
-			<div class="headertext">Stats and Traits</div>
-			<div class="stats-groups">
+{{!-- ═══════════════════════════════════════════════════════════
+     STATS AND TRAITS PANEL
+     ═══════════════════════════════════════════════════════════ --}}
+<div class="notched stats-panel">
+    <div class="headertext">Stats and Traits</div>
+    <div class="stats-groups">
 
-				{{#each statCategories as |cat catKey|}}
-				<div class="stat-category stat-category--{{cat.color}}">
+        {{#each statGroups as |cat|}}
+        <div class="stat-category stat-category--{{cat.color}}">
 
-					{{!-- ── Left: swappable icon + Roman numeral rating ── --}}
-					<div class="stat-cat-icon-wrap">
-						<img
-							class="stat-cat-icon {{#unless ../locked}}clickable{{/unless}}"
-							src="{{#if cat.icon}}{{cat.icon}}{{else}}icons/svg/d20-grey.svg{{/if}}"
-							data-icon-flag="{{cat.iconFlag}}"
-							alt="{{cat.label}}"
-							title="{{#unless ../locked}}Click to change icon{{/unless}}" />
-						<div class="stat-cat-rating stat-cat-rating--{{cat.color}}">{{cat.romanRating}}</div>
-					</div>
+            {{!-- ── Left: icon + Roman numeral ── --}}
+            <div class="stat-cat-icon-wrap">
+                <img
+                    class="stat-cat-icon {{#unless ../locked}}clickable{{/unless}}"
+                    src="{{#if cat.iconSrc}}{{cat.iconSrc}}{{else}}{{cat.defaultIcon}}{{/if}}"
+                    data-icon-flag="{{cat.iconFlag}}"
+                    alt="{{cat.label}}"
+                    title="{{#unless ../locked}}Click to change icon{{/unless}}" />
+                <div class="stat-cat-rating stat-cat-rating--{{cat.color}}">{{cat.romanRating}}</div>
+            </div>
 
-					{{!-- ── Right: virtue label + attribute rows ── --}}
-					<div class="stat-cat-attrs">
-						<div class="stat-cat-label stat-cat-label--{{cat.color}}">{{cat.label}}</div>
+            {{!-- ── Right: virtue label + attribute rows ── --}}
+            <div class="stat-cat-attrs">
+                <div class="stat-cat-label stat-cat-label--{{cat.color}}">{{cat.label}}</div>
 
-						{{#each cat.attributes as |attr attrKey|}}
-						<div class="attr-row">
-							<span class="attr-name">{{attr.displayName}}</span>
-							<div class="attr-dots">
-								{{#numLoop 5}}
-								<span class="attr-dot {{#if (lte this ../attr.value)}}filled filled--{{../../cat.color}}{{/if}}"></span>
-								{{/numLoop}}
-								{{#unless ../../locked}}
-								<i class="fas fa-caret-right attr-edit-btn clickable"
-									data-action="editAttribute"
-									data-attribute="{{attrKey}}"
-									title="Edit {{attr.displayName}}"></i>
-								{{/unless}}
-							</div>
-						</div>
-						{{/each}}
-					</div>
+                {{#each cat.attributes as |attr|}}
+                <div class="attr-row">
 
-				</div>
-				{{/each}}
+                    {{#if attr.isSystem}}
+                        {{!-- System attr: rollable label --}}
+                        <span
+                            class="attr-name system-rollable"
+                            data-action="attributeRoll"
+                            data-attribute="{{attr.key}}"
+                            title="Roll {{attr.displayName}}">
+                            {{attr.displayName}}
+                        </span>
+                    {{else}}
+                        {{!-- Justice: editable name or locked display --}}
+                        {{#if ../../locked}}
+                            <span class="attr-name">{{attr.displayName}}</span>
+                        {{else}}
+                            <input
+                                class="attr-name justice-name-input"
+                                type="text"
+                                data-name-flag="{{attr.key}}Name"
+                                value="{{attr.displayName}}"
+                                placeholder="Attribute…" />
+                        {{/if}}
+                    {{/if}}
 
-			</div>
-   		</div>{{!-- /stats-panel --}}
+                    <div class="attr-dots">
+                        {{!-- numLoop: this = 1…5, ../ = attr scope --}}
+                        {{#numLoop 5}}
+                            <span
+                                class="attr-dot {{#if (lte this ../value)}}filled filled--{{../../color}}{{/if}}{{#unless ../../../../locked}}{{#unless ../isSystem}} justice-dot{{/unless}}{{/unless}}"
+                                {{#unless ../../../../locked}}
+                                    {{#unless ../isSystem}}
+                                        data-val-flag="{{../key}}Val"
+                                        data-dot-index="{{this}}"
+                                    {{/unless}}
+                                {{/unless}}
+                            ></span>
+                        {{/numLoop}}
+
+                        {{!-- Edit caret — system attrs only, unlocked only --}}
+                        {{#unless ../../locked}}
+                            {{#if attr.isSystem}}
+                                <i class="fas fa-caret-right attr-edit-btn clickable"
+                                    data-action="editAttribute"
+                                    data-attribute="{{attr.key}}"
+                                    title="Edit {{attr.displayName}}"></i>
+                            {{/if}}
+                        {{/unless}}
+                    </div>
+
+                </div>
+                {{/each}}
+
+            </div>
+        </div>
+        {{/each}}
+
+    </div>
+</div>{{!-- /stats-panel --}}
 
 		<div class="notched skills-panel">
 			<div class="headertext">Skills and Talents</div>

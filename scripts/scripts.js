@@ -232,31 +232,35 @@ export const prepareBaseContext = async function (context, actor) {
 
   // ── Stat Groups (Fortitude / Prudence / Temperance / Justice) ─────────
   //
-  // Each group object:
-  //   key         — DOM identifier / data-group value
-  //   label       — display name shown as the title
-  //   color       — accent colour (hex string)
-  //   iconFlag    — flag key that stores the user-chosen icon path
-  //   iconSrc     — resolved flag value (empty = use defaultIcon)
-  //   defaultIcon — fallback Foundry icon if none assigned yet
+  // We pull attribute rows directly from actorData.sortedAttributes so the
+  // structure matches exactly what WoD5E exposes — no intermediate mapping.
+  // Each group object has:
+  //   key, label, color, iconFlag, iconSrc, defaultIcon
   //   attributes  — array of { key, displayName, value, isSystem }
-  //   rating      — count of attrs at value ≥ 3
-  //   romanRating — Roman-numeral string for rating
-  //   isSystem    — true = uses WoD5E editAttribute action; false = flag-based
+  //   rating      — highest single attribute value in this group
+  //   romanRating — Roman numeral of rating
 
-  const buildSystemGroup = (srcKey, label, limit, color, iconFlag, defaultIcon) => {
+  const buildSystemGroup = (srcKey, indices, label, color, iconFlag, defaultIcon) => {
     const group = actorData.sortedAttributes?.[srcKey];
     if (!group) return null;
-    const attrs = group.attributes || {};
-    const entries = Object.entries(attrs)
+
+    // sortedAttributes[srcKey] is the group object; its attributes live
+    // directly as named properties (strength, dexterity, etc.) — NOT under
+    // a nested .attributes key. We sort by the order WoD5E provides them.
+    const rawAttrs = group.attributes ?? group;
+    const allEntries = Object.entries(rawAttrs)
+      .filter(([k]) => k !== "label")      // skip non-attr metadata keys
       .map(([k, v]) => ({
         key:         k,
-        displayName: v.displayName ?? k,
-        value:       v.value ?? 0,
+        displayName: v.displayName ?? v.label ?? k,
+        value:       Number(v.value ?? 0),
         isSystem:    true,
-      }))
-      .slice(0, limit);
-    const rating = entries.filter(a => a.value >= 3).length;
+      }));
+
+    // indices = which entries to pick (e.g. [0,1] for Fortitude from physical)
+    const entries = indices.map(i => allEntries[i]).filter(Boolean);
+    const rating  = entries.reduce((max, a) => Math.max(max, a.value), 0);
+
     return {
       key:         srcKey,
       label,
@@ -271,20 +275,21 @@ export const prepareBaseContext = async function (context, actor) {
     };
   };
 
-  // Justice — two fully custom attributes stored as flags
+  // Justice — two fully custom flag-based attributes
   const j1name  = f("justiceAttr1Name", "Attribute 1");
   const j2name  = f("justiceAttr2Name", "Attribute 2");
   const j1val   = Number(actor.getFlag(scope, "justiceAttr1Val") ?? 0);
   const j2val   = Number(actor.getFlag(scope, "justiceAttr2Val") ?? 0);
-  const jEntry1 = { key: "justiceAttr1", displayName: j1name, value: j1val, isSystem: false };
-  const jEntry2 = { key: "justiceAttr2", displayName: j2name, value: j2val, isSystem: false };
-  const jEntries = [jEntry1, jEntry2];
-  const jRating  = jEntries.filter(a => a.value >= 3).length;
+  const jEntries = [
+    { key: "justiceAttr1", displayName: j1name, value: j1val, isSystem: false },
+    { key: "justiceAttr2", displayName: j2name, value: j2val, isSystem: false },
+  ];
+  const jRating = Math.max(j1val, j2val);
 
   const justiceGroup = {
     key:         "justice",
     label:       "Justice",
-    color:       "#56b4c9",
+    color:       "cyan",
     iconFlag:    "iconJustice",
     iconSrc:     f("iconJustice", ""),
     defaultIcon: "https://lobotomycorporation.wiki.gg/images/JusticeIcon.png?ab29a4",
@@ -294,12 +299,14 @@ export const prepareBaseContext = async function (context, actor) {
     isSystem:    false,
   };
 
-  // Display order: Fortitude (top-left), Prudence (top-right),
-  //                Temperance (bottom-left), Justice (bottom-right)
+  // indices select which attrs from the WoD5E sorted list belong to each virtue.
+  // Physical: [strength, dexterity, stamina] → Fortitude = [0,1] (strength, dexterity)
+  // Mental:   [intelligence, wits, resolve]  → Prudence   = [0,1] (intelligence, wits)
+  // Social:   [charisma, manipulation, composure] → Temperance = [0,1,2] (all three)
   context.statGroups = [
-    buildSystemGroup("physical", "Fortitude",  2, "#da4c33", "iconFortitude",  "https://lobotomycorporation.wiki.gg/images/FortitudeIcon.png?9dcd99"),
-    buildSystemGroup("mental",   "Prudence",   2, "#e8e8d8", "iconPrudence",   "https://lobotomycorporation.wiki.gg/images/PrudenceIcon.png?f10fb2"),
-    buildSystemGroup("social",   "Temperance", 3, "#9c69b2", "iconTemperance", "https://lobotomycorporation.wiki.gg/images/TemperanceIcon.png?b942c9"),
+    buildSystemGroup("physical", [0, 1],    "Fortitude",  "red",    "iconFortitude",  "https://lobotomycorporation.wiki.gg/images/FortitudeIcon.png?9dcd99"),
+    buildSystemGroup("mental",   [0, 1],    "Prudence",   "white",  "iconPrudence",   "https://lobotomycorporation.wiki.gg/images/PrudenceIcon.png?f10fb2"),
+    buildSystemGroup("social",   [0, 1, 2], "Temperance", "purple", "iconTemperance", "https://lobotomycorporation.wiki.gg/images/TemperanceIcon.png?b942c9"),
     justiceGroup,
   ].filter(Boolean);
 

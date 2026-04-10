@@ -71,11 +71,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     );
   }
 
-  // ── Armor title ───────────────────────────────────────────────────────
-  inputCreate(app, options, "base", "armorTitle", "",
-    html.querySelector(".armor-title-input"),
-    html.querySelector(".armor-title-display")
-  );
 
   // ── All changeable icons (damage types AND stat group icons) ──────────
   html.querySelectorAll(".dmg-type-icon.clickable, .stat-group-icon.clickable").forEach(img => {
