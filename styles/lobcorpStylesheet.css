@@ -344,6 +344,10 @@
   margin-bottom: 6px;
   border-bottom: 1px solid var(--notched-border-color);
   padding-bottom: 8px;
+  flex: 0 0 42px;
+  font-size: 12px;
+  color: var(--main-text-color);
+  opacity: 0.75;
 }
 .lobcorp .agent-silhouette { flex: 0 0 auto; }
 .lobcorp .silhouette-img {

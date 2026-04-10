@@ -235,25 +235,45 @@
 		<div class="notched right-panel">
 
 		{{!-- Resistance section --}}
-      <div class="resistance-section">
-        <div class="agent-silhouette">
-          <img src="{{img}}" class="silhouette-img" alt="" />
-        </div>
-        <div class="resistance-list">
-          {{#each (array 1 2 3 4) as |n|}}
-            <div class="resist-row">
-              <span class="resist-icon-wrap">
-                {{#if locked}}
-                  <span class="resist-display-{{this}}"></span>
-                {{else}}
-                  <span class="resist-input-{{this}}"></span>
-                {{/if}}
-              </span>
-            </div>
-          {{/each}}
-          {{!-- Fallback if #each array helper is not available --}}
-        </div>
-      </div>
+<div class="resistance-section">
+  <div class="agent-silhouette">
+    <img src="{{img}}" class="silhouette-img" alt="" />
+  </div>
+
+  <div class="resistance-list">
+
+    {{!-- Row 1 : Slash --}}
+    <div class="resist-row">
+      <span class="resist-label">Slash</span>
+      {{#if locked}}
+        <span class="resist-display-1">{{resist1}}</span>
+      {{else}}
+        <span class="resist-input-1"></span>
+      {{/if}}
+    </div>
+
+    {{!-- Row 2 : Pierce --}}
+    <div class="resist-row">
+      <span class="resist-label">Pierce</span>
+      {{#if locked}}
+        <span class="resist-display-2">{{resist2}}</span>
+      {{else}}
+        <span class="resist-input-2"></span>
+      {{/if}}
+    </div>
+
+    {{!-- Row 3 : Blunt --}}
+    <div class="resist-row">
+      <span class="resist-label">Blunt</span>
+      {{#if locked}}
+        <span class="resist-display-3">{{resist3}}</span>
+      {{else}}
+        <span class="resist-input-3"></span>
+      {{/if}}
+    </div>
+
+  </div>{{!-- /resistance-list --}}
+</div>{{!-- /resistance-section --}}
 			{{!-- Right panel entries --}}
       <div class="rp-entries">
 
@@ -262,7 +282,7 @@
           <div class="rp-entry-header">
             <span class="rp-type">EGO Gift</span>
             {{#if locked}}
-              <span class="rp-name ego-gift-name-display">{{egoGiftName}}</span>
+              <span class="rp-name ego-gift-name-display"></span>
             {{else}}
               <span class="ego-gift-name-input rp-name-input"></span>
             {{/if}}
@@ -283,7 +303,7 @@
           <div class="rp-entry-header">
             <span class="rp-type">Ally Passive</span>
             {{#if locked}}
-              <span class="rp-name ally-passive-name-display">{{allyPassiveName}}</span>
+              <span class="rp-name ally-passive-name-display"></span>
             {{else}}
               <span class="ally-passive-name-input rp-name-input"></span>
             {{/if}}
@@ -304,7 +324,7 @@
           <div class="rp-entry-header">
             <span class="rp-type">Reputation Flaw</span>
             {{#if locked}}
-              <span class="rp-name rep-flaw-name-display">{{repFlawName}}</span>
+              <span class="rp-name rep-flaw-name-display"></span>
             {{else}}
               <span class="rep-flaw-name-input rp-name-input"></span>
             {{/if}}
@@ -325,7 +345,7 @@
           <div class="rp-entry-header">
             <span class="rp-type">Ally Flaw</span>
             {{#if locked}}
-              <span class="rp-name ally-flaw-name-display">{{allyFlawName}}</span>
+              <span class="rp-name ally-flaw-name-display"></span>
             {{else}}
               <span class="ally-flaw-name-input rp-name-input"></span>
             {{/if}}
