@@ -35,6 +35,12 @@
   --dot-empty:             #3a3826;
   --dot-filled:            #a3a075;
   --sin-active-color:      #da4c33; /* overridden per-actor in JS */
+
+  /* Virtue palette */
+  --virtue-red:    #da4c33;
+  --virtue-white:  #ffffa0;
+  --virtue-purple: #9c69b2;
+  --virtue-cyan:   #56b4c9;
 }
 
 /* =========================================================
@@ -85,7 +91,6 @@
 
 /* =========================================================
    NOTCHED CORNER STYLE
-   https://stackoverflow.com/a/33122202
    ========================================================= */
 .lobcorp .notched {
   background-image:
@@ -568,80 +573,150 @@
   transition: opacity 0.15s, color 0.15s;
 }
 .lobcorp .rp-add-btn:hover { opacity: 1; color: var(--header-color); }
+
 /* =========================================================
-   STATS AND TRAITS PANEL
+   STATS AND TRAITS PANEL — four-virtue 2×2 grid
    ========================================================= */
 .lobcorp .stats-panel {
   padding: 0 10px 12px 10px;
 }
+
+/* 2-column grid — Fortitude | Prudence / Temperance | Justice */
 .lobcorp .stats-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  padding: 8px 4px 4px;
+}
+
+/* Each virtue block: icon-wrap on the left, attrs on the right */
+.lobcorp .stat-category {
   display: flex;
   flex-direction: row;
+  align-items: flex-start;
   gap: 10px;
-  flex-wrap: wrap;
-  padding-top: 4px;
+  padding: 4px 6px 6px 6px;
+  border-left: 3px solid transparent;
+  position: relative;
 }
-.lobcorp .attr-group {
-  flex: 1;
-  min-width: 130px;
+
+/* Virtue accent borders */
+.lobcorp .stat-category--red    { border-color: var(--virtue-red);    }
+.lobcorp .stat-category--white  { border-color: var(--virtue-white);  }
+.lobcorp .stat-category--purple { border-color: var(--virtue-purple); }
+.lobcorp .stat-category--cyan   { border-color: var(--virtue-cyan);   }
+
+/* Subtle dark inner bg so it reads against the notched panel */
+.lobcorp .stat-category::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.02);
+  pointer-events: none;
+}
+
+/* ── Icon column ─────────────────────────────────────────── */
+.lobcorp .stat-cat-icon-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
-/* Group icon */
-.lobcorp .attr-group-icon {
-  font-size: 28px;
-  margin-bottom: 4px;
+.lobcorp .stat-cat-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border: none;
+  /* Neutral filter — the images will have their own colours;
+     remove this line once you have proper coloured assets */
+  filter: brightness(0.85) saturate(1.1);
+  transition: filter 0.15s;
 }
-.lobcorp .attr-group[data-group="physical"] .attr-group-icon { color: #da4c33; }
-.lobcorp .attr-group[data-group="social"]   .attr-group-icon { color: #9c69b2; }
-.lobcorp .attr-group[data-group="mental"]   .attr-group-icon { color: #56b4c9; }
+.lobcorp .stat-cat-icon.clickable:hover {
+  filter: brightness(1.25) saturate(1.4) drop-shadow(0 0 6px currentColor);
+  cursor: pointer;
+}
 
-/* Attribute rows */
-.lobcorp .attr-group-attrs { width: 100%; }
+/* Roman numeral beneath icon — coloured per virtue */
+.lobcorp .stat-cat-rating {
+  font-family: "Norwester", Arial;
+  font-size: 22px;
+  line-height: 1;
+  text-shadow: 0 0 4px currentColor;
+}
+.lobcorp .stat-cat-rating--red    { color: var(--virtue-red);    }
+.lobcorp .stat-cat-rating--white  { color: var(--virtue-white);  }
+.lobcorp .stat-cat-rating--purple { color: var(--virtue-purple); }
+.lobcorp .stat-cat-rating--cyan   { color: var(--virtue-cyan);   }
+
+/* ── Attributes column ───────────────────────────────────── */
+.lobcorp .stat-cat-attrs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Virtue name title above the attribute rows */
+.lobcorp .stat-cat-label {
+  font-family: "Norwester", Arial;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  line-height: 1;
+}
+.lobcorp .stat-cat-label--red    { color: var(--virtue-red);    text-shadow: 0 0 3px var(--virtue-red);    }
+.lobcorp .stat-cat-label--white  { color: var(--virtue-white);  text-shadow: 0 0 3px var(--header-glow);   }
+.lobcorp .stat-cat-label--purple { color: var(--virtue-purple); text-shadow: 0 0 3px var(--virtue-purple); }
+.lobcorp .stat-cat-label--cyan   { color: var(--virtue-cyan);   text-shadow: 0 0 3px var(--virtue-cyan);   }
+
+/* ── Attribute rows (shared with old panel, enhanced here) ─ */
 .lobcorp .attr-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  margin: 3px 0;
-  font-size: 13px;
+  gap: 4px;
+  margin: 2px 0;
+  font-size: 12px;
 }
-.lobcorp .attr-name { flex: 1; white-space: nowrap; }
+.lobcorp .attr-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .lobcorp .attr-dots {
   display: flex;
   align-items: center;
   gap: 3px;
 }
 .lobcorp .attr-dot {
-  width: 10px; height: 10px;
+  width: 9px; height: 9px;
   border-radius: 50%;
   border: 1px solid var(--notched-border-color);
   background-color: var(--dot-empty);
   display: inline-block;
+  flex-shrink: 0;
 }
-.lobcorp .attr-dot.filled {
-  background-color: var(--dot-filled);
-  border-color: var(--dot-filled);
-  box-shadow: 0 0 2px var(--dot-filled);
-}
+
+/* Filled dots use the virtue colour of their parent category */
+.lobcorp .attr-dot.filled           { background-color: var(--dot-filled); border-color: var(--dot-filled); }
+.lobcorp .attr-dot.filled--red      { background-color: var(--virtue-red);    border-color: var(--virtue-red);    box-shadow: 0 0 2px var(--virtue-red);    }
+.lobcorp .attr-dot.filled--white    { background-color: var(--virtue-white);  border-color: var(--virtue-white);  box-shadow: 0 0 2px var(--virtue-white);  }
+.lobcorp .attr-dot.filled--purple   { background-color: var(--virtue-purple); border-color: var(--virtue-purple); box-shadow: 0 0 2px var(--virtue-purple); }
+.lobcorp .attr-dot.filled--cyan     { background-color: var(--virtue-cyan);   border-color: var(--virtue-cyan);   box-shadow: 0 0 2px var(--virtue-cyan);   }
+
 .lobcorp .attr-edit-btn {
   font-size: 10px;
   opacity: 0;
   transition: opacity 0.15s;
   margin-left: 2px;
+  color: var(--main-text-color);
 }
 .lobcorp .attr-row:hover .attr-edit-btn { opacity: 0.7; }
-
-/* Group Roman rating */
-.lobcorp .attr-group-rating {
-  font-family: "Norwester", Arial;
-  font-size: 22px;
-  color: var(--header-color);
-  text-shadow: 0 0 3px var(--header-glow);
-  margin-top: 6px;
-}
 
 /* =========================================================
    SKILLS AND TALENTS PANEL

@@ -47,11 +47,17 @@ export const inputCreate = async function (
   const value = doc.getFlag(scope, key) ?? defaultValue;
   const name = `flags.${scope}.${key}`;
 
+  // ── LOCKED path ─────────────────────────────────────────────────────────
+  // unlockTarget is explicitly passed as null to signal "locked mode"
   if (unlockTarget == null) {
+    if (!lockTarget) return;          // guard: element missing from DOM
     lockTarget.insertAdjacentText("afterbegin", value);
     if (key === "sinFlag") lockTarget.classList.add(value);
     return;
   }
+
+  // ── UNLOCKED path ────────────────────────────────────────────────────────
+  if (!unlockTarget) return;          // guard: element missing from DOM
 
   if (selectOptions !== undefined) {
     const arrayOptions = Object.entries(selectOptions).map(([v, l]) => ({ value: v, label: l }));
@@ -212,14 +218,14 @@ export const prepareBaseContext = async function (context, actor) {
   context.resistPale  = f("resistPale",  "Normal");
 
   // ── Icon paths ────────────────────────────────────────────────────────
-  context.iconSlash  = f("iconSlash",  "");
-  context.iconPierce = f("iconPierce", "");
-  context.iconBlunt  = f("iconBlunt",  "");
-  context.iconEgo    = f("iconEgo",    "");
-  context.iconRed    = f("iconRed",    "");
-  context.iconWhite  = f("iconWhite",  "");
-  context.iconBlack  = f("iconBlack",  "");
-  context.iconPale   = f("iconPale",   "");
+  // ── Damage-type icon paths ────────────────────────────────────────────
+  context.iconSlash  = f("iconSlash",  "https://limbuscompany.wiki.gg/images/Slash.png?f764b5&format=original");
+  context.iconPierce = f("iconPierce", "https://limbuscompany.wiki.gg/images/Pierce.png?1111a2&format=original");
+  context.iconBlunt  = f("iconBlunt",  "https://limbuscompany.wiki.gg/images/Blunt.png?4f33d9&format=original");
+  context.iconRed    = f("iconRed",    "https://lobotomycorporation.wiki.gg/images/RedDamageTypeIcon.png?1750fd");
+  context.iconWhite  = f("iconWhite",  "https://lobotomycorporation.wiki.gg/images/WhiteDamageTypeIcon.png?1ab1e5");
+  context.iconBlack  = f("iconBlack",  "https://lobotomycorporation.wiki.gg/images/BlackDamageTypeIcon.png?6b5770");
+  context.iconPale   = f("iconPale",   "https://lobotomycorporation.wiki.gg/images/PaleDamageTypeIcon.png?63725d");
 
   // ── Armor title ───────────────────────────────────────────────────────
   context.armorTitle = f("armorTitle", "");

@@ -160,7 +160,6 @@
 							data-item-id="{{condition._id}}"
 							title="{{localize 'WOD5E.Delete'}}">
 							<i class="fas fa-trash"></i>
-						</a>
 						</div>
 					</div>
 					{{/each}}
@@ -424,50 +423,59 @@
 {{/unless}}	
 		</div>
 
+		{{!-- ═══════════════════════════════════════════════════════════
+		     STATS AND TRAITS PANEL — four-virtue 2×2 grid
+		     Attributes are assigned in scripts.js › prepareBaseContext:
+		       Fortitude  = physical[0,1]           (red)
+		       Prudence   = mental[0,1]             (white/amber)
+		       Temperance = social[0,1,2]           (purple)
+		       Justice    = physical[2] + mental[2] (cyan)
+		     To change which attrs belong to each virtue, edit the
+		     indices arrays in the buildCategory calls there.
+		     ═══════════════════════════════════════════════════════════ --}}
 		<div class="notched stats-panel">
 			<div class="headertext">Stats and Traits</div>
 			<div class="stats-groups">
-				{{#each processedAttributes as |group key|}}
-				<div class="attr-group" data-group="{{key}}">
-					{{!-- Group icon (styled via CSS data-group selector) --}}
-					<div class="attr-group-icon">
-					{{#if (eq key "physical")}}
-						<i class="fas fa-hand-fist"></i>
-					{{else if (eq key "social")}}
-						<i class="fas fa-lock"></i>
-					{{else if (eq key "mental")}}
-						<i class="fas fa-scale-balanced"></i>
-					{{else}}
-						<i class="fas fa-star"></i>
-					{{/if}}
+
+				{{#each statCategories as |cat catKey|}}
+				<div class="stat-category stat-category--{{cat.color}}">
+
+					{{!-- ── Left: swappable icon + Roman numeral rating ── --}}
+					<div class="stat-cat-icon-wrap">
+						<img
+							class="stat-cat-icon {{#unless ../locked}}clickable{{/unless}}"
+							src="{{#if cat.icon}}{{cat.icon}}{{else}}icons/svg/d20-grey.svg{{/if}}"
+							data-icon-flag="{{cat.iconFlag}}"
+							alt="{{cat.label}}"
+							title="{{#unless ../locked}}Click to change icon{{/unless}}" />
+						<div class="stat-cat-rating stat-cat-rating--{{cat.color}}">{{cat.romanRating}}</div>
 					</div>
 
-					{{!-- Attribute rows --}}
-					<div class="attr-group-attrs">
-					{{#each group.attributes as |attr attrKey|}}
+					{{!-- ── Right: virtue label + attribute rows ── --}}
+					<div class="stat-cat-attrs">
+						<div class="stat-cat-label stat-cat-label--{{cat.color}}">{{cat.label}}</div>
+
+						{{#each cat.attributes as |attr attrKey|}}
 						<div class="attr-row">
-						<span class="attr-name">{{attr.displayName}}</span>
-						<div class="attr-dots">
-							{{#numLoop 5}}
-							<span class="attr-dot {{#if (lte this ../attr.value)}}filled{{/if}}"></span>
-							{{/numLoop}}
-							{{#unless locked}}
-							<i class="fas fa-caret-right attr-edit-btn clickable"
-								data-action="editAttribute"
-								data-attribute="{{attrKey}}"
-								title="Edit {{attr.label}}"></i>
-							{{/unless}}
+							<span class="attr-name">{{attr.displayName}}</span>
+							<div class="attr-dots">
+								{{#numLoop 5}}
+								<span class="attr-dot {{#if (lte this ../attr.value)}}filled filled--{{../../cat.color}}{{/if}}"></span>
+								{{/numLoop}}
+								{{#unless ../../locked}}
+								<i class="fas fa-caret-right attr-edit-btn clickable"
+									data-action="editAttribute"
+									data-attribute="{{attrKey}}"
+									title="Edit {{attr.displayName}}"></i>
+								{{/unless}}
+							</div>
 						</div>
-						</div>
-					{{/each}}
+						{{/each}}
 					</div>
 
-					{{!-- Group Roman-numeral rating --}}
-					<div class="attr-group-rating" title="Number of attributes at 3+">
-					{{group.romanRating}}
-					</div>
 				</div>
 				{{/each}}
+
 			</div>
    		</div>{{!-- /stats-panel --}}
 

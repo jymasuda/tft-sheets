@@ -77,8 +77,8 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     html.querySelector(".armor-title-display")
   );
 
-  // ── All changeable icons ──────────────────────────────────────────────
-  html.querySelectorAll(".dmg-type-icon.clickable").forEach(img => {
+  // ── All changeable icons (damage types AND stat group icons) ──────────
+  html.querySelectorAll(".dmg-type-icon.clickable, .stat-group-icon.clickable").forEach(img => {
     img.addEventListener("click", () => {
       const iconFlag = img.dataset.iconFlag;
       if (!iconFlag) return;
@@ -94,14 +94,12 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
 
   // ── RP entries — type selects (restore saved value) ──────────────────
   html.querySelectorAll(".rp-type-select").forEach(sel => {
-    // Restore the persisted type; the HBS renders all <option>s unselected
     sel.value = sel.dataset.currentType ?? "Passive";
 
     sel.addEventListener("change", async () => {
       const id      = sel.dataset.entryId;
       const newType = sel.value;
 
-      // Enforce Core Passive uniqueness
       if (newType === "Core Passive") {
         const entries = app.document.getFlag(scope, "rpEntries") ?? [];
         const hasCore = entries.some(e => e.id !== id && e.type === "Core Passive");
@@ -161,6 +159,30 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     input.addEventListener("input", () => {
       clearTimeout(debounce);
       debounce = setTimeout(() => {}, 600);
+    });
+  });
+
+  // ── Justice attribute — name inputs (unlocked only) ───────────────────
+  // Each input carries data-name-flag="justiceAttr1Name" etc.
+  html.querySelectorAll(".justice-name-input").forEach(input => {
+    input.addEventListener("change", async () => {
+      const flagKey = input.dataset.nameFlag;
+      if (!flagKey) return;
+      await app.document.setFlag(scope, flagKey, input.value);
+    });
+  });
+
+  // ── Justice attribute — dot clicks (unlocked only) ────────────────────
+  // Each dot carries data-val-flag="justiceAttr1Val" and data-dot-index="N" (1-based).
+  html.querySelectorAll(".justice-dot").forEach(dot => {
+    dot.addEventListener("click", async () => {
+      const valFlag = dot.dataset.valFlag;
+      const idx     = Number(dot.dataset.dotIndex);
+      if (!valFlag) return;
+      const current = Number(app.document.getFlag(scope, valFlag) ?? 0);
+      // Clicking the active dot removes it (toggle off); otherwise set to idx
+      const newVal  = current === idx ? idx - 1 : idx;
+      await app.document.setFlag(scope, valFlag, newVal);
     });
   });
 });
