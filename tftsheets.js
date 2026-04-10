@@ -1,5 +1,11 @@
 import { LobcorpHunter } from "./templates/actor/tftLobCorpSheet.js";
-import { inputCreate, paleDamage, sinPointsRender } from "./scripts/scripts.js";
+import {
+  inputCreate,
+  paleDamage,
+  sinPointsRender,
+  updateRpEntry,
+  RP_TYPES,
+} from "./scripts/scripts.js";
 
 // ---------------------------------------------------------------------------
 // Sheet registration
@@ -26,20 +32,12 @@ const RESIST_OPTIONS = {
 };
 
 // ---------------------------------------------------------------------------
-// Colour damage rows: key → flag key for icon path
-// ---------------------------------------------------------------------------
-const COLOR_DAMAGE_ROWS = [
-  { color: "red",   flagKey: "resistRed",   iconFlag: "iconRed"   },
-  { color: "white", flagKey: "resistWhite", iconFlag: "iconWhite" },
-  { color: "black", flagKey: "resistBlack", iconFlag: "iconBlack" },
-  { color: "pale",  flagKey: "resistPale",  iconFlag: "iconPale"  },
-];
-
-// ---------------------------------------------------------------------------
 // Main render hook
 // ---------------------------------------------------------------------------
 Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
-  // ── Agent panel — blurb & sin-type fields ────────────────────────────
+  const scope = "tft-sheets";
+
+  // ── Agent panel ──────────────────────────────────────────────────────
   inputCreate(app, options, "base", "blurbFlag", "???",
     html.querySelector(".blurb-input"),
     html.querySelector(".blurb-field")
@@ -51,77 +49,118 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       GLOOM:"GLOOM", PRIDE:"PRIDE", ENVY:"ENVY" }
   );
 
-  // ── Pale damage on resource steps ───────────────────────────────────
   paleDamage(app, html.getElementsByClassName("resource-counter-step"));
-
-  // ── Sin points tracker ───────────────────────────────────────────────
   sinPointsRender(app, html);
 
-  // ── Right panel — physical resistance dropdowns (1-4) ────────────────
-  const physicalLabels = ["Slash", "Pierce", "Blunt", "Ego"];
+  // ── Physical resistance dropdowns ─────────────────────────────────────
   for (let n = 1; n <= 4; n++) {
     inputCreate(app, options, "base", `resist${n}`, "Normal",
       html.querySelector(`.resist-input-${n}`),
       html.querySelector(`.resist-display-${n}`),
-      RESIST_OPTIONS   // ← was missing; was creating plain text inputs
+      RESIST_OPTIONS
     );
   }
 
-  // ── Right panel — colour damage resistance dropdowns ─────────────────
-  for (const { color, flagKey } of COLOR_DAMAGE_ROWS) {
-    const capColor = color.charAt(0).toUpperCase() + color.slice(1);
-    inputCreate(app, options, "base", `resist${capColor}`, "Normal",
+  // ── Colour damage resistance dropdowns ───────────────────────────────
+  for (const color of ["red", "white", "black", "pale"]) {
+    const cap = color.charAt(0).toUpperCase() + color.slice(1);
+    inputCreate(app, options, "base", `resist${cap}`, "Normal",
       html.querySelector(`.resist-input-${color}`),
       html.querySelector(`.resist-display-${color}`),
       RESIST_OPTIONS
     );
   }
 
-  // ── Colour damage icons — FilePicker on click (unlocked only) ────────
+  // ── Armor title ───────────────────────────────────────────────────────
+  inputCreate(app, options, "base", "armorTitle", "",
+    html.querySelector(".armor-title-input"),
+    html.querySelector(".armor-title-display")
+  );
+
+  // ── All changeable icons ──────────────────────────────────────────────
   html.querySelectorAll(".dmg-type-icon.clickable").forEach(img => {
     img.addEventListener("click", () => {
-      const { iconFlag } = img.dataset;
+      const iconFlag = img.dataset.iconFlag;
       if (!iconFlag) return;
       new FilePicker({
         type:     "image",
-        current:  app.document.getFlag("tft-sheets", iconFlag) ?? "",
+        current:  app.document.getFlag(scope, iconFlag) ?? "",
         callback: async (path) => {
-          await app.document.setFlag("tft-sheets", iconFlag, path);
+          await app.document.setFlag(scope, iconFlag, path);
         },
       }).browse();
     });
   });
 
-  // ── Right panel — named entry fields (EGO Gift, Ally Passive, etc.) ─
-  const rpFields = [
-    ["egoGiftName",     ".ego-gift-name-input",     ".ego-gift-name-display"],
-    ["allyPassiveName", ".ally-passive-name-input",  ".ally-passive-name-display"],
-    ["repFlawName",     ".rep-flaw-name-input",      ".rep-flaw-name-display"],
-    ["allyFlawName",    ".ally-flaw-name-input",     ".ally-flaw-name-display"],
-  ];
-  for (const [key, unlockSel, lockSel] of rpFields) {
-    inputCreate(app, options, "base", key, "",
-      html.querySelector(unlockSel),
-      html.querySelector(lockSel)
-    );
-  }
+  // ── RP entries — type selects (restore saved value) ──────────────────
+  html.querySelectorAll(".rp-type-select").forEach(sel => {
+    // Restore the persisted type; the HBS renders all <option>s unselected
+    sel.value = sel.dataset.currentType ?? "Passive";
 
-  // Description textareas persist immediately without a full form submit
-  html.querySelectorAll(".rp-desc-textarea").forEach(ta => {
-    ta.addEventListener("change", async () => {
-      const flagKey = ta.dataset.flagKey;
-      if (flagKey) await app.document.setFlag("tft-sheets", flagKey, ta.value);
+    sel.addEventListener("change", async () => {
+      const id      = sel.dataset.entryId;
+      const newType = sel.value;
+
+      // Enforce Core Passive uniqueness
+      if (newType === "Core Passive") {
+        const entries = app.document.getFlag(scope, "rpEntries") ?? [];
+        const hasCore = entries.some(e => e.id !== id && e.type === "Core Passive");
+        if (hasCore) {
+          ui.notifications.warn("Only one Core Passive is allowed.");
+          sel.value = sel.dataset.currentType ?? "Passive";
+          return;
+        }
+      }
+
+      sel.dataset.currentType = newType;
+      await updateRpEntry(app, id, { type: newType });
     });
   });
 
-  // ── Skill specialty inputs — debounced save ──────────────────────────
+  // ── RP entries — name inputs ──────────────────────────────────────────
+  html.querySelectorAll(".rp-name-field").forEach(input => {
+    input.addEventListener("change", async () => {
+      await updateRpEntry(app, input.dataset.entryId, { name: input.value });
+    });
+  });
+
+  // ── RP entries — description textareas ───────────────────────────────
+  html.querySelectorAll(".rp-desc-textarea").forEach(ta => {
+    ta.addEventListener("change", async () => {
+      await updateRpEntry(app, ta.dataset.entryId, { desc: ta.value });
+    });
+  });
+
+  // ── RP entries — delete buttons ───────────────────────────────────────
+  html.querySelectorAll(".rp-delete-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id      = btn.dataset.entryId;
+      const entries = (app.document.getFlag(scope, "rpEntries") ?? [])
+        .filter(e => e.id !== id);
+      await app.document.setFlag(scope, "rpEntries", entries);
+    });
+  });
+
+  // ── RP entries — add button ───────────────────────────────────────────
+  html.querySelector(".rp-add-btn")?.addEventListener("click", async () => {
+    const entries = foundry.utils.duplicate(
+      app.document.getFlag(scope, "rpEntries") ?? []
+    );
+    entries.push({
+      id:   foundry.utils.randomID(),
+      type: "Passive",
+      name: "",
+      desc: "",
+    });
+    await app.document.setFlag(scope, "rpEntries", entries);
+  });
+
+  // ── Skill specialty inputs ─────────────────────────────────────────────
   html.querySelectorAll(".skill-spec-input").forEach(input => {
     let debounce;
     input.addEventListener("input", () => {
       clearTimeout(debounce);
-      debounce = setTimeout(() => {
-        // name="system.skills.X.specialty" handled by ApplicationV2 form
-      }, 600);
+      debounce = setTimeout(() => {}, 600);
     });
   });
 });

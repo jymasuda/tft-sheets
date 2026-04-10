@@ -13,6 +13,22 @@ const toRoman = (num) => {
 };
 
 // ---------------------------------------------------------------------------
+// All valid RP entry types and their display labels
+// ---------------------------------------------------------------------------
+export const RP_TYPES = [
+  { value: "Core Passive",       label: "Core Passive",       maxOne: true  },
+  { value: "EGO Gift",           label: "EGO Gift",           maxOne: false },
+  { value: "Passive",            label: "Passive",            maxOne: false },
+  { value: "Flaw",               label: "Flaw",               maxOne: false },
+  { value: "Reputation Passive", label: "Reputation Passive", maxOne: false },
+  { value: "Reputation Flaw",    label: "Reputation Flaw",    maxOne: false },
+  { value: "Ally Passive",       label: "Ally Passive",       maxOne: false },
+  { value: "Ally Flaw",          label: "Ally Flaw",          maxOne: false },
+  { value: "EGO Resonance",      label: "EGO Resonance",      maxOne: false },
+  { value: "Resonance",          label: "Resonance",          maxOne: false },
+];
+
+// ---------------------------------------------------------------------------
 // inputCreate — text / select input injected into unlocked/locked targets
 // ---------------------------------------------------------------------------
 export const inputCreate = async function (
@@ -78,9 +94,8 @@ export const sinPointsRender = async function (app, html) {
   const doc = app.document;
   const scope = "tft-sheets";
   const sinCurrent = doc.getFlag(scope, "sinCurrent") ?? 0;
-  const sinMax = doc.getFlag(scope, "sinMax") ?? 10;
+  const sinMax     = doc.getFlag(scope, "sinMax")     ?? 10;
 
-  // Tint the sin-points section to match the chosen sin colour
   const sinFlag = doc.getFlag(scope, "sinFlag") ?? "WRATH";
   const sinColors = {
     WRATH: "#da4c33", LUST: "#f0a33f", SLOTH: "#fcd700",
@@ -91,7 +106,6 @@ export const sinPointsRender = async function (app, html) {
     sinSection.style.setProperty("--sin-active-color", sinColors[sinFlag] ?? "#a3a075");
   }
 
-  // Render pip squares
   const tracker = html.querySelector(".sin-pip-track");
   if (!tracker) return;
   tracker.innerHTML = "";
@@ -103,17 +117,27 @@ export const sinPointsRender = async function (app, html) {
     tracker.appendChild(pip);
   }
 
-
-  // Allow clicking a pip to set the value directly
   tracker.querySelectorAll(".sin-pip").forEach((pip, idx) => {
     pip.addEventListener("click", async () => {
       const cur = doc.getFlag(scope, "sinCurrent") ?? 0;
-      // Toggle: clicking the last active pip removes it
       const newVal = cur === idx + 1 ? idx : idx + 1;
       await doc.setFlag(scope, "sinCurrent", newVal);
     });
   });
+};
 
+// ---------------------------------------------------------------------------
+// _updateRpEntry — patch one entry inside the rpEntries flag array
+// ---------------------------------------------------------------------------
+export const updateRpEntry = async function (app, id, changes) {
+  const scope   = "tft-sheets";
+  const entries = foundry.utils.duplicate(
+    app.document.getFlag(scope, "rpEntries") ?? []
+  );
+  const entry = entries.find(e => e.id === id);
+  if (!entry) return;
+  Object.assign(entry, changes);
+  await app.document.setFlag(scope, "rpEntries", entries);
 };
 
 // ---------------------------------------------------------------------------
@@ -123,7 +147,6 @@ export const prepareBaseContext = async function (context, actor) {
   const actorData = actor.system;
   const scope = "tft-sheets";
 
-  // Tab pointer (required by parent sheet layout)
   context.tab = context.tabs?.stats;
 
   // ── Raw system data ────────────────────────────────────────────────────
@@ -132,14 +155,13 @@ export const prepareBaseContext = async function (context, actor) {
   context.customRolls      = actorData.customRolls;
   context.conditions       = actorData.conditions;
 
-  // ── Processed attributes with Roman-numeral rating ────────────────────
-  // rating = number of attributes in the group at value ≥ 3
+  // ── Processed attributes ───────────────────────────────────────────────
   if (actorData.sortedAttributes) {
     context.processedAttributes = {};
     for (const [gKey, group] of Object.entries(actorData.sortedAttributes)) {
-      const attrs = group.attributes || {};
+      const attrs   = group.attributes || {};
       const entries = Object.entries(attrs).map(([k, v]) => ({ key: k, ...v }));
-      const rating = entries.filter(a => (a.value ?? 0) >= 3).length;
+      const rating  = entries.filter(a => (a.value ?? 0) >= 3).length;
       context.processedAttributes[gKey] = {
         label:       group.label,
         attributes:  attrs,
@@ -160,8 +182,7 @@ export const prepareBaseContext = async function (context, actor) {
     }
   }
 
-  // ── Combat skills (hunter powers / edges) ─────────────────────────────
-  // Adjust the type filter if your WoD5e build uses a different item type.
+  // ── Combat skills ─────────────────────────────────────────────────────
   context.combatSkills = actor.items
     .filter(i => i.type === "power" || i.type === "edge")
     .map((item, idx) => ({
@@ -174,37 +195,38 @@ export const prepareBaseContext = async function (context, actor) {
       _id:         item._id,
     }));
 
-  // ── Right panel flag values ───────────────────────────────────────────
-  const f = (key, def = "") => actor.getFlag(scope, key) ?? def;
-  context.egoGiftName      = f("egoGiftName");
-  context.egoGiftDesc      = f("egoGiftDesc");
-  context.allyPassiveName  = f("allyPassiveName");
-  context.allyPassiveDesc  = f("allyPassiveDesc");
-  context.repFlawName      = f("repFlawName");
-  context.repFlawDesc      = f("repFlawDesc");
-  context.allyFlawName     = f("allyFlawName");
-  context.allyFlawDesc     = f("allyFlawDesc");
+  // ── RP entries (dynamic array) ────────────────────────────────────────
+  context.rpEntries  = actor.getFlag(scope, "rpEntries") ?? [];
+  context.rpTypes    = RP_TYPES;           // full type list for the select
 
-  // Resistance ratings (Fatal / Weak / Normal / Endured / Immune)
+  // ── Resistance ratings ────────────────────────────────────────────────
+  const f = (key, def = "") => actor.getFlag(scope, key) ?? def;
   context.resist1 = f("resist1", "Normal");
   context.resist2 = f("resist2", "Normal");
   context.resist3 = f("resist3", "Normal");
   context.resist4 = f("resist4", "Normal");
 
-  // Sin points
-  context.sinCurrent = actor.getFlag(scope, "sinCurrent") ?? 0;
-  context.sinMax     = actor.getFlag(scope, "sinMax")     ?? 10;
-
-  // Colour damage resistance ratings
   context.resistRed   = f("resistRed",   "Normal");
   context.resistWhite = f("resistWhite", "Normal");
   context.resistBlack = f("resistBlack", "Normal");
   context.resistPale  = f("resistPale",  "Normal");
 
-  // Colour damage icon paths (empty = fallback SVG in HBS)
-  context.iconRed   = f("iconRed",   "");
-  context.iconWhite = f("iconWhite", "");
-  context.iconBlack = f("iconBlack", "");
-  context.iconPale  = f("iconPale",  "");
+  // ── Icon paths ────────────────────────────────────────────────────────
+  context.iconSlash  = f("iconSlash",  "");
+  context.iconPierce = f("iconPierce", "");
+  context.iconBlunt  = f("iconBlunt",  "");
+  context.iconEgo    = f("iconEgo",    "");
+  context.iconRed    = f("iconRed",    "");
+  context.iconWhite  = f("iconWhite",  "");
+  context.iconBlack  = f("iconBlack",  "");
+  context.iconPale   = f("iconPale",   "");
+
+  // ── Armor title ───────────────────────────────────────────────────────
+  context.armorTitle = f("armorTitle", "");
+
+  // ── Sin points ────────────────────────────────────────────────────────
+  context.sinCurrent = actor.getFlag(scope, "sinCurrent") ?? 0;
+  context.sinMax     = actor.getFlag(scope, "sinMax")     ?? 10;
+
   return context;
 };

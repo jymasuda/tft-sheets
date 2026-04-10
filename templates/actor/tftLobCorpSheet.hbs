@@ -236,15 +236,18 @@
 
 		{{!-- Resistance section --}}
 <div class="resistance-section">
-  <div class="agent-silhouette">
-    <img src="{{img}}" class="silhouette-img" alt="" />
-  </div>
 
   {{!-- Column 1 : physical damage types --}}
   <div class="resistance-list">
     <div class="resist-col-header">Physical</div>
 
+    {{!-- Slash --}}
     <div class="resist-row">
+      <img
+        class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+        src="{{#if iconSlash}}{{iconSlash}}{{else}}icons/svg/sword.svg{{/if}}"
+        data-icon-flag="iconSlash"
+        alt="Slash" title="{{#unless locked}}Click to change icon{{/unless}}" />
       <span class="resist-label">Slash</span>
       {{#if locked}}
         <span class="resist-display-1"></span>
@@ -253,7 +256,13 @@
       {{/if}}
     </div>
 
+    {{!-- Pierce --}}
     <div class="resist-row">
+      <img
+        class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+        src="{{#if iconPierce}}{{iconPierce}}{{else}}icons/svg/arrow.svg{{/if}}"
+        data-icon-flag="iconPierce"
+        alt="Pierce" title="{{#unless locked}}Click to change icon{{/unless}}" />
       <span class="resist-label">Pierce</span>
       {{#if locked}}
         <span class="resist-display-2"></span>
@@ -262,7 +271,13 @@
       {{/if}}
     </div>
 
+    {{!-- Blunt --}}
     <div class="resist-row">
+      <img
+        class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+        src="{{#if iconBlunt}}{{iconBlunt}}{{else}}icons/svg/shield.svg{{/if}}"
+        data-icon-flag="iconBlunt"
+        alt="Blunt" title="{{#unless locked}}Click to change icon{{/unless}}" />
       <span class="resist-label">Blunt</span>
       {{#if locked}}
         <span class="resist-display-3"></span>
@@ -342,94 +357,71 @@
 
   </div>{{!-- /resistance-list col-2 --}}
 </div>{{!-- /resistance-section --}}
-			{{!-- Right panel entries --}}
-      <div class="rp-entries">
+			{{!-- RP entries — scrollable, dynamic list --}}
+<div class="rp-entries">
 
-        {{!-- EGO Gift --}}
-        <div class="rp-entry notched">
-          <div class="rp-entry-header">
-            <span class="rp-type">EGO Gift</span>
-            {{#if locked}}
-              <span class="rp-name ego-gift-name-display"></span>
-            {{else}}
-              <span class="ego-gift-name-input rp-name-input"></span>
-            {{/if}}
-          </div>
-          <div class="rp-body">
-            {{#if locked}}
-              <div class="rp-desc">{{egoGiftDesc}}</div>
-            {{else}}
-              <textarea class="rp-desc-textarea"
-                data-flag-key="egoGiftDesc"
-                placeholder="EGO Gift description…">{{egoGiftDesc}}</textarea>
-            {{/if}}
-          </div>
-        </div>
+  {{#each rpEntries as |entry|}}
+  <div class="rp-entry notched" data-entry-id="{{entry.id}}">
 
-        {{!-- Ally Passive --}}
-        <div class="rp-entry notched">
-          <div class="rp-entry-header">
-            <span class="rp-type">Ally Passive</span>
-            {{#if locked}}
-              <span class="rp-name ally-passive-name-display"></span>
-            {{else}}
-              <span class="ally-passive-name-input rp-name-input"></span>
-            {{/if}}
-          </div>
-          <div class="rp-body">
-            {{#if locked}}
-              <div class="rp-desc">{{allyPassiveDesc}}</div>
-            {{else}}
-              <textarea class="rp-desc-textarea"
-                data-flag-key="allyPassiveDesc"
-                placeholder="Ally Passive description…">{{allyPassiveDesc}}</textarea>
-            {{/if}}
-          </div>
-        </div>
+    <div class="rp-entry-header">
 
-        {{!-- Reputation Flaw --}}
-        <div class="rp-entry notched">
-          <div class="rp-entry-header">
-            <span class="rp-type">Reputation Flaw</span>
-            {{#if locked}}
-              <span class="rp-name rep-flaw-name-display"></span>
-            {{else}}
-              <span class="rep-flaw-name-input rp-name-input"></span>
-            {{/if}}
-          </div>
-          <div class="rp-body">
-            {{#if locked}}
-              <div class="rp-desc">{{repFlawDesc}}</div>
-            {{else}}
-              <textarea class="rp-desc-textarea"
-                data-flag-key="repFlawDesc"
-                placeholder="Reputation Flaw description…">{{repFlawDesc}}</textarea>
-            {{/if}}
-          </div>
-        </div>
+      {{!-- Type --}}
+      {{#if locked}}
+        <span class="rp-type">{{entry.type}}</span>
+      {{else}}
+        <select
+          class="rp-type-select"
+          data-entry-id="{{entry.id}}"
+          data-current-type="{{entry.type}}">
+          {{#each ../rpTypes as |typeObj|}}
+            <option value="{{typeObj.value}}">{{typeObj.label}}</option>
+          {{/each}}
+        </select>
+      {{/if}}
 
-        {{!-- Ally Flaw --}}
-        <div class="rp-entry notched">
-          <div class="rp-entry-header">
-            <span class="rp-type">Ally Flaw</span>
-            {{#if locked}}
-              <span class="rp-name ally-flaw-name-display"></span>
-            {{else}}
-              <span class="ally-flaw-name-input rp-name-input"></span>
-            {{/if}}
-          </div>
-          <div class="rp-body">
-            {{#if locked}}
-              <div class="rp-desc">{{allyFlawDesc}}</div>
-            {{else}}
-              <textarea class="rp-desc-textarea"
-                data-flag-key="allyFlawDesc"
-                placeholder="Ally Flaw description…">{{allyFlawDesc}}</textarea>
-            {{/if}}
-          </div>
-        </div>
+      {{!-- Name --}}
+      {{#if locked}}
+        <span class="rp-name">{{entry.name}}</span>
+      {{else}}
+        <input
+          class="rp-name-field"
+          type="text"
+          data-entry-id="{{entry.id}}"
+          value="{{entry.name}}"
+          placeholder="Name…" />
+        <a class="rp-delete-btn clickable"
+          data-entry-id="{{entry.id}}"
+          title="Remove entry">
+          <i class="fas fa-times"></i>
+        </a>
+      {{/if}}
 
-      </div>{{!-- /rp-entries --}}			
+    </div>{{!-- /rp-entry-header --}}
+
+    <div class="rp-body">
+      {{#if locked}}
+        <div class="rp-desc">{{entry.desc}}</div>
+      {{else}}
+        <textarea
+          class="rp-desc-textarea"
+          data-entry-id="{{entry.id}}"
+          placeholder="Description…">{{entry.desc}}</textarea>
+      {{/if}}
+    </div>
+
+  </div>{{!-- /rp-entry --}}
+  {{else}}
+    {{!-- Empty state --}}
+    <div class="rp-empty">No entries yet.</div>
+  {{/each}}
+
+</div>{{!-- /rp-entries --}}
+
+{{#unless locked}}
+  <a class="rp-add-btn clickable" title="Add entry">
+    <i class="fas fa-plus"></i> Add Entry
+  </a>
+{{/unless}}	
 		</div>
 
 		<div class="notched stats-panel">

@@ -401,48 +401,141 @@
   font-size: 10px;
   max-width: 62px;
 }
+/* Armor title row — sits below the four physical resist rows */
+.lobcorp .resist-armor-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--notched-border-color);
+}
 
-/* RP entry cards */
+.lobcorp .resist-armor-label {
+  flex: 0 0 42px;
+  font-size: 11px;
+  color: var(--main-text-color);
+  opacity: 0.75;
+}
+
+/* Armor title display (locked) */
+.lobcorp .armor-title-display {
+  font-size: 12px;
+  color: var(--header-color);
+}
+
+/* Armor title input (unlocked) — injected by inputCreate */
+.lobcorp .armor-title-input input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--notched-border-color);
+  color: var(--header-color);
+  font-size: 12px;
+  font-family: "GillSansMT", Arial;
+  width: 100%;
+  padding: 0 2px;
+}
+/* =========================================================
+   RP ENTRIES — inner scroll
+   ========================================================= */
 .lobcorp .rp-entries {
+  flex: 1;
+  min-height: 0;          /* lets flex child shrink below content size */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  flex: 1;
+  /* Thin custom scrollbar to match the dark theme */
+  scrollbar-width: thin;
+  scrollbar-color: var(--notched-border-color) transparent;
 }
+.lobcorp .rp-entries::-webkit-scrollbar       { width: 4px; }
+.lobcorp .rp-entries::-webkit-scrollbar-track { background: transparent; }
+.lobcorp .rp-entries::-webkit-scrollbar-thumb { background: var(--notched-border-color); border-radius: 2px; }
+
+/* Empty state */
+.lobcorp .rp-empty {
+  font-size: 11px;
+  opacity: 0.4;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* RP entry cards */
 .lobcorp .rp-entry {
   padding: 6px 8px;
   font-size: 12px;
+  flex-shrink: 0;       /* cards never compress themselves, they scroll instead */
 }
+
 .lobcorp .rp-entry-header {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
+  gap: 4px;
   border-bottom: 1px solid var(--notched-border-color);
-  padding-bottom: 2px;
+  padding-bottom: 4px;
   margin-bottom: 4px;
 }
+
+/* Type select — unlocked */
+.lobcorp .rp-type-select {
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  font-size: 10px;
+  font-family: "Norwester", Arial;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  padding: 0 2px;
+  max-width: 110px;
+}
+.lobcorp .rp-type-select option { background: #1a1a10; }
+
+/* Type label — locked */
 .lobcorp .rp-type {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--main-text-color);
   opacity: 0.65;
   font-family: "Norwester", Arial;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
-.lobcorp .rp-name {
-  color: var(--header-color);
-  font-size: 12px;
+
+/* Name input — unlocked */
+.lobcorp .rp-name-field {
   flex: 1;
-  text-align: right;
-}
-.lobcorp .rp-name-input input {
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--notched-border-color);
+  border-bottom: 1px dashed var(--notched-border-color);
   color: var(--header-color);
   font-size: 12px;
-  width: 100%;
+  font-family: "GillSansMT", Arial;
+  padding: 0 2px;
+  min-width: 0;
+}
+.lobcorp .rp-name-field::placeholder { color: rgba(163,160,117,0.3); }
+
+/* Name display — locked */
+.lobcorp .rp-name {
+  flex: 1;
+  color: var(--header-color);
+  font-size: 12px;
   text-align: right;
 }
+
+/* Delete button */
+.lobcorp .rp-delete-btn {
+  flex-shrink: 0;
+  color: var(--main-text-color);
+  opacity: 0.4;
+  font-size: 10px;
+  transition: opacity 0.15s, color 0.15s;
+}
+.lobcorp .rp-delete-btn:hover { opacity: 1; color: #da4c33; }
+
+/* Description */
 .lobcorp .rp-desc {
   font-size: 11px;
   color: var(--main-text-color);
@@ -462,6 +555,21 @@
   box-sizing: border-box;
 }
 
+/* Add button */
+.lobcorp .rp-add-btn {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  padding: 4px 0 2px;
+  color: var(--main-text-color);
+  opacity: 0.6;
+  cursor: pointer;
+  border-top: 1px solid var(--notched-border-color);
+  margin-top: 4px;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+.lobcorp .rp-add-btn:hover { opacity: 1; color: var(--header-color); }
 /* =========================================================
    STATS AND TRAITS PANEL
    ========================================================= */
