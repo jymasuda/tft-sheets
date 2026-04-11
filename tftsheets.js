@@ -11,7 +11,7 @@ import {
 // Sheet registration
 // ---------------------------------------------------------------------------
 Hooks.once("init", function () {
-  foundry.documents.collections.Actors.registerSheet("vtm5e", LobcorpHunter, {
+  foundry.documents.collections.Actors.registerSheet("tft-sheets", LobcorpHunter, {
     types: ["hunter"],
     makeDefault: true,
     label: "TFT Lob Corp Sheet",
@@ -48,11 +48,9 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
         attribute: attributeKey,
         rollType: "attribute",
       };
-      // For custom/justice attributes the system won't find a value; pass it
-      // explicitly so the dialog opens with the right dice count.
       if (overridePool !== null) {
         rollData.pool = overridePool;
-        rollData.title = attributeKey; // label in the dialog
+        rollData.title = attributeKey;
       }
       await api.Rolls.handleRoll(rollData);
       return;
@@ -76,7 +74,6 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
   }
 
   // ── Method 4: Fallback — open the standard Foundry roll dialog ────────────
-  // Resolve pool: prefer override, then look up the system attribute value.
   const attrValue = overridePool
     ?? foundry.utils.getProperty(actor, `system.attributes.${attributeKey}.value`)
     ?? foundry.utils.getProperty(actor, `system.${attributeKey}.value`)
@@ -126,7 +123,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   paleDamage(app, html.getElementsByClassName("resource-counter-step"));
   sinPointsRender(app, html);
 
-  // ── Armor title (guarded) ─────────────────────────────────────────────────
+  // ── Armor title ───────────────────────────────────────────────────────────
   const armorTitleInput = html.querySelector(".armor-title-input");
   const armorTitleDisplay = html.querySelector(".armor-title-display");
   if (armorTitleInput || armorTitleDisplay) {
@@ -170,19 +167,26 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Attribute rolls — system attributes ──────────────────────────────────
-  // NOTE: system-rollable spans also carry data-action="rollAttribute" which
-  // triggers LobcorpHunter.#onRollAttribute through ApplicationV2's action
-  // dispatcher. We do NOT add a second click listener here to avoid
-  // double-rolling. The action handler in tftLobCorpSheet.js is the sole
-  // entry point for system attribute rolls.
+  // ── Attribute dots — system attributes ───────────────────────────────────
+  // NOTE: system-rollable spans carry data-action="rollAttribute" which is
+  // handled by LobcorpHunter.#onRollAttribute via ApplicationV2's dispatcher.
+  // No duplicate click listener is added here.
 
-  // ── Attribute rolls — justice (flag-based) attributes ────────────────────
-  // Justice attrs are NOT in actor.system so WoD5E can't resolve their value
-  // automatically. We intercept here, read the pool from flags, and pass it
-  // explicitly to triggerAttributeRoll so the dialog opens with the right
-  // dice count.
-
+  // ── Attribute dots — click to set value ──────────────────────────────────
+  html.querySelectorAll(".attr-dots").forEach(dotContainer => {
+    dotContainer.querySelectorAll(".attr-dot").forEach(dot => {
+      dot.addEventListener("click", async () => {
+        const attrId = dotContainer.dataset.attrId;
+        if (!attrId) return;
+        const clickedIndex = parseInt(dot.dataset.dotIndex);
+        const currentValue = parseInt(dotContainer.dataset.attrValue) || 0;
+        const newValue = currentValue === clickedIndex ? clickedIndex - 1 : clickedIndex;
+        await app.document.update({
+          [`system.attributes.${attrId}.value`]: newValue,
+        });
+      });
+    });
+  });
 
   // ── RP entries — type selects ─────────────────────────────────────────────
   html.querySelectorAll(".rp-type-select").forEach(sel => {
@@ -244,10 +248,10 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
 
   // ── Skill specialty inputs ────────────────────────────────────────────────
   html.querySelectorAll(".skill-spec-input").forEach(input => {
-    let debounce;
-    input.addEventListener("input", () => {
-      clearTimeout(debounce);
-      debounce = setTimeout(() => { }, 600);
+    input.addEventListener("change", async () => {
+      const skillKey = input.name?.replace("system.skills.", "").replace(".specialty", "");
+      if (!skillKey) return;
+      await app.document.update({ [input.name]: input.value });
     });
   });
 
@@ -257,22 +261,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       const flagKey = input.dataset.nameFlag;
       if (!flagKey) return;
       await app.document.setFlag(scope, flagKey, input.value);
-    });
-  });
-});
-
-// ── Stat group attribute dot clicks ──────────────────────────────────────
-html.querySelectorAll(".attr-dots").forEach(dotContainer => {
-  dotContainer.querySelectorAll(".attr-dot").forEach(dot => {
-    dot.addEventListener("click", async () => {
-      const attrId = dotContainer.dataset.attrId;
-      const clickedIndex = parseInt(dot.dataset.dotIndex); // 1-based
-      const currentValue = parseInt(dotContainer.dataset.attrValue) || 0;
-      // clicking the same dot that is the current value toggles it off
-      const newValue = currentValue === clickedIndex ? clickedIndex - 1 : clickedIndex;
-      await app.document.update({
-        [`system.attributes.${attrId}.value`]: newValue
-      });
     });
   });
 });

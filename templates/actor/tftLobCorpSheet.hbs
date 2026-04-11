@@ -393,22 +393,24 @@
 
               {{!-- Use WoD5E's native dot counter structure --}}
               {{#unless ../../../locked}}
-              <div class="attr-dots resource-value" data-value="{{attr.value}}"
-                data-name="system.attributes.{{attr.id}}.value">
-                <span class="resource-value-empty" data-action="dotCounterEmpty"></span>
-                {{#numLoop 5}}
-                <span
-                  class="attr-dot resource-value-step{{#if (lte this ../value)}} filled filled--{{../../color}}{{/if}}"
-                  data-action="dotCounterChange" data-index="{{this}}"></span>
-                {{/numLoop}}
-              </div>
-              {{else}}
-              <div class="attr-dots">
-                {{#numLoop 5}}
-                <span class="attr-dot{{#if (lte this ../value)}} filled filled--{{../../color}}{{/if}}"></span>
-                {{/numLoop}}
-              </div>
-              {{/unless}}
+<div class="attr-dots resource-value"
+  data-value="{{attr.value}}"
+  data-name="system.attributes.{{attr.id}}.value">
+  <span class="resource-value-empty" data-action="dotCounterEmpty"></span>
+  {{#numLoop 5}}
+  <span class="attr-dot resource-value-step{{#if (lt this ../value)}} filled filled--{{../../color}}{{/if}}"
+    data-action="dotCounterChange"
+    data-index="{{this}}"></span>
+  {{/numLoop}}
+</div>
+{{else}}
+<div class="attr-dots">
+  {{#numLoop 5}}
+  <span class="attr-dot{{#if (lt
+   this ../value)}} filled filled--{{../../color}}{{/if}}"></span>
+  {{/numLoop}}
+</div>
+{{/unless}}
             </div>
             {{/each}}
           </div>
@@ -456,13 +458,4 @@
     {{/if}}
   </button>
   {{/if}}
-  {{!-- Tab navigation --}}
-  <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Description</a>
-    <a class="item" data-tab="items">Items</a>
-  </nav>
-
-  <section class="sheet-body">
-    {{! Tab content goes here }}
-  </section>
 </div>
