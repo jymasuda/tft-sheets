@@ -276,28 +276,43 @@ export const prepareBaseContext = async function (context, actor) {
     };
   };
 
- // Justice — two custom flag-based attributes with HARDCODED display names
-  // Values are still stored as flags (clickable dots), names are fixed in code.
-  const j1val   = Number(actor.getFlag(scope, "justiceAttr1Val") ?? 0);
-  const j2val   = Number(actor.getFlag(scope, "justiceAttr2Val") ?? 0);
-  const jEntries = [
-    { key: "justiceAttr1", displayName: "Reflex",  value: j1val, isSystem: false },
-    { key: "justiceAttr2", displayName: "Focus",  value: j2val, isSystem: false },
-  ];
-  const jRating = Math.max(j1val, j2val);
+// Justice — hybrid group: physical[2] (stamina) + mental[2] (resolve).
+// Both are real WoD5E system attributes, so dots, rolls, and values all
+// flow through the normal system paths — no flag overrides needed.
+const buildHybridEntry = (srcKey, idx) => {
+  const group = actorData.sortedAttributes?.[srcKey];
+  if (!group) return null;
+  const rawAttrs = group.attributes ?? group;
+  const entries = Object.entries(rawAttrs)
+    .filter(([k]) => k !== "label")
+    .map(([k, v]) => ({
+      key:         k,
+      displayName: v.displayName ?? v.label ?? k,
+      value:       Number(v.value ?? 0),
+      isSystem:    true,
+    }));
+  return entries[idx] ?? null;
+};
 
-  const justiceGroup = {
-    key:         "justice",
-    label:       "Justice",
-    color:       "cyan",
-    iconFlag:    "iconJustice",
-    iconSrc:     f("iconJustice", ""),
-    defaultIcon: "https://lobotomycorporation.wiki.gg/images/JusticeIcon.png?ab29a4",
-    attributes:  jEntries,
-    rating:      jRating,
-    romanRating: toRoman(jRating),
-    isSystem:    false,
-  };
+const jEntries = [
+  buildHybridEntry("physical", 2), // stamina
+  buildHybridEntry("mental",   2), // resolve
+].filter(Boolean);
+
+const jRating = jEntries.reduce((max, a) => Math.max(max, a.value), 0);
+
+const justiceGroup = {
+  key:         "justice",
+  label:       "Justice",
+  color:       "cyan",
+  iconFlag:    "iconJustice",
+  iconSrc:     f("iconJustice", ""),
+  defaultIcon: "https://lobotomycorporation.wiki.gg/images/JusticeIcon.png?ab29a4",
+  attributes:  jEntries,
+  rating:      jRating,
+  romanRating: toRoman(jRating),
+  isSystem:    true,
+};
 
   // indices select which attrs from the WoD5E sorted list belong to each virtue.
   // Physical: [strength, dexterity, stamina] → Fortitude = [0,1] (strength, dexterity)

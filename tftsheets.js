@@ -225,11 +225,11 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
         if (foundry.utils.getProperty(doc, path1) !== undefined) {
           current = Number(foundry.utils.getProperty(doc, path1) ?? 0);
           const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
-          updateData[path1] = Math.clamped(newVal, 0, 5);
+          updateData[path1] = Math.clamp(newVal, 0, 5);
         } else {
           current = Number(foundry.utils.getProperty(doc, path2) ?? 0);
           const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
-          updateData[path2] = Math.clamped(newVal, 0, 5);
+          updateData[path2] = Math.clamp(newVal, 0, 5);
         }
         await doc.update(updateData);
       }
