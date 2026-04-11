@@ -257,84 +257,45 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
 });
 
 // ---------------------------------------------------------------------------
-// Patch the WoD5E "Select Roll" dialog so renamed attributes/skills show
-// the actor's custom displayName instead of the system default label.
-//
-// The dialog is a Foundry ApplicationV2 whose title matches the actor, and
-// its selects carry data-name / name attributes we can read for the actor id.
-// We fish the actor out of the most-recently opened sheet.
+// Sync custom displayNames into CONFIG.WOD5E so roll prompt dropdowns
+// show the actor's renamed attributes and skills.
+// Since all actors share the same names, patching globally is correct.
 // ---------------------------------------------------------------------------
-Hooks.on("renderApplication", (app, html) => {
-  // Target only the WoD5E select-roll dialog (class varies by version)
-  const isSelectDialog =
-    app.constructor?.name?.toLowerCase().includes("selectroll") ||
-    app.constructor?.name?.toLowerCase().includes("wod5eselect") ||
-    html.querySelector?.(".roll-dice-selectors") !== null;
+function _patchConfigLabels(actor) {
+  if (!actor?.system) return;
 
-  if (!isSelectDialog) return;
-
-  // Recover the actor whose sheet last triggered a roll.
-  // WoD5E stores the originating actor uuid/id on the dialog options.
-  const actorId =
-    app.options?.actorId ??
-    app.options?.actor?.id ??
-    app.object?.id;
-
-  const actor = actorId
-    ? game.actors.get(actorId)
-    : _lastRollingActor;          // fallback — see tracker hook below
-
-  if (!actor) return;
-
-  // Build a flat map: { [wod5eId]: customDisplayName }
-  const nameMap = {};
-
+  // ── Attributes ─────────────────────────────────────────────────────────
   for (const group of Object.values(actor.system.sortedAttributes ?? {})) {
     const rawAttrs = group.attributes ?? group;
     for (const [k, v] of Object.entries(rawAttrs)) {
-      if (k === "label") continue;
-      const customName = v.displayName ?? v.label;
-      const systemDefault = game.i18n.localize(
-        CONFIG.WOD5E?.Attributes?.[k]?.label ?? ""
-      );
-      // Only patch when the actor has a non-default name
-      if (customName && customName !== systemDefault) {
-        nameMap[k] = customName;
+      if (k === "label" || !v || typeof v !== "object") continue;
+      const custom = v.displayName ?? v.renamep;
+      if (custom && CONFIG.WOD5E?.Attributes?.[k]) {
+        CONFIG.WOD5E.Attributes[k].rename = custom;
       }
     }
   }
 
+  // ── Skills ──────────────────────────────────────────────────────────────
   for (const group of Object.values(actor.system.sortedSkills ?? {})) {
     for (const [k, v] of Object.entries(group)) {
-      if (k === "label") continue;
-      const customName = v.displayName ?? v.label;
-      const systemDefault = game.i18n.localize(
-        CONFIG.WOD5E?.Skills?.[k]?.label ?? ""
-      );
-      if (customName && customName !== systemDefault) {
-        nameMap[k] = customName;
+      if (k === "label" || !v || typeof v !== "object") continue;
+      const custom = v.displayName ?? v.rename;
+      if (custom && CONFIG.WOD5E?.Skills?.[k]) {
+        CONFIG.WOD5E.Skills[k].rename = custom;
       }
     }
   }
+}
 
-  if (!Object.keys(nameMap).length) return;
-
-  // Patch every <option> in every <select> inside the dialog
-  const root = html instanceof HTMLElement ? html : html[0];
-  root.querySelectorAll("select option").forEach(opt => {
-    const id = opt.value;
-    if (nameMap[id]) opt.textContent = nameMap[id];
-  });
+// Patch on ready using the first available hunter actor —
+// covers the case where no sheet is open yet.
+Hooks.once("ready", () => {
+  const actor = game.actors.find(a => a.type === "hunter");
+  if (actor) _patchConfigLabels(actor);
 });
 
-// ---------------------------------------------------------------------------
-// Track which actor most recently triggered a roll so we can recover it
-// in renderApplication above when the dialog doesn't carry actorId.
-// ---------------------------------------------------------------------------
-let _lastRollingActor = null;
-
+// Re-patch whenever a sheet renders, so mid-session renames take effect.
 Hooks.on("renderLobcorpHunter", (app) => {
-  // Every time our sheet renders, record its actor as the "last rolling" one.
-  // This is a best-effort fallback; WoD5E may pass actorId directly.
-  _lastRollingActor = app.document;
+  _patchConfigLabels(app.document);
 });
