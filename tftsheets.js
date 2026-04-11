@@ -255,47 +255,92 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 });
+// ---------------------------------------------------------------------------
+// Build display-name lookup from the most recently opened LobcorpHunter sheet.
+// Maps canonical WoD5E key (e.g. "strength") → custom display name.
+// ---------------------------------------------------------------------------
+const _displayNames = { attributes: {}, skills: {} };
 
-// ---------------------------------------------------------------------------
-// Sync custom displayNames into CONFIG.WOD5E so roll prompt dropdowns
-// show the actor's renamed attributes and skills.
-// Since all actors share the same names, patching globally is correct.
-// ---------------------------------------------------------------------------
-function _patchConfigLabels(actor) {
+function _rebuildDisplayNames(actor) {
   if (!actor?.system) return;
 
-  // ── Attributes ─────────────────────────────────────────────────────────
+  // Attributes
   for (const group of Object.values(actor.system.sortedAttributes ?? {})) {
     const rawAttrs = group.attributes ?? group;
     for (const [k, v] of Object.entries(rawAttrs)) {
       if (k === "label" || !v || typeof v !== "object") continue;
-      const custom = v.displayName ?? v.renamep;
-      if (custom && CONFIG.WOD5E?.Attributes?.[k]) {
-        CONFIG.WOD5E.Attributes[k].rename = custom;
-      }
+      const custom = (v.displayName ?? v.rename ?? "").trim();
+      if (custom) _displayNames.attributes[k.toLowerCase()] = custom;
     }
   }
 
-  // ── Skills ──────────────────────────────────────────────────────────────
+  // Skills
   for (const group of Object.values(actor.system.sortedSkills ?? {})) {
     for (const [k, v] of Object.entries(group)) {
       if (k === "label" || !v || typeof v !== "object") continue;
-      const custom = v.displayName ?? v.rename;
-      if (custom && CONFIG.WOD5E?.Skills?.[k]) {
-        CONFIG.WOD5E.Skills[k].rename = custom;
-      }
+      const custom = (v.displayName ?? v.rename ?? "").trim();
+      if (custom) _displayNames.skills[k.toLowerCase()] = custom;
     }
   }
 }
 
-// Patch on ready using the first available hunter actor —
-// covers the case where no sheet is open yet.
+// Populate on ready and on every sheet render
 Hooks.once("ready", () => {
   const actor = game.actors.find(a => a.type === "hunter");
-  if (actor) _patchConfigLabels(actor);
+  if (actor) _rebuildDisplayNames(actor);
 });
 
-// Re-patch whenever a sheet renders, so mid-session renames take effect.
 Hooks.on("renderLobcorpHunter", (app) => {
-  _patchConfigLabels(app.document);
+  _rebuildDisplayNames(app.document);
+});
+
+// ---------------------------------------------------------------------------
+// After the select-dice-dialog renders, rewrite its <option> text to use
+// our custom display names.  We hook renderApplication (fires for every app)
+// and bail out immediately if it's not the dialog we care about.
+// ---------------------------------------------------------------------------
+function _rewriteDialogOptions(html) {
+  // html may be an Element, HTMLCollection, or jQuery — normalise to Element
+  const root = html instanceof HTMLElement ? html
+    : html[0] instanceof HTMLElement     ? html[0]
+    : html.get?.(0)                      ?? html;
+
+  if (!root) return;
+
+  // Target every <select> inside the dialog
+  const selects = root.querySelectorAll
+    ? root.querySelectorAll("select")
+    : [];
+
+  for (const sel of selects) {
+    for (const opt of sel.options) {
+      if (!opt.value) continue; // skip the blank "None" option
+
+      const key = opt.value.toLowerCase();
+
+      // Try attributes first, then skills
+      const replacement =
+        _displayNames.attributes[key] ??
+        _displayNames.skills[key];
+
+      if (replacement) opt.text = replacement;
+    }
+  }
+}
+
+// Generic hook — fires for every Application that renders
+Hooks.on("renderApplication", (_app, html) => {
+  // Only act on the select-dice-dialog by checking for its distinctive selects
+  const root = html instanceof HTMLElement ? html : html[0] ?? html;
+  if (!root) return;
+  if (!root.querySelector?.("#attributeSelect, #skillSelect, #attributeSelect2")) return;
+  _rewriteDialogOptions(root);
+});
+
+// ApplicationV2 fires this instead — covers Foundry v12+
+Hooks.on("renderApplicationV2", (_app, html) => {
+  const root = html instanceof HTMLElement ? html : html[0] ?? html;
+  if (!root) return;
+  if (!root.querySelector?.("#attributeSelect, #skillSelect, #attributeSelect2")) return;
+  _rewriteDialogOptions(root);
 });
