@@ -18,17 +18,17 @@ Hooks.once("init", function () {
   });
 });
 
-Hooks.once("ready", function () {});
+Hooks.once("ready", function () { });
 
 // ---------------------------------------------------------------------------
 // Resistance select options
 // ---------------------------------------------------------------------------
 const RESIST_OPTIONS = {
-  Fatal:   "Fatal",
-  Weak:    "Weak",
-  Normal:  "Normal",
+  Fatal: "Fatal",
+  Weak: "Weak",
+  Normal: "Normal",
   Endured: "Endured",
-  Immune:  "Immune",
+  Immune: "Immune",
 };
 
 // ---------------------------------------------------------------------------
@@ -51,12 +51,12 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
       // For custom/justice attributes the system won't find a value; pass it
       // explicitly so the dialog opens with the right dice count.
       if (overridePool !== null) {
-        rollData.pool  = overridePool;
+        rollData.pool = overridePool;
         rollData.title = attributeKey; // label in the dialog
       }
       await api.Rolls.handleRoll(rollData);
       return;
-    } catch(e) { console.warn("[TFT] api.Rolls.handleRoll failed:", e); }
+    } catch (e) { console.warn("[TFT] api.Rolls.handleRoll failed:", e); }
   }
 
   // ── Method 2: WoD5E RollHandler ───────────────────────────────────────────
@@ -64,7 +64,7 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
     try {
       await api.RollHandler.rollAttribute(actor, attributeKey);
       return;
-    } catch(e) { console.warn("[TFT] RollHandler.rollAttribute failed:", e); }
+    } catch (e) { console.warn("[TFT] RollHandler.rollAttribute failed:", e); }
   }
 
   // ── Method 3: Direct WoD5E roll function from its module scope ───────────
@@ -72,7 +72,7 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
     try {
       await game.wod5e.rolls.rollAttribute({ actor, attribute: attributeKey });
       return;
-    } catch(e) { console.warn("[TFT] game.wod5e.rolls.rollAttribute failed:", e); }
+    } catch (e) { console.warn("[TFT] game.wod5e.rolls.rollAttribute failed:", e); }
   }
 
   // ── Method 4: Fallback — open the standard Foundry roll dialog ────────────
@@ -117,15 +117,17 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   inputCreate(app, options, "base", "sinFlag", "WRATH",
     html.querySelector(".sin-input"),
     html.querySelector(".sin-field"),
-    { WRATH:"WRATH", LUST:"LUST", SLOTH:"SLOTH", GLUTTONY:"GLUTTONY",
-      GLOOM:"GLOOM", PRIDE:"PRIDE", ENVY:"ENVY" }
+    {
+      WRATH: "WRATH", LUST: "LUST", SLOTH: "SLOTH", GLUTTONY: "GLUTTONY",
+      GLOOM: "GLOOM", PRIDE: "PRIDE", ENVY: "ENVY"
+    }
   );
 
   paleDamage(app, html.getElementsByClassName("resource-counter-step"));
   sinPointsRender(app, html);
 
   // ── Armor title (guarded) ─────────────────────────────────────────────────
-  const armorTitleInput   = html.querySelector(".armor-title-input");
+  const armorTitleInput = html.querySelector(".armor-title-input");
   const armorTitleDisplay = html.querySelector(".armor-title-display");
   if (armorTitleInput || armorTitleDisplay) {
     inputCreate(app, options, "base", "armorTitle", "",
@@ -159,8 +161,8 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       const iconFlag = img.dataset.iconFlag;
       if (!iconFlag) return;
       new FilePicker({
-        type:     "image",
-        current:  app.document.getFlag(scope, iconFlag) ?? "",
+        type: "image",
+        current: app.document.getFlag(scope, iconFlag) ?? "",
         callback: async (path) => {
           await app.document.setFlag(scope, iconFlag, path);
         },
@@ -180,19 +182,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   // automatically. We intercept here, read the pool from flags, and pass it
   // explicitly to triggerAttributeRoll so the dialog opens with the right
   // dice count.
-  html.querySelectorAll(".justice-rollable[data-attribute]").forEach(el => {
-    el.style.cursor = "pointer";
-    el.addEventListener("click", async (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const attributeKey = el.dataset.attribute;
-      if (!attributeKey) return;
-      // Derive the flag key: "justiceAttr1" → "justiceAttr1Val"
-      const valFlag = `${attributeKey}Val`;
-      const pool    = Number(app.document.getFlag(scope, valFlag) ?? 0);
-      await triggerAttributeRoll(app, attributeKey, pool);
-    });
-  });
 
   // ── Unified attribute dot click handler ───────────────────────────────────
   // Handles both system attributes (Fortitude / Prudence / Temperance) and
@@ -215,8 +204,8 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
         await app.document.setFlag(scope, valFlag, Math.max(0, newVal));
       } else {
         // ── System attribute (WoD5E actor data) ───────────────────────────
-        const key   = dot.dataset.attribute;
-        const doc   = app.document;
+        const key = dot.dataset.attribute;
+        const doc = app.document;
         const path1 = `system.attributes.${key}.value`;
         const path2 = `system.${key}.value`;
 
@@ -240,7 +229,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   html.querySelectorAll(".rp-type-select").forEach(sel => {
     sel.value = sel.dataset.currentType ?? "Passive";
     sel.addEventListener("change", async () => {
-      const id      = sel.dataset.entryId;
+      const id = sel.dataset.entryId;
       const newType = sel.value;
       if (newType === "Core Passive") {
         const entries = app.document.getFlag(scope, "rpEntries") ?? [];
@@ -273,7 +262,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   // ── RP entries — delete buttons ───────────────────────────────────────────
   html.querySelectorAll(".rp-delete-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
-      const id      = btn.dataset.entryId;
+      const id = btn.dataset.entryId;
       const entries = (app.document.getFlag(scope, "rpEntries") ?? [])
         .filter(e => e.id !== id);
       await app.document.setFlag(scope, "rpEntries", entries);
@@ -286,7 +275,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       app.document.getFlag(scope, "rpEntries") ?? []
     );
     entries.push({
-      id:   foundry.utils.randomID(),
+      id: foundry.utils.randomID(),
       type: "Passive",
       name: "",
       desc: "",
@@ -299,7 +288,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     let debounce;
     input.addEventListener("input", () => {
       clearTimeout(debounce);
-      debounce = setTimeout(() => {}, 600);
+      debounce = setTimeout(() => { }, 600);
     });
   });
 

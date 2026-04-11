@@ -2,16 +2,13 @@ import { HunterActorSheet } from "../../../../systems/wod5e/system/actor/htr/hun
 import { prepareBaseContext } from "../../scripts/scripts.js";
 
 export class LobcorpHunter extends HunterActorSheet {
-  static DEFAULT_OPTIONS = {
-    classes: ["lobcorp"],
-    actions: {
-      // Spread parent actions so we don't accidentally drop any
-      ...HunterActorSheet.DEFAULT_OPTIONS?.actions,
-      toggleLock:    LobcorpHunter.#onToggleLock,
-      rollAttribute: LobcorpHunter.#onRollAttribute,
-      // editAttribute action removed — dots are now directly clickable
-    },
-  };
+static DEFAULT_OPTIONS = {
+  classes: ["lobcorp"],
+  actions: {
+    ...HunterActorSheet.DEFAULT_OPTIONS?.actions,
+    toggleLock: LobcorpHunter.#onToggleLock,
+  },
+};
 
   static PARTS = {
     base: {
@@ -21,7 +18,7 @@ export class LobcorpHunter extends HunterActorSheet {
 
   // ── Lock toggle ──────────────────────────────────────────────────────────
   static async #onToggleLock() {
-    const scope   = "tft-sheets";
+    const scope = "tft-sheets";
     const current = this.document.getFlag(scope, "sheetLocked") ?? false;
     await this.document.setFlag(scope, "sheetLocked", !current);
   }
@@ -44,7 +41,7 @@ export class LobcorpHunter extends HunterActorSheet {
     const isJustice =
       attribute.startsWith("justiceAttr") ||
       (foundry.utils.getProperty(actor, `system.attributes.${attribute}`) === undefined &&
-       foundry.utils.getProperty(actor, `system.${attribute}`)            === undefined);
+        foundry.utils.getProperty(actor, `system.${attribute}`) === undefined);
 
     // ── Build the call params ────────────────────────────────────────────────
     const rollParams = {
@@ -56,7 +53,7 @@ export class LobcorpHunter extends HunterActorSheet {
     if (isJustice) {
       // Read the dice pool from the flag (e.g. justiceAttr1Val → 3 dots filled)
       const pool = Number(actor.getFlag(scope, `${attribute}Val`) ?? 0);
-      rollParams.pool  = pool;
+      rollParams.pool = pool;
       rollParams.title = attribute; // label shown in the WoD5E dialog
     }
 
