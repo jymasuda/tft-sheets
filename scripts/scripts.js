@@ -185,16 +185,15 @@ export const prepareBaseContext = async function (context, actor) {
     }
   }
 
-  // ── Combat skills ─────────────────────────────────────────────────────
+// ── Combat skills ─────────────────────────────────────────────────────
   context.combatSkills = actor.items
-    .filter(i => i.type === "power" || i.type === "edge")
+    .filter(i => i.type === "customRoll")
     .map((item, idx) => ({
       id: item.id,
       name: item.name,
       img: item.img,
       index: idx + 1,
-      summary: item.system?.summary ?? "",
-      description: item.system?.description ?? "",
+      uuid: item.uuid,
       _id: item._id,
     }));
 

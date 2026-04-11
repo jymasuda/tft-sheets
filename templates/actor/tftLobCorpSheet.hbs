@@ -146,55 +146,50 @@
     </div>
 
     <div class="notched combat-panel">
-      <div class="headertext">Combat Skills</div>
-      <div class="combat-skills-grid">
-        {{#each combatSkills as |skill|}}
-        <div class="combat-skill" data-item-id="{{skill.id}}">
-          <div class="combat-skill-image clickable" data-action="itemChat" data-item-id="{{skill._id}}">
-            <img src="{{skill.img}}" alt="{{skill.name}}" />
-          </div>
-          <div class="combat-skill-content">
-            <div class="combat-skill-header">
-              <span class="skill-index">Skill {{skill.index}}</span>
-              <span class="skill-title">{{skill.name}}</span>
-            </div>
-            {{#if skill.summary}}
-            <div class="combat-skill-summary">"{{skill.summary}}"</div>
-            {{/if}}
-            <div class="combat-skill-desc">{{{skill.description}}}</div>
-            {{#unless locked}}
+  <div class="headertext">Combat Skills</div>
+
+  <div class="combat-skills-grid">
+    {{#each combatSkills as |skill|}}
+    <div class="combat-skill" data-item-id="{{skill.id}}" data-drag="true"
+      data-document-uuid="{{skill.uuid}}" data-type="Item">
+
+      {{!-- Image — click to roll, matching rollItem behaviour --}}
+      <div class="combat-skill-image rollable-item" data-action="rollItem"
+        data-item-uuid="{{skill.uuid}}">
+        <img src="{{skill.img}}" alt="{{skill.name}}" />
+      </div>
+
+      {{!-- Content --}}
+      <div class="combat-skill-content">
+        <div class="combat-skill-header">
+          <span class="skill-index">Skill {{skill.index}}</span>
+          <div class="combat-skill-title-row">
+            <span class="skill-title">{{skill.name}}</span>
             <div class="combat-skill-controls">
-              <a class="item-control item-edit" data-action="itemEdit" data-item-id="{{skill._id}}"
-                title="{{localize 'WOD5E.Edit'}}">
+              <a class="item-control item-edit" data-action="itemEdit"
+                data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Edit'}}">
                 <i class="fas fa-edit"></i>
               </a>
-              <a class="item-control item-delete" data-action="itemDelete" data-item-id="{{skill._id}}"
-                title="{{localize 'WOD5E.Delete'}}">
+              <a class="item-control item-delete" data-action="itemDelete"
+                data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Delete'}}">
                 <i class="fas fa-trash"></i>
               </a>
             </div>
-            {{/unless}}
           </div>
         </div>
-        {{else}}
-        {{!-- Empty state when no combat skills exist yet --}}
-        <div class="combat-skills-empty">
-          <i class="fas fa-sword"></i>
-          <p>No combat skills yet.</p>
-          {{#unless locked}}
-          <a class="item-control item-create" data-action="createItem" data-type="power" title="Add Combat Skill">
-            <i class="fas fa-plus"></i> Add Skill
-          </a>
-          {{/unless}}
-        </div>
-        {{/each}}
       </div>
-      {{#unless locked}}
-      <a class="combat-add-btn item-create" data-action="createItem" data-type="power" title="Add Combat Skill">
-        <i class="fas fa-plus"></i>
-      </a>
-      {{/unless}}
+
     </div>
+    {{/each}}
+
+    {{!-- Add card --}}
+    <div class="combat-skill combat-skill-add item-create"
+      data-action="createItem" data-type="customRoll">
+      <div class="combat-add-icon"><i class="fas fa-plus"></i></div>
+      <div class="combat-add-label">Add Skill</div>
+    </div>
+  </div>
+</div>
 
     <div class="notched right-panel">
 
