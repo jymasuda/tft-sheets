@@ -33,16 +33,28 @@ const RESIST_OPTIONS = {
 
 // ---------------------------------------------------------------------------
 // Attempt to trigger a WoD5E attribute roll via every known API surface.
-// Called both from the render hook listener AND from the sheet action.
+// overridePool: pass an explicit dice count (used for flag-based justice attrs
+//               whose values are not stored in system.attributes).
 // ---------------------------------------------------------------------------
-async function triggerAttributeRoll(app, attributeKey) {
+async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
   const actor = app.document;
 
   // ── Method 1: WoD5E v5 system API ────────────────────────────────────────
   const api = game.system?.api ?? game.wod5e;
   if (api?.Rolls?.handleRoll) {
     try {
-      await api.Rolls.handleRoll({ actor, attribute: attributeKey, rollType: "attribute" });
+      const rollData = {
+        actor,
+        attribute: attributeKey,
+        rollType: "attribute",
+      };
+      // For custom/justice attributes the system won't find a value; pass it
+      // explicitly so the dialog opens with the right dice count.
+      if (overridePool !== null) {
+        rollData.pool  = overridePool;
+        rollData.title = attributeKey; // label in the dialog
+      }
+      await api.Rolls.handleRoll(rollData);
       return;
     } catch(e) { console.warn("[TFT] api.Rolls.handleRoll failed:", e); }
   }
@@ -55,11 +67,7 @@ async function triggerAttributeRoll(app, attributeKey) {
     } catch(e) { console.warn("[TFT] RollHandler.rollAttribute failed:", e); }
   }
 
-  // ── Method 3: Dispatch a synthetic click on the WoD5E system-rollable
-  //    element if the system's own sheet is open alongside ours ─────────────
-  // (Not applicable for our custom sheet — skip)
-
-  // ── Method 4: Direct WoD5E roll function from its module scope ───────────
+  // ── Method 3: Direct WoD5E roll function from its module scope ───────────
   if (game.wod5e?.rolls?.rollAttribute) {
     try {
       await game.wod5e.rolls.rollAttribute({ actor, attribute: attributeKey });
@@ -67,17 +75,32 @@ async function triggerAttributeRoll(app, attributeKey) {
     } catch(e) { console.warn("[TFT] game.wod5e.rolls.rollAttribute failed:", e); }
   }
 
-  // ── Method 5: Fallback — open the standard Foundry roll dialog ────────────
-  const attrValue = foundry.utils.getProperty(actor, `system.attributes.${attributeKey}.value`)
-                 ?? foundry.utils.getProperty(actor, `system.${attributeKey}.value`)
-                 ?? 0;
+  // ── Method 4: Fallback — open the standard Foundry roll dialog ────────────
+  // Resolve pool: prefer override, then look up the system attribute value.
+  const attrValue = overridePool
+    ?? foundry.utils.getProperty(actor, `system.attributes.${attributeKey}.value`)
+    ?? foundry.utils.getProperty(actor, `system.${attributeKey}.value`)
+    ?? 0;
   const label = attributeKey.charAt(0).toUpperCase() + attributeKey.slice(1);
-  const roll = new Roll(`${attrValue}dh`); // Hunter dice
-  await roll.toMessage({
-    speaker: ChatMessage.getSpeaker({ actor }),
-    flavor: `Rolling ${label} (${attrValue} dice)`,
-    rollMode: game.settings.get("core", "rollMode"),
-  });
+  new Dialog({
+    title: `Roll ${label}`,
+    content: `<p>Dice pool: <strong>${attrValue}</strong></p>`,
+    buttons: {
+      roll: {
+        label: "Roll",
+        callback: async () => {
+          const roll = new Roll(`${attrValue}d10cs>5`);
+          await roll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor }),
+            flavor: `Rolling ${label} (${attrValue} dice)`,
+            rollMode: game.settings.get("core", "rollMode"),
+          });
+        },
+      },
+      cancel: { label: "Cancel" },
+    },
+    default: "roll",
+  }).render(true);
 }
 
 // ---------------------------------------------------------------------------
@@ -145,21 +168,18 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Attribute rolls — system-rollable spans ───────────────────────────────
-  // Belt-and-suspenders: also wire clicks directly here in case data-action
-  // dispatch doesn't reach our handler (e.g. ApplicationV2 action bubbling).
-  html.querySelectorAll(".system-rollable[data-attribute]").forEach(el => {
-    el.style.cursor = "pointer";
-    el.addEventListener("click", async (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const attributeKey = el.dataset.attribute;
-      if (!attributeKey) return;
-      await triggerAttributeRoll(app, attributeKey);
-    });
-  });
+  // ── Attribute rolls — system attributes ──────────────────────────────────
+  // NOTE: system-rollable spans also carry data-action="rollAttribute" which
+  // triggers LobcorpHunter.#onRollAttribute through ApplicationV2's action
+  // dispatcher. We do NOT add a second click listener here to avoid
+  // double-rolling. The action handler in tftLobCorpSheet.js is the sole
+  // entry point for system attribute rolls.
 
-  // ── Justice attribute rolls ───────────────────────────────────────────────
+  // ── Attribute rolls — justice (flag-based) attributes ────────────────────
+  // Justice attrs are NOT in actor.system so WoD5E can't resolve their value
+  // automatically. We intercept here, read the pool from flags, and pass it
+  // explicitly to triggerAttributeRoll so the dialog opens with the right
+  // dice count.
   html.querySelectorAll(".justice-rollable[data-attribute]").forEach(el => {
     el.style.cursor = "pointer";
     el.addEventListener("click", async (ev) => {
@@ -167,7 +187,52 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       ev.stopPropagation();
       const attributeKey = el.dataset.attribute;
       if (!attributeKey) return;
-      await triggerAttributeRoll(app, attributeKey);
+      // Derive the flag key: "justiceAttr1" → "justiceAttr1Val"
+      const valFlag = `${attributeKey}Val`;
+      const pool    = Number(app.document.getFlag(scope, valFlag) ?? 0);
+      await triggerAttributeRoll(app, attributeKey, pool);
+    });
+  });
+
+  // ── Unified attribute dot click handler ───────────────────────────────────
+  // Handles both system attributes (Fortitude / Prudence / Temperance) and
+  // flag-based justice attributes. Active only when the sheet is unlocked
+  // (the template adds the attr-dot-click class only then).
+  html.querySelectorAll(".attr-dot-click").forEach(dot => {
+    dot.style.cursor = "pointer";
+    dot.addEventListener("click", async (ev) => {
+      ev.stopPropagation();
+      const dotIndex = Number(dot.dataset.dotIndex); // 1-based (1-5)
+      const isSystem = dot.dataset.isSystem === "true";
+
+      if (!isSystem) {
+        // ── Justice / flag-based attribute ────────────────────────────────
+        const valFlag = dot.dataset.valFlag;
+        if (!valFlag) return;
+        const current = Number(app.document.getFlag(scope, valFlag) ?? 0);
+        // Clicking the already-active top dot decrements by 1 (toggle off).
+        const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
+        await app.document.setFlag(scope, valFlag, Math.max(0, newVal));
+      } else {
+        // ── System attribute (WoD5E actor data) ───────────────────────────
+        const key   = dot.dataset.attribute;
+        const doc   = app.document;
+        const path1 = `system.attributes.${key}.value`;
+        const path2 = `system.${key}.value`;
+
+        let current;
+        const updateData = {};
+        if (foundry.utils.getProperty(doc, path1) !== undefined) {
+          current = Number(foundry.utils.getProperty(doc, path1) ?? 0);
+          const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
+          updateData[path1] = Math.clamped(newVal, 0, 5);
+        } else {
+          current = Number(foundry.utils.getProperty(doc, path2) ?? 0);
+          const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
+          updateData[path2] = Math.clamped(newVal, 0, 5);
+        }
+        await doc.update(updateData);
+      }
     });
   });
 
@@ -244,18 +309,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       const flagKey = input.dataset.nameFlag;
       if (!flagKey) return;
       await app.document.setFlag(scope, flagKey, input.value);
-    });
-  });
-
-  // ── Justice attribute — dot clicks ────────────────────────────────────────
-  html.querySelectorAll(".justice-dot").forEach(dot => {
-    dot.addEventListener("click", async () => {
-      const valFlag = dot.dataset.valFlag;
-      const idx     = Number(dot.dataset.dotIndex);
-      if (!valFlag) return;
-      const current = Number(app.document.getFlag(scope, valFlag) ?? 0);
-      const newVal  = current === idx ? idx - 1 : idx;
-      await app.document.setFlag(scope, valFlag, newVal);
     });
   });
 });

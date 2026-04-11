@@ -7,9 +7,9 @@ export class LobcorpHunter extends HunterActorSheet {
     actions: {
       // Spread parent actions so we don't accidentally drop any
       ...HunterActorSheet.DEFAULT_OPTIONS?.actions,
-      toggleLock:      LobcorpHunter.#onToggleLock,
-      rollAttribute:   LobcorpHunter.#onRollAttribute,
-      editAttribute:   LobcorpHunter.#onEditAttribute,
+      toggleLock:    LobcorpHunter.#onToggleLock,
+      rollAttribute: LobcorpHunter.#onRollAttribute,
+      // editAttribute action removed — dots are now directly clickable
     },
   };
 
@@ -27,88 +27,90 @@ export class LobcorpHunter extends HunterActorSheet {
   }
 
   // ── Attribute roll ───────────────────────────────────────────────────────
-  // Delegates to the WoD5E roll pipeline via the same method the parent
-  // sheet uses internally, so chat output, dice, and modifiers all work.
+  // Called by data-action="rollAttribute" on both system and justice spans.
+  // For system attributes WoD5E resolves the pool itself from actor.system.
+  // For justice (flag-based) attributes we read the pool from flags and pass
+  // it so the dialog opens with the correct number of dice.
   static async #onRollAttribute(event, target) {
     const attribute = target.dataset.attribute;
     if (!attribute) return;
 
-    // WoD5E exposes a static roll helper on the system's Actors class.
-    // We call it the same way the original sheets do.
     const actor = this.document;
-    try {
-      // Try the WoD5E v5+ API first
-      await actor.sheet._onAttributeRoll?.({ attribute });
-    } catch (_) {}
+    const scope = "tft-sheets";
 
-    // Fallback: use the WoD5E global roll handler directly
+    // ── Determine whether this is a justice (flag-based) attribute ──────────
+    // Justice attr keys are "justiceAttr1" / "justiceAttr2".  Any attribute
+    // key not present in actor.system.attributes is treated the same way.
+    const isJustice =
+      attribute.startsWith("justiceAttr") ||
+      (foundry.utils.getProperty(actor, `system.attributes.${attribute}`) === undefined &&
+       foundry.utils.getProperty(actor, `system.${attribute}`)            === undefined);
+
+    // ── Build the call params ────────────────────────────────────────────────
+    const rollParams = {
+      actor,
+      attribute,
+      rollType: "attribute",
+    };
+
+    if (isJustice) {
+      // Read the dice pool from the flag (e.g. justiceAttr1Val → 3 dots filled)
+      const pool = Number(actor.getFlag(scope, `${attribute}Val`) ?? 0);
+      rollParams.pool  = pool;
+      rollParams.title = attribute; // label shown in the WoD5E dialog
+    }
+
+    // ── Try the WoD5E v5+ API (shows the full dialog with desperation die, ─
+    //    challenge level, extra hunter dice, etc.)                            ─
     const WOD5E = game.system?.api ?? game.wod5e;
+
     if (WOD5E?.Rolls?.handleRoll) {
-      await WOD5E.Rolls.handleRoll({
-        actor,
-        attribute,
-        rollType: "attribute",
-      });
-      return;
+      try {
+        await WOD5E.Rolls.handleRoll(rollParams);
+        return;
+      } catch (e) {
+        console.warn("[TFT] WOD5E.Rolls.handleRoll failed:", e);
+      }
     }
 
-    // Final fallback: fire a synthetic click on the equivalent element that
-    // WoD5E's own sheet would render, so the parent handler picks it up.
-    // Look for the WoD5E system's own rendered sheet if it exists.
-    // Otherwise just open the roll dialog with the attribute pre-selected.
-    if (game.wod5e?.RollHandler?.rollAttribute) {
-      await game.wod5e.RollHandler.rollAttribute(actor, attribute);
-      return;
+    // ── Fallback: try the parent sheet's own roll method ────────────────────
+    if (typeof this._onAttributeRoll === "function") {
+      try {
+        await this._onAttributeRoll({ attribute });
+        return;
+      } catch (e) {
+        console.warn("[TFT] _onAttributeRoll failed:", e);
+      }
     }
 
-    // Last resort — open the attribute edit dialog so the player can at
-    // least see and modify the value even if rolling isn't available.
-    LobcorpHunter.#onEditAttribute.call(this, event, target);
-  }
+    // ── Last resort: plain Foundry roll dialog ───────────────────────────────
+    // Resolve the pool: for justice use the flag value already computed above,
+    // for system attrs walk the two most common WoD5E data paths.
+    const attrValue = rollParams.pool
+      ?? Number(foundry.utils.getProperty(actor, `system.attributes.${attribute}.value`))
+      ?? Number(foundry.utils.getProperty(actor, `system.${attribute}.value`))
+      ?? 0;
 
-  // ── Attribute edit (opens WoD5E dot-editor dialog) ───────────────────────
-  static async #onEditAttribute(event, target) {
-    const attribute = target.dataset.attribute;
-    if (!attribute) return;
-    const actor = this.document;
-
-    // WoD5E ApplicationV2 sheets register _onEditAttribute or similar.
-    // Try the parent sheet's own method first.
-    if (typeof this._onEditAttribute === "function") {
-      return this._onEditAttribute(event, target);
-    }
-
-    // Try the system API
-    const api = game.system?.api ?? game.wod5e;
-    if (api?.ActorUtils?.editAttribute) {
-      return api.ActorUtils.editAttribute(actor, attribute);
-    }
-
-    // Fallback: inline prompt for the numeric value
-    const current = foundry.utils.getProperty(
-      actor, `system.attributes.${attribute}.value`
-    ) ?? foundry.utils.getProperty(
-      actor, `system.${attribute}.value`
-    ) ?? 0;
-
-    const newVal = await Dialog.prompt({
-      title: `Edit ${attribute}`,
-      content: `<input type="number" min="0" max="5" value="${current}" />`,
-      callback: (html) => Number(html.find("input").val()),
-      rejectClose: false,
-    });
-    if (newVal == null || isNaN(newVal)) return;
-
-    // Try both possible data paths WoD5E might use
-    const updateData = {};
-    const path1 = `system.attributes.${attribute}.value`;
-    const path2 = `system.${attribute}.value`;
-    if (foundry.utils.getProperty(actor, path1) !== undefined) {
-      updateData[path1] = Math.clamped(newVal, 0, 5);
-    } else {
-      updateData[path2] = Math.clamped(newVal, 0, 5);
-    }
-    await actor.update(updateData);
+    const label = attribute.charAt(0).toUpperCase() + attribute.slice(1);
+    new Dialog({
+      title: `Roll ${label}`,
+      content: `<p>Dice pool: <strong>${attrValue}</strong></p>`,
+      buttons: {
+        roll: {
+          label: "Roll",
+          callback: async () => {
+            const roll = new Roll(`${attrValue}d10cs>5`);
+            await roll.toMessage({
+              speaker: ChatMessage.getSpeaker({ actor }),
+              flavor: `Rolling ${label} (${attrValue} dice)`,
+              rollMode: game.settings.get("core", "rollMode"),
+            });
+          },
+        },
+        cancel: { label: "Cancel" },
+      },
+      default: "roll",
+    }).render(true);
   }
 
   async _preparePartContext(partId, context, options) {

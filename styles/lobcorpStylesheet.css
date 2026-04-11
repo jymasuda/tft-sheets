@@ -397,7 +397,6 @@
   height: 16px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: brightness(0.7) sepia(1) saturate(0.6);
   border: none;
 }
 
@@ -630,9 +629,6 @@
   height: 48px;
   object-fit: contain;
   border: none;
-  /* Neutral filter — the images will have their own colours;
-     remove this line once you have proper coloured assets */
-  filter: brightness(0.85) saturate(1.1);
   transition: filter 0.15s;
 }
 .lobcorp .stat-cat-icon.clickable:hover {

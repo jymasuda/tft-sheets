@@ -451,7 +451,11 @@
                 {{#each cat.attributes as |attr|}}
                 <div class="attr-row">
 
-                    {{!-- Name: rollable for ALL attrs (system and justice) ── --}}
+                    {{!-- Attribute name — clicking triggers the WoD5E roll dialog.
+                         System attrs use data-action (picked up by ApplicationV2 →
+                         #onRollAttribute). Justice attrs use justice-rollable (picked
+                         up by the click listener in tftsheets.js that injects the
+                         flag-based pool). --}}
                     <span
                         class="attr-name {{#if attr.isSystem}}system-rollable{{else}}justice-rollable{{/if}}"
                         data-action="rollAttribute"
@@ -460,28 +464,23 @@
                         {{attr.displayName}}
                     </span>
 
+                    {{!-- Dots — clickable when unlocked via the unified attr-dot-click
+                         handler in tftsheets.js.
+                         Context depth inside {{#numLoop}}: this=numLoop, ../=attr, ../../=cat, ../../../=root --}}
                     <div class="attr-dots">
                         {{#numLoop 5}}
                             <span
-                                class="attr-dot {{#if (lte this ../value)}}filled filled--{{../../color}}{{/if}}{{#unless ../../../../locked}}{{#unless ../isSystem}} justice-dot{{/unless}}{{/unless}}"
-                                {{#unless ../../../../locked}}
+                                class="attr-dot {{#if (lte this ../value)}}filled filled--{{../../color}}{{/if}}{{#unless ../../../locked}} attr-dot-click{{/unless}}"
+                                {{#unless ../../../locked}}
+                                    data-dot-index="{{this}}"
+                                    data-attribute="{{../key}}"
+                                    data-is-system="{{../isSystem}}"
                                     {{#unless ../isSystem}}
                                         data-val-flag="{{../key}}Val"
-                                        data-dot-index="{{this}}"
                                     {{/unless}}
                                 {{/unless}}
                             ></span>
                         {{/numLoop}}
-
-                        {{!-- Edit caret — system attrs only, unlocked ── --}}
-                        {{#unless ../../locked}}
-                            {{#if attr.isSystem}}
-                                <i class="fas fa-caret-right attr-edit-btn clickable"
-                                    data-action="editAttribute"
-                                    data-attribute="{{attr.key}}"
-                                    title="Edit {{attr.displayName}}"></i>
-                            {{/if}}
-                        {{/unless}}
                     </div>
 
                 </div>
