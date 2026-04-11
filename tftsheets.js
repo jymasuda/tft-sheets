@@ -260,3 +260,19 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 });
+
+// ── Stat group attribute dot clicks ──────────────────────────────────────
+html.querySelectorAll(".attr-dots").forEach(dotContainer => {
+  dotContainer.querySelectorAll(".attr-dot").forEach(dot => {
+    dot.addEventListener("click", async () => {
+      const attrId = dotContainer.dataset.attrId;
+      const clickedIndex = parseInt(dot.dataset.dotIndex); // 1-based
+      const currentValue = parseInt(dotContainer.dataset.attrValue) || 0;
+      // clicking the same dot that is the current value toggles it off
+      const newValue = currentValue === clickedIndex ? clickedIndex - 1 : clickedIndex;
+      await app.document.update({
+        [`system.attributes.${attrId}.value`]: newValue
+      });
+    });
+  });
+});

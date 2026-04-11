@@ -397,15 +397,15 @@
                 data-name="system.attributes.{{attr.id}}.value">
                 <span class="resource-value-empty" data-action="dotCounterEmpty"></span>
                 {{#numLoop 5}}
-                <span class="attr-dot resource-value-step
-filled filled--{{../../color}}{{/if}}" data-action="dotCounterChange"
-                  data-index="{{this}}"></span>
+                <span
+                  class="attr-dot resource-value-step{{#if (lte this ../value)}} filled filled--{{../../color}}{{/if}}"
+                  data-action="dotCounterChange" data-index="{{this}}"></span>
                 {{/numLoop}}
               </div>
               {{else}}
               <div class="attr-dots">
                 {{#numLoop 5}}
-                <span class="attr-dot {{#if (lte this ../attr.value)}}filled filled--{{../../color}}{{/if}}"></span>
+                <span class="attr-dot{{#if (lte this ../value)}} filled filled--{{../../color}}{{/if}}"></span>
                 {{/numLoop}}
               </div>
               {{/unless}}
