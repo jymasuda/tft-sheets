@@ -32,12 +32,61 @@ const RESIST_OPTIONS = {
 };
 
 // ---------------------------------------------------------------------------
+// Attempt to trigger a WoD5E attribute roll via every known API surface.
+// Called both from the render hook listener AND from the sheet action.
+// ---------------------------------------------------------------------------
+async function triggerAttributeRoll(app, attributeKey) {
+  const actor = app.document;
+
+  // ── Method 1: WoD5E v5 system API ────────────────────────────────────────
+  const api = game.system?.api ?? game.wod5e;
+  if (api?.Rolls?.handleRoll) {
+    try {
+      await api.Rolls.handleRoll({ actor, attribute: attributeKey, rollType: "attribute" });
+      return;
+    } catch(e) { console.warn("[TFT] api.Rolls.handleRoll failed:", e); }
+  }
+
+  // ── Method 2: WoD5E RollHandler ───────────────────────────────────────────
+  if (api?.RollHandler?.rollAttribute) {
+    try {
+      await api.RollHandler.rollAttribute(actor, attributeKey);
+      return;
+    } catch(e) { console.warn("[TFT] RollHandler.rollAttribute failed:", e); }
+  }
+
+  // ── Method 3: Dispatch a synthetic click on the WoD5E system-rollable
+  //    element if the system's own sheet is open alongside ours ─────────────
+  // (Not applicable for our custom sheet — skip)
+
+  // ── Method 4: Direct WoD5E roll function from its module scope ───────────
+  if (game.wod5e?.rolls?.rollAttribute) {
+    try {
+      await game.wod5e.rolls.rollAttribute({ actor, attribute: attributeKey });
+      return;
+    } catch(e) { console.warn("[TFT] game.wod5e.rolls.rollAttribute failed:", e); }
+  }
+
+  // ── Method 5: Fallback — open the standard Foundry roll dialog ────────────
+  const attrValue = foundry.utils.getProperty(actor, `system.attributes.${attributeKey}.value`)
+                 ?? foundry.utils.getProperty(actor, `system.${attributeKey}.value`)
+                 ?? 0;
+  const label = attributeKey.charAt(0).toUpperCase() + attributeKey.slice(1);
+  const roll = new Roll(`${attrValue}dh`); // Hunter dice
+  await roll.toMessage({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    flavor: `Rolling ${label} (${attrValue} dice)`,
+    rollMode: game.settings.get("core", "rollMode"),
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Main render hook
 // ---------------------------------------------------------------------------
 Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   const scope = "tft-sheets";
 
-  // ── Agent panel ──────────────────────────────────────────────────────
+  // ── Agent panel ──────────────────────────────────────────────────────────
   inputCreate(app, options, "base", "blurbFlag", "???",
     html.querySelector(".blurb-input"),
     html.querySelector(".blurb-field")
@@ -52,8 +101,18 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   paleDamage(app, html.getElementsByClassName("resource-counter-step"));
   sinPointsRender(app, html);
 
-  // ── Physical resistance dropdowns ─────────────────────────────────────
-  for (let n = 1; n <= 4; n++) {
+  // ── Armor title (guarded) ─────────────────────────────────────────────────
+  const armorTitleInput   = html.querySelector(".armor-title-input");
+  const armorTitleDisplay = html.querySelector(".armor-title-display");
+  if (armorTitleInput || armorTitleDisplay) {
+    inputCreate(app, options, "base", "armorTitle", "",
+      armorTitleInput,
+      armorTitleDisplay
+    );
+  }
+
+  // ── Physical resistance dropdowns ─────────────────────────────────────────
+  for (let n = 1; n <= 3; n++) {
     inputCreate(app, options, "base", `resist${n}`, "Normal",
       html.querySelector(`.resist-input-${n}`),
       html.querySelector(`.resist-display-${n}`),
@@ -61,7 +120,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     );
   }
 
-  // ── Colour damage resistance dropdowns ───────────────────────────────
+  // ── Colour damage resistance dropdowns ───────────────────────────────────
   for (const color of ["red", "white", "black", "pale"]) {
     const cap = color.charAt(0).toUpperCase() + color.slice(1);
     inputCreate(app, options, "base", `resist${cap}`, "Normal",
@@ -71,9 +130,8 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     );
   }
 
-
-  // ── All changeable icons (damage types AND stat group icons) ──────────
-  html.querySelectorAll(".dmg-type-icon.clickable, .stat-group-icon.clickable").forEach(img => {
+  // ── Changeable icons ──────────────────────────────────────────────────────
+  html.querySelectorAll(".dmg-type-icon.clickable, .stat-cat-icon.clickable").forEach(img => {
     img.addEventListener("click", () => {
       const iconFlag = img.dataset.iconFlag;
       if (!iconFlag) return;
@@ -87,14 +145,38 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── RP entries — type selects (restore saved value) ──────────────────
+  // ── Attribute rolls — system-rollable spans ───────────────────────────────
+  // Belt-and-suspenders: also wire clicks directly here in case data-action
+  // dispatch doesn't reach our handler (e.g. ApplicationV2 action bubbling).
+  html.querySelectorAll(".system-rollable[data-attribute]").forEach(el => {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const attributeKey = el.dataset.attribute;
+      if (!attributeKey) return;
+      await triggerAttributeRoll(app, attributeKey);
+    });
+  });
+
+  // ── Justice attribute rolls ───────────────────────────────────────────────
+  html.querySelectorAll(".justice-rollable[data-attribute]").forEach(el => {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const attributeKey = el.dataset.attribute;
+      if (!attributeKey) return;
+      await triggerAttributeRoll(app, attributeKey);
+    });
+  });
+
+  // ── RP entries — type selects ─────────────────────────────────────────────
   html.querySelectorAll(".rp-type-select").forEach(sel => {
     sel.value = sel.dataset.currentType ?? "Passive";
-
     sel.addEventListener("change", async () => {
       const id      = sel.dataset.entryId;
       const newType = sel.value;
-
       if (newType === "Core Passive") {
         const entries = app.document.getFlag(scope, "rpEntries") ?? [];
         const hasCore = entries.some(e => e.id !== id && e.type === "Core Passive");
@@ -104,27 +186,26 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
           return;
         }
       }
-
       sel.dataset.currentType = newType;
       await updateRpEntry(app, id, { type: newType });
     });
   });
 
-  // ── RP entries — name inputs ──────────────────────────────────────────
+  // ── RP entries — name inputs ──────────────────────────────────────────────
   html.querySelectorAll(".rp-name-field").forEach(input => {
     input.addEventListener("change", async () => {
       await updateRpEntry(app, input.dataset.entryId, { name: input.value });
     });
   });
 
-  // ── RP entries — description textareas ───────────────────────────────
+  // ── RP entries — description textareas ───────────────────────────────────
   html.querySelectorAll(".rp-desc-textarea").forEach(ta => {
     ta.addEventListener("change", async () => {
       await updateRpEntry(app, ta.dataset.entryId, { desc: ta.value });
     });
   });
 
-  // ── RP entries — delete buttons ───────────────────────────────────────
+  // ── RP entries — delete buttons ───────────────────────────────────────────
   html.querySelectorAll(".rp-delete-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
       const id      = btn.dataset.entryId;
@@ -134,7 +215,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── RP entries — add button ───────────────────────────────────────────
+  // ── RP entries — add button ───────────────────────────────────────────────
   html.querySelector(".rp-add-btn")?.addEventListener("click", async () => {
     const entries = foundry.utils.duplicate(
       app.document.getFlag(scope, "rpEntries") ?? []
@@ -148,7 +229,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     await app.document.setFlag(scope, "rpEntries", entries);
   });
 
-  // ── Skill specialty inputs ─────────────────────────────────────────────
+  // ── Skill specialty inputs ────────────────────────────────────────────────
   html.querySelectorAll(".skill-spec-input").forEach(input => {
     let debounce;
     input.addEventListener("input", () => {
@@ -157,8 +238,7 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Justice attribute — name inputs (unlocked only) ───────────────────
-  // Each input carries data-name-flag="justiceAttr1Name" etc.
+  // ── Justice attribute — name inputs ───────────────────────────────────────
   html.querySelectorAll(".justice-name-input").forEach(input => {
     input.addEventListener("change", async () => {
       const flagKey = input.dataset.nameFlag;
@@ -167,15 +247,13 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Justice attribute — dot clicks (unlocked only) ────────────────────
-  // Each dot carries data-val-flag="justiceAttr1Val" and data-dot-index="N" (1-based).
+  // ── Justice attribute — dot clicks ────────────────────────────────────────
   html.querySelectorAll(".justice-dot").forEach(dot => {
     dot.addEventListener("click", async () => {
       const valFlag = dot.dataset.valFlag;
       const idx     = Number(dot.dataset.dotIndex);
       if (!valFlag) return;
       const current = Number(app.document.getFlag(scope, valFlag) ?? 0);
-      // Clicking the active dot removes it (toggle off); otherwise set to idx
       const newVal  = current === idx ? idx - 1 : idx;
       await app.document.setFlag(scope, valFlag, newVal);
     });

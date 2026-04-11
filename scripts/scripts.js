@@ -4,8 +4,9 @@
 const toRoman = (num) => {
   if (!num || num <= 0) return "–";
   const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
-  const syms = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"];
+  const syms = ["M","CM","D","CD","C","XC","L","XL","X","IX","EX","IV","I"];
   let r = "";
+  num = num + 1;
   for (let i = 0; i < vals.length; i++) {
     while (num >= vals[i]) { r += syms[i]; num -= vals[i]; }
   }
@@ -275,14 +276,13 @@ export const prepareBaseContext = async function (context, actor) {
     };
   };
 
-  // Justice — two fully custom flag-based attributes
-  const j1name  = f("justiceAttr1Name", "Attribute 1");
-  const j2name  = f("justiceAttr2Name", "Attribute 2");
+ // Justice — two custom flag-based attributes with HARDCODED display names
+  // Values are still stored as flags (clickable dots), names are fixed in code.
   const j1val   = Number(actor.getFlag(scope, "justiceAttr1Val") ?? 0);
   const j2val   = Number(actor.getFlag(scope, "justiceAttr2Val") ?? 0);
   const jEntries = [
-    { key: "justiceAttr1", displayName: j1name, value: j1val, isSystem: false },
-    { key: "justiceAttr2", displayName: j2name, value: j2val, isSystem: false },
+    { key: "justiceAttr1", displayName: "Reflex",  value: j1val, isSystem: false },
+    { key: "justiceAttr2", displayName: "Focus",  value: j2val, isSystem: false },
   ];
   const jRating = Math.max(j1val, j2val);
 

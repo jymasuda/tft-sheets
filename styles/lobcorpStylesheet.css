@@ -478,6 +478,7 @@
   border-bottom: 1px solid var(--notched-border-color);
   padding-bottom: 4px;
   margin-bottom: 4px;
+  margin-left: 12px;
 }
 
 /* Type select — unlocked */

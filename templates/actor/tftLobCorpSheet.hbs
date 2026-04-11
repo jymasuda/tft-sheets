@@ -436,11 +436,11 @@
             {{!-- ── Left: icon + Roman numeral ── --}}
             <div class="stat-cat-icon-wrap">
                 <img
-                    class="stat-cat-icon {{#unless ../locked}}clickable{{/unless}}"
-                    src="{{#if cat.iconSrc}}{{cat.iconSrc}}{{else}}{{cat.defaultIcon}}{{/if}}"
+                    class="stat-cat-icon"
+                    src="{{cat.defaultIcon}}"
                     data-icon-flag="{{cat.iconFlag}}"
                     alt="{{cat.label}}"
-                    title="{{#unless ../locked}}Click to change icon{{/unless}}" />
+                    />
                 <div class="stat-cat-rating stat-cat-rating--{{cat.color}}">{{cat.romanRating}}</div>
             </div>
 
@@ -451,31 +451,16 @@
                 {{#each cat.attributes as |attr|}}
                 <div class="attr-row">
 
-                    {{#if attr.isSystem}}
-                        {{!-- System attr: rollable label --}}
-                        <span
-                            class="attr-name system-rollable"
-                            data-action="attributeRoll"
-                            data-attribute="{{attr.key}}"
-                            title="Roll {{attr.displayName}}">
-                            {{attr.displayName}}
-                        </span>
-                    {{else}}
-                        {{!-- Justice: editable name or locked display --}}
-                        {{#if ../../locked}}
-                            <span class="attr-name">{{attr.displayName}}</span>
-                        {{else}}
-                            <input
-                                class="attr-name justice-name-input"
-                                type="text"
-                                data-name-flag="{{attr.key}}Name"
-                                value="{{attr.displayName}}"
-                                placeholder="Attribute…" />
-                        {{/if}}
-                    {{/if}}
+                    {{!-- Name: rollable for ALL attrs (system and justice) ── --}}
+                    <span
+                        class="attr-name {{#if attr.isSystem}}system-rollable{{else}}justice-rollable{{/if}}"
+                        data-action="rollAttribute"
+                        data-attribute="{{attr.key}}"
+                        title="Roll {{attr.displayName}}">
+                        {{attr.displayName}}
+                    </span>
 
                     <div class="attr-dots">
-                        {{!-- numLoop: this = 1…5, ../ = attr scope --}}
                         {{#numLoop 5}}
                             <span
                                 class="attr-dot {{#if (lte this ../value)}}filled filled--{{../../color}}{{/if}}{{#unless ../../../../locked}}{{#unless ../isSystem}} justice-dot{{/unless}}{{/unless}}"
@@ -488,7 +473,7 @@
                             ></span>
                         {{/numLoop}}
 
-                        {{!-- Edit caret — system attrs only, unlocked only --}}
+                        {{!-- Edit caret — system attrs only, unlocked ── --}}
                         {{#unless ../../locked}}
                             {{#if attr.isSystem}}
                                 <i class="fas fa-caret-right attr-edit-btn clickable"
