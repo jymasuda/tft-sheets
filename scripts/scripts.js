@@ -250,9 +250,10 @@ export const prepareBaseContext = async function (context, actor) {
     // a nested .attributes key. We sort by the order WoD5E provides them.
     const rawAttrs = group.attributes ?? group;
     const allEntries = Object.entries(rawAttrs)
-      .filter(([k]) => k !== "label")      // skip non-attr metadata keys
+      .filter(([k]) => k !== "label")
       .map(([k, v]) => ({
         key: k,
+        id: v.id ?? k,          // ← the WoD5E canonical attribute ID
         displayName: v.displayName ?? v.label ?? k,
         value: Number(v.value ?? 0),
         isSystem: true,
@@ -287,6 +288,7 @@ export const prepareBaseContext = async function (context, actor) {
       .filter(([k]) => k !== "label")
       .map(([k, v]) => ({
         key: k,
+        id: v.id ?? k,  // ← add this
         displayName: v.displayName ?? v.label ?? k,
         value: Number(v.value ?? 0),
         isSystem: true,
