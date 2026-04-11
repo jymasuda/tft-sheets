@@ -724,67 +724,115 @@
 .lobcorp .skills-columns {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 6px;
   padding-top: 4px;
 }
 .lobcorp .skill-group-col {
   flex: 1;
   min-width: 0;
 }
+
+/* ── Skill row ───────────────────────────────────────────── */
 .lobcorp .skill-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 4px;
-  font-size: 12px;
   padding: 2px 0;
   border-bottom: 1px solid rgba(95, 93, 68, 0.3);
-}
-.lobcorp .skill-name {
-  flex: 0 0 80px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.lobcorp .skill-specialty {
-  flex: 1;
   min-width: 0;
 }
-.lobcorp .skill-spec-text {
+
+/* ── Label group: edit + name + S badge ─────────────────── */
+.lobcorp .skill-label-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lobcorp .skill-edit-btn {
+  flex-shrink: 0;
+  font-size: 9px;
+  color: var(--main-text-color);
+  opacity: 0;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+.lobcorp .skill-row:hover .skill-edit-btn { opacity: 0.6; }
+.lobcorp .skill-edit-btn:hover            { opacity: 1 !important; color: var(--header-color); }
+
+.lobcorp .skill-name {
+  flex: 1;
   font-size: 11px;
-  color: var(--header-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;
+  color: var(--main-text-color);
+  cursor: pointer;
+  transition: color 0.15s;
 }
-.lobcorp .skill-spec-input {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px dashed var(--notched-border-color);
+.lobcorp .skill-name:hover            { color: var(--header-color); }
+.lobcorp .skill-name.specialty-available { color: var(--header-color); }
+
+/* Specialty "S" badge */
+.lobcorp .skill-spec-s {
+  flex-shrink: 0;
+  font-family: "Norwester", Arial;
+  font-size: 9px;
   color: var(--header-color);
-  font-size: 11px;
-  font-family: "GillSansMT", Arial;
-  padding: 0 2px;
-  box-sizing: border-box;
+  text-shadow: 0 0 3px var(--header-glow);
+  cursor: help;
+  width: 10px;
+  text-align: center;
 }
-.lobcorp .skill-spec-input::placeholder { color: rgba(163,160,117,0.3); }
-.lobcorp .skill-dots {
+.lobcorp .skill-spec-s--empty {
+  width: 10px;         /* reserve same space as "S" so columns align */
+  display: inline-block;
+}
+
+/* ── Native WoD5E dot counter override ──────────────────── */
+/* The system JS owns the interaction; we just re-theme the pixels. */
+.lobcorp .skill-dots-native {
   display: flex;
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
+  /* override any system padding/margin */
+  margin: 0;
+  padding: 0;
 }
-.lobcorp .skill-dot {
-  width: 8px; height: 8px;
+
+/* The "empty" span is a zero-size click target for clearing all dots */
+.lobcorp .skill-dots-native .resource-value-empty {
+  display: none;   /* hidden; right-click or click-on-active-dot clears */
+}
+
+/* Individual dot steps */
+.lobcorp .skill-dots-native .resource-value-step {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   border: 1px solid var(--notched-border-color);
   background-color: var(--dot-empty);
   display: inline-block;
+  cursor: pointer;
+  transition: background-color 0.12s, border-color 0.12s;
+  /* reset any system sizing that may bleed in */
+  min-width: unset;
+  min-height: unset;
+  flex-shrink: 0;
 }
-.lobcorp .skill-dot.filled {
+
+/* Filled state — system adds .active via its dotCounterChange handler */
+.lobcorp .skill-dots-native .resource-value-step.active {
   background-color: var(--dot-filled);
   border-color: var(--dot-filled);
+}
+.lobcorp .skill-dots-native .resource-value-step:hover {
+  border-color: var(--header-color);
 }
 
 /* =========================================================

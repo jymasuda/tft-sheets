@@ -152,6 +152,9 @@ export const prepareBaseContext = async function (context, actor) {
   // ── Raw system data ────────────────────────────────────────────────────
   context.sortedAttributes = actorData.sortedAttributes;
   context.sortedSkills = actorData.sortedSkills;
+  context.hasSpecialties = Object.values(actorData.sortedSkills ?? {})
+  .flatMap(group => Object.values(group))
+  .some(s => s?.bonuses?.length > 0);
   context.customRolls = actorData.customRolls;
   context.conditions = actorData.conditions;
 

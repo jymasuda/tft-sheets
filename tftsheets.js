@@ -246,15 +246,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     await app.document.setFlag(scope, "rpEntries", entries);
   });
 
-  // ── Skill specialty inputs ────────────────────────────────────────────────
-  html.querySelectorAll(".skill-spec-input").forEach(input => {
-    input.addEventListener("change", async () => {
-      const skillKey = input.name?.replace("system.skills.", "").replace(".specialty", "");
-      if (!skillKey) return;
-      await app.document.update({ [input.name]: input.value });
-    });
-  });
-
   // ── Justice attribute — name inputs ───────────────────────────────────────
   html.querySelectorAll(".justice-name-input").forEach(input => {
     input.addEventListener("change", async () => {
@@ -263,4 +254,87 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       await app.document.setFlag(scope, flagKey, input.value);
     });
   });
+});
+
+// ---------------------------------------------------------------------------
+// Patch the WoD5E "Select Roll" dialog so renamed attributes/skills show
+// the actor's custom displayName instead of the system default label.
+//
+// The dialog is a Foundry ApplicationV2 whose title matches the actor, and
+// its selects carry data-name / name attributes we can read for the actor id.
+// We fish the actor out of the most-recently opened sheet.
+// ---------------------------------------------------------------------------
+Hooks.on("renderApplication", (app, html) => {
+  // Target only the WoD5E select-roll dialog (class varies by version)
+  const isSelectDialog =
+    app.constructor?.name?.toLowerCase().includes("selectroll") ||
+    app.constructor?.name?.toLowerCase().includes("wod5eselect") ||
+    html.querySelector?.(".roll-dice-selectors") !== null;
+
+  if (!isSelectDialog) return;
+
+  // Recover the actor whose sheet last triggered a roll.
+  // WoD5E stores the originating actor uuid/id on the dialog options.
+  const actorId =
+    app.options?.actorId ??
+    app.options?.actor?.id ??
+    app.object?.id;
+
+  const actor = actorId
+    ? game.actors.get(actorId)
+    : _lastRollingActor;          // fallback — see tracker hook below
+
+  if (!actor) return;
+
+  // Build a flat map: { [wod5eId]: customDisplayName }
+  const nameMap = {};
+
+  for (const group of Object.values(actor.system.sortedAttributes ?? {})) {
+    const rawAttrs = group.attributes ?? group;
+    for (const [k, v] of Object.entries(rawAttrs)) {
+      if (k === "label") continue;
+      const customName = v.displayName ?? v.label;
+      const systemDefault = game.i18n.localize(
+        CONFIG.WOD5E?.Attributes?.[k]?.label ?? ""
+      );
+      // Only patch when the actor has a non-default name
+      if (customName && customName !== systemDefault) {
+        nameMap[k] = customName;
+      }
+    }
+  }
+
+  for (const group of Object.values(actor.system.sortedSkills ?? {})) {
+    for (const [k, v] of Object.entries(group)) {
+      if (k === "label") continue;
+      const customName = v.displayName ?? v.label;
+      const systemDefault = game.i18n.localize(
+        CONFIG.WOD5E?.Skills?.[k]?.label ?? ""
+      );
+      if (customName && customName !== systemDefault) {
+        nameMap[k] = customName;
+      }
+    }
+  }
+
+  if (!Object.keys(nameMap).length) return;
+
+  // Patch every <option> in every <select> inside the dialog
+  const root = html instanceof HTMLElement ? html : html[0];
+  root.querySelectorAll("select option").forEach(opt => {
+    const id = opt.value;
+    if (nameMap[id]) opt.textContent = nameMap[id];
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Track which actor most recently triggered a roll so we can recover it
+// in renderApplication above when the dialog doesn't carry actorId.
+// ---------------------------------------------------------------------------
+let _lastRollingActor = null;
+
+Hooks.on("renderLobcorpHunter", (app) => {
+  // Every time our sheet renders, record its actor as the "last rolling" one.
+  // This is a best-effort fallback; WoD5E may pass actorId directly.
+  _lastRollingActor = app.document;
 });

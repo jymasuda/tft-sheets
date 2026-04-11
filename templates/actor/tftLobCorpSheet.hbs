@@ -421,32 +421,63 @@
     </div>{{!-- /stats-panel --}}
 
     <div class="notched skills-panel">
-      <div class="headertext">Skills and Talents</div>
-      <div class="skills-columns">
-        {{#each sortedSkills as |type key|}}
-        <div class="skill-group-col" data-group="{{key}}">
-          {{#each type as |skill skillKey|}}
-          <div class="skill-row">
-            <span class="skill-name">{{skill.displayName}}</span>
-            <div class="skill-specialty">
-              {{#if locked}}
-              <span class="skill-spec-text">{{skill.specialty}}</span>
-              {{else}}
-              <input class="skill-spec-input" type="text" name="system.skills.{{skillKey}}.specialty"
-                value="{{skill.specialty}}" placeholder="Specialty" />
-              {{/if}}
-            </div>
-            <div class="skill-dots" data-value="{{skill.value}}">
-              {{#numLoop 5}}
-              <span class="skill-dot {{#if (lte this ../skill.value)}}filled{{/if}}"></span>
-              {{/numLoop}}
-            </div>
-          </div>
-          {{/each}}
+  <div class="headertext">Skills and Talents</div>
+  <div class="skills-columns">
+    {{#each sortedSkills as |type key|}}
+    <div class="skill-group-col" data-group="{{key}}">
+      {{#each type as |skill skillKey|}}
+      <div class="skill-row">
+
+        {{!-- Label group: edit pencil + rollable name + specialty badge --}}
+        <div class="skill-label-group">
+          {{#unless ../locked}}
+          <a class="skill-edit-btn"
+             data-action="editSkill"
+             data-skill="{{skill.id}}"
+             title="Edit specialty">
+            <i class="fas fa-edit"></i>
+          </a>
+          {{/unless}}
+
+          <label class="skill-name rollable{{#if skill.bonuses}} specialty-available{{/if}}"
+            data-action="roll"
+            data-value-paths="skills.{{skill.id}}.value"
+            data-skill="{{skill.id}}"
+            data-select-dialog="true"
+            data-use-flavor-path="true"
+            data-flavor-path="skills.{{skill.id}}.description"
+            data-macroid="{{skill.macroid}}"
+            title="{{#if skill.specialtiesList}}{{localize 'WOD5E.SkillsList.Specialties'}}: {{#each skill.specialtiesList}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}{{else}}{{skill.displayName}}{{/if}}">
+            {{skill.displayName}}
+          </label>
+
+          {{!-- Specialty badge: always reserve space so columns stay aligned --}}
+          {{#if ../../hasSpecialties}}
+            {{#if skill.bonuses}}
+            <span class="skill-spec-s"
+              title="{{localize 'WOD5E.SkillsList.Specialties'}}: {{#each skill.specialtiesList}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}">S</span>
+            {{else}}
+            <span class="skill-spec-s skill-spec-s--empty"></span>
+            {{/if}}
+          {{/if}}
         </div>
-        {{/each}}
+
+        {{!-- Native WoD5E dot counter — dotCounterChange / dotCounterEmpty handled by parent sheet --}}
+        <div class="resource-value skill-dots-native"
+             data-value="{{skill.value}}"
+             data-name="system.skills.{{skill.id}}.value">
+          <span class="resource-value-empty" data-action="dotCounterEmpty"></span>
+          {{#numLoop 5}}
+          <span class="resource-value-step" data-action="dotCounterChange" data-index="{{this}}"></span>
+          {{/numLoop}}
+        </div>
+
       </div>
-    </div>{{!-- /skills-panel --}}
+      {{/each}}
+    </div>
+    {{/each}}
+  </div>
+</div>
   </div>
 
   {{#if isOwner}}
