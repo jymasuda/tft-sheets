@@ -183,47 +183,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   // explicitly to triggerAttributeRoll so the dialog opens with the right
   // dice count.
 
-  // ── Unified attribute dot click handler ───────────────────────────────────
-  // Handles both system attributes (Fortitude / Prudence / Temperance) and
-  // flag-based justice attributes. Active only when the sheet is unlocked
-  // (the template adds the attr-dot-click class only then).
-  html.querySelectorAll(".attr-dot-click").forEach(dot => {
-    dot.style.cursor = "pointer";
-    dot.addEventListener("click", async (ev) => {
-      ev.stopPropagation();
-      const dotIndex = Number(dot.dataset.dotIndex); // 1-based (1-5)
-      const isSystem = dot.dataset.isSystem === "true";
-
-      if (!isSystem) {
-        // ── Justice / flag-based attribute ────────────────────────────────
-        const valFlag = dot.dataset.valFlag;
-        if (!valFlag) return;
-        const current = Number(app.document.getFlag(scope, valFlag) ?? 0);
-        // Clicking the already-active top dot decrements by 1 (toggle off).
-        const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
-        await app.document.setFlag(scope, valFlag, Math.max(0, newVal));
-      } else {
-        // ── System attribute (WoD5E actor data) ───────────────────────────
-        const key = dot.dataset.attribute;
-        const doc = app.document;
-        const path1 = `system.attributes.${key}.value`;
-        const path2 = `system.${key}.value`;
-
-        let current;
-        const updateData = {};
-        if (foundry.utils.getProperty(doc, path1) !== undefined) {
-          current = Number(foundry.utils.getProperty(doc, path1) ?? 0);
-          const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
-          updateData[path1] = Math.clamp(newVal, 0, 5);
-        } else {
-          current = Number(foundry.utils.getProperty(doc, path2) ?? 0);
-          const newVal = current === dotIndex ? dotIndex - 1 : dotIndex;
-          updateData[path2] = Math.clamp(newVal, 0, 5);
-        }
-        await doc.update(updateData);
-      }
-    });
-  });
 
   // ── RP entries — type selects ─────────────────────────────────────────────
   html.querySelectorAll(".rp-type-select").forEach(sel => {

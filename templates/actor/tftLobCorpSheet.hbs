@@ -386,33 +386,31 @@
 
             {{#each cat.attributes as |attr|}}
             <div class="attr-row">
-
-              {{!-- Attribute name — clicking triggers the WoD5E roll dialog.
-              System attrs use data-action (picked up by ApplicationV2 →
-              #onRollAttribute). Justice attrs use justice-rollable (picked
-              up by the click listener in tftsheets.js that injects the
-              flag-based pool). --}}
               <span class="attr-name rollable" data-action="roll" data-value-paths="attributes.{{attr.id}}.value"
                 data-select-dialog="true" data-attribute="{{attr.id}}" title="Roll {{attr.displayName}}">
                 {{attr.displayName}}
               </span>
 
-              {{!-- Dots — clickable when unlocked via the unified attr-dot-click
-              handler in tftsheets.js.
-              Context depth inside {{#numLoop}}: this=numLoop, ../=attr, ../../=cat, ../../../=root --}}
-              <div class="attr-dots">
+              {{!-- Use WoD5E's native dot counter structure --}}
+              {{#unless ../../../locked}}
+              <div class="attr-dots resource-value" data-value="{{attr.value}}"
+                data-name="system.attributes.{{attr.id}}.value">
+                <span class="resource-value-empty" data-action="dotCounterEmpty"></span>
                 {{#numLoop 5}}
-                <span
-                  class="attr-dot {{#if (lte this ../value)}}filled filled--{{../../color}}{{/if}}{{#unless ../../../locked}} attr-dot-click{{/unless}}"
-                  {{#unless ../../../locked}} data-dot-index="{{this}}" data-attribute="{{../key}}"
-                  data-is-system="{{../isSystem}}" {{#unless ../isSystem}} data-val-flag="{{../key}}Val" {{/unless}}
-                  {{/unless}}></span>
+                <span class="attr-dot resource-value-step
+filled filled--{{../../color}}{{/if}}" data-action="dotCounterChange"
+                  data-index="{{this}}"></span>
                 {{/numLoop}}
               </div>
-
+              {{else}}
+              <div class="attr-dots">
+                {{#numLoop 5}}
+                <span class="attr-dot {{#if (lte this ../attr.value)}}filled filled--{{../../color}}{{/if}}"></span>
+                {{/numLoop}}
+              </div>
+              {{/unless}}
             </div>
             {{/each}}
-
           </div>
         </div>
         {{/each}}
