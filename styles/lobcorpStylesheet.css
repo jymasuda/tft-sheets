@@ -233,6 +233,23 @@
 .lobcorp .resource-header    { font-size: 90%; color: var(--header-color); }
 .lobcorp .stats-container    { font-size: 90%; }
 
+/* ── Scrollable conditions list ── */
+.lobcorp .stats-container .items-list {
+  max-height: 50px;      /* adjust to taste */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--notched-border-color) transparent;
+}
+.lobcorp .stats-container .items-list::-webkit-scrollbar       { width: 4px; }
+.lobcorp .stats-container .items-list::-webkit-scrollbar-track { background: transparent; }
+.lobcorp .stats-container .items-list::-webkit-scrollbar-thumb {
+  background: var(--notched-border-color);
+  border-radius: 2px;
+}
+
 /* =========================================================
    COMBAT PANEL
    ========================================================= */
