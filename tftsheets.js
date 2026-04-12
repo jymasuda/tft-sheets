@@ -52,30 +52,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
   paleDamage(app, html);
   sinPointsRender(app, html);
 
-  // ── DIAGNOSTIC — capture-phase logger on the sheet root ─────────────────
-  // Open the browser console (F12) and right-click a health/sanity square.
-  // The log will show: what element was clicked, its classes/dataset, whether
-  // closest(".resource-counter-step") finds it, and the parent counter's
-  // data-name. Paste the output so we can see exactly what the DOM looks like.
-  html.addEventListener("contextmenu", (e) => {
-    const step = e.target.closest(".resource-counter-step");
-    console.log("[TFT-PALE] contextmenu (capture)", {
-      target:            e.target,
-      targetTag:         e.target.tagName,
-      targetId:          e.target.id,
-      targetClasses:     [...e.target.classList],
-      targetDataset:     { ...e.target.dataset },
-      defaultPrevented:  e.defaultPrevented,
-      cancelable:        e.cancelable,
-      closestStep:       step,
-      stepClasses:       step ? [...step.classList] : null,
-      stepDataset:       step ? { ...step.dataset } : null,
-      closestCounter:    step?.closest(".resource-counter"),
-      counterDataName:   step?.closest(".resource-counter")?.dataset?.name,
-      counterDataStates: step?.closest(".resource-counter")?.dataset?.states,
-    });
-  }, true); // true = capture phase, fires before any bubbling handler
-
   // ── Armor title ───────────────────────────────────────────────────────────
   const armorTitleInput = html.querySelector(".armor-title-input");
   const armorTitleDisplay = html.querySelector(".armor-title-display");
