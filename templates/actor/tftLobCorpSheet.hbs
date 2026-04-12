@@ -334,6 +334,11 @@
 
           <div class="rp-entry-header">
 
+            {{!-- Ping to chat --}}
+            <a class="rp-ping-btn clickable" data-entry-id="{{entry.id}}" title="Send to chat">
+              <i class="fas fa-comment"></i>
+            </a>
+
             {{!-- Type --}}
             {{#if ../locked}}
             <span class="rp-type">{{entry.type}}</span>

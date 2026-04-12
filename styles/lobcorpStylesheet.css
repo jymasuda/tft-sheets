@@ -77,7 +77,7 @@
 .lobcorp .gridcontainer {
   display: grid;
   grid-template-columns: 300px 1fr 1fr 1fr 260px;
-  grid-template-rows: auto auto;
+  grid-template-rows: 35pc auto;
   gap: 8px;
   margin: 4px 8px;
 }
@@ -259,19 +259,17 @@
   flex-direction: column;
 }
 .lobcorp .combat-skills-grid {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, auto);
   gap: 8px;
-  flex: 1;
   padding: 4px 0;
 }
 .lobcorp .combat-skill {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border-left: 1px solid var(--notched-border-color);
-  padding-left: 10px;
+  padding: 8px;
   min-width: 0;
 }
 .lobcorp .combat-skill:first-child { border-left: none; padding-left: 0; }
@@ -462,13 +460,14 @@
    RP ENTRIES — inner scroll
    ========================================================= */
 .lobcorp .rp-entries {
-  max-height: 260px;   /* ← was flex: 1 with no cap */
+  max-height: 60%;   /* ← was flex: 1 with no cap */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 4px;
   scrollbar-width: thin;
   scrollbar-color: var(--notched-border-color) transparent;
+  margin: 15px 0px;
 }
 .lobcorp .rp-entries::-webkit-scrollbar       { width: 4px; }
 .lobcorp .rp-entries::-webkit-scrollbar-track { background: transparent; }
@@ -556,6 +555,17 @@
   transition: opacity 0.15s, color 0.15s;
 }
 .lobcorp .rp-delete-btn:hover { opacity: 1; color: #da4c33; }
+
+/* Ping button */
+.lobcorp .rp-ping-btn {
+  flex-shrink: 0;
+  color: var(--main-text-color);
+  opacity: 0.4;
+  font-size: 10px;
+  transition: opacity 0.15s, color 0.15s;
+  margin-right: 2px;
+}
+.lobcorp .rp-ping-btn:hover { opacity: 1; color: var(--header-color); }
 
 /* Description */
 .lobcorp .rp-desc {
@@ -738,7 +748,7 @@
    SKILLS AND TALENTS PANEL
    ========================================================= */
 .lobcorp .skills-panel {
-  padding: 0 10px 12px 10px;
+  padding: 0 10px 0px 10px;
 }
 .lobcorp .skills-columns {
   display: flex;
