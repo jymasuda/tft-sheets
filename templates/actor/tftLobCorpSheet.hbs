@@ -48,11 +48,11 @@
       {{!-- Health Points --}}
       <div class="point-container">
         <div><label>
-            <i class="fas fa-minus resource-control resource-minus" data-action="resourceChange" data-resource="health"
-              data-resource-action="minus"></i>
+            {{#unless locked}}<i class="fas fa-minus resource-control resource-minus" data-action="resourceChange"
+              data-resource="health" data-resource-action="minus"></i>{{/unless}}
             Health Points
-            <i class="fas fa-plus resource-control resource-plus" data-action="resourceChange" data-resource="health"
-              data-resource-action="plus"></i>
+            {{#unless locked}}<i class="fas fa-plus resource-control resource-plus" data-action="resourceChange"
+              data-resource="health" data-resource-action="plus"></i>{{/unless}}
           </label></div>
         <div class="health">
           <span>
@@ -75,15 +75,15 @@
 
       {{!-- Sanity Points --}}
       <div class="point-container">
-        <div><label>
-            <i class="fas fa-minus resource-control resource-minus" data-action="resourceChange"
-              data-resource="willpower" data-resource-action="minus"></i>
+        <div><label {{#if locked}}style="bottom: 0px;"{{/if}}>
+            {{#unless locked}}<i class="fas fa-minus resource-control resource-minus" data-action="resourceChange"
+              data-resource="willpower" data-resource-action="minus"></i>{{/unless}}
             <label for="willpower" class="system-rollable willpower-roll" data-action="willpowerRoll"
               title="{{localize 'WOD5E.Chat.RollWillpower'}}">
               Sanity Points
             </label>
-            <i class="fas fa-plus resource-control resource-plus" data-action="resourceChange" data-resource="willpower"
-              data-resource-action="plus"></i>
+            {{#unless locked}}<i class="fas fa-plus resource-control resource-plus" data-action="resourceChange"
+              data-resource="willpower" data-resource-action="plus"></i>{{/unless}}
           </label></div>
         <div class="sanity">
           <span class="resource-counter editable" data-states="/:superficial,x:aggravated" data-max="{{willpower.max}}"
@@ -116,10 +116,13 @@
       <div class="stat-panel-section">
         <label class="resource-header">Status Effects</label>
         <div class="stats-container">
+          {{!-- BUG FIX 1: Add button hidden when locked --}}
+          {{#unless locked}}
           <a class="item-control item-create" data-action="createItem" title="{{localize 'WOD5E.Add'}}"
             data-type="condition">
             <i class="fas fa-plus"></i> {{localize "WOD5E.Add"}}
           </a>
+          {{/unless}}
           <div class="items-list flexcol">
             {{#each conditions as |condition id|}}
             <div class="item flexrow{{#if condition.system.suppressed}} suppressed{{/if}}" data-drag="true"
@@ -129,6 +132,9 @@
                   alt="{{condition.name}}" />
               </div>
               <div class="item-name">{{condition.name}}</div>
+              {{!-- BUG FIX 1: Edit/Delete controls hidden when locked --}}
+              {{!-- BUG FIX 2: Added missing </a> closing tag on delete button --}}
+              {{#unless ../locked}}
               <div class="item-controls">
                 <a class="item-control item-edit" data-action="itemEdit" data-item-id="{{condition._id}}"
                   title="{{localize 'WOD5E.Edit'}}">
@@ -137,7 +143,9 @@
                 <a class="item-control condition-delete" data-action="itemDelete" data-item-id="{{condition._id}}"
                   title="{{localize 'WOD5E.Delete'}}">
                   <i class="fas fa-trash"></i>
+                </a>
               </div>
+              {{/unless}}
             </div>
             {{/each}}
           </div>
@@ -153,12 +161,11 @@
 
       <div class="combat-skills-grid">
         {{#each combatSkills as |skill|}}
-        <div class="combat-skill" data-item-id="{{skill.id}}" data-drag="true"
-          data-document-uuid="{{skill.uuid}}" data-type="Item">
+        <div class="combat-skill" data-item-id="{{skill.id}}" data-drag="true" data-document-uuid="{{skill.uuid}}"
+          data-type="Item">
 
           {{!-- Image — click to roll --}}
-          <div class="combat-skill-image rollable-item" data-action="rollItem"
-            data-item-uuid="{{skill.uuid}}">
+          <div class="combat-skill-image rollable-item" data-action="rollItem" data-item-uuid="{{skill.uuid}}">
             <img src="{{skill.img}}" alt="{{skill.name}}" />
           </div>
 
@@ -167,7 +174,8 @@
             <div class="combat-skill-meta">
               {{!-- Show type label when non-default; otherwise show "Skill N" --}}
               {{#if skill.skillTypeLabel}}
-              <span class="skill-index skill-type-badge skill-type-badge--{{skill.skillType}}">{{skill.skillTypeLabel}}</span>
+              <span
+                class="skill-index skill-type-badge skill-type-badge--{{skill.skillType}}">{{skill.skillTypeLabel}}</span>
               {{else}}
               <span class="skill-index">Skill {{skill.index}}</span>
               {{/if}}
@@ -177,20 +185,18 @@
               <div class="combat-skill-controls">
                 {{#unless ../locked}}
                 {{!-- Skill type selector --}}
-                <select class="combat-skill-type-select"
-                  data-item-id="{{skill.id}}"
-                  data-current-type="{{skill.skillType}}"
-                  title="Skill type">
+                <select class="combat-skill-type-select" data-item-id="{{skill.id}}"
+                  data-current-type="{{skill.skillType}}" title="Skill type">
                   {{#each ../combatSkillTypes as |typeOpt|}}
                   <option value="{{typeOpt.value}}">{{typeOpt.label}}</option>
                   {{/each}}
                 </select>
-                <a class="item-control item-edit" data-action="itemEdit"
-                  data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Edit'}}">
+                <a class="item-control item-edit" data-action="itemEdit" data-item-id="{{skill._id}}"
+                  title="{{localize 'WOD5E.Edit'}}">
                   <i class="fas fa-edit"></i>
                 </a>
-                <a class="item-control item-delete" data-action="itemDelete"
-                  data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Delete'}}">
+                <a class="item-control item-delete" data-action="itemDelete" data-item-id="{{skill._id}}"
+                  title="{{localize 'WOD5E.Delete'}}">
                   <i class="fas fa-trash"></i>
                 </a>
                 {{/unless}}
@@ -207,11 +213,12 @@
         {{/each}}
 
         {{!-- Add card --}}
-        <div class="combat-skill combat-skill-add item-create"
-          data-action="createItem" data-type="customRoll">
+        {{#unless locked}}
+        <div class="combat-skill combat-skill-add item-create" data-action="createItem" data-type="customRoll">
           <div class="combat-add-icon"><i class="fas fa-plus"></i></div>
           <div class="combat-add-label">Add Skill</div>
         </div>
+        {{/unless}}
       </div>
     </div>
 
@@ -222,7 +229,7 @@
 
         {{!-- Column 1 : physical damage types --}}
         <div class="resistance-list">
-          <div class="resist-col-header">Physical</div>
+          <div class="resist-col-header">Form</div>
 
           {{!-- Slash --}}
           <div class="resist-row">
@@ -270,7 +277,7 @@
 
         {{!-- Column 2 : colour damage types --}}
         <div class="resistance-list resistance-list--color">
-          <div class="resist-col-header">Damage</div>
+          <div class="resist-col-header">Type</div>
 
           {{!-- RED --}}
           <div class="resist-row">

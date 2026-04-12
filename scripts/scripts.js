@@ -81,27 +81,68 @@ export const inputCreate = async function (
 };
 
 // ---------------------------------------------------------------------------
-// paleDamage — right-click to toggle pale/aggravated state on resource steps
+// paleDamage — delegated right-click handler for pale damage toggling.
+//
+// Attach ONE contextmenu listener to the sheet root (html).  When a
+// .resource-counter-step is right-clicked we walk up to its parent
+// .resource-counter span to read data-name="system.health" (or willpower),
+// extract the resource key, then toggle pale/normal.
+//
+//   Normal square  → right-click → pale   (max--, pale++)
+//   Pale square    → right-click → normal (max++, pale--)
+//
+// Using delegation means we never need to re-bind after re-renders, and
+// we sidestep WoD5E's per-element squareCounterChange dispatcher entirely.
 // ---------------------------------------------------------------------------
-export const paleDamage = async function (app, targets) {
+export const paleDamage = function (app, html) {
   const doc = app.document;
-  const docData = foundry.utils.duplicate(doc);
-  for (let i = 0; i < targets.length; i++) {
-    const target = targets[i];
-    const resource = target.id;
-    if (!resource || !docData.system[resource]) continue;
-    target.oncontextmenu = function () {
-      if (!docData.system[resource].pale) docData.system[resource].pale = 0;
-      if (!target.dataset.state && !target.classList.contains("pale")) {
-        docData.system[resource].max = Math.max(docData.system[resource].max - 1, 0);
-        docData.system[resource].pale++;
-      } else if (target.classList.contains("pale")) {
-        docData.system[resource].max++;
-        docData.system[resource].pale = Math.max(docData.system[resource].pale - 1, 0);
-      }
-      doc.update(docData);
-    };
-  }
+
+  html.addEventListener("contextmenu", async (e) => {
+    const step = e.target.closest(".resource-counter-step");
+    if (!step) return;
+
+    // Prevent the browser / Foundry context menu from appearing.
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Walk up to the resource-counter span that carries data-name.
+    // Normal squares are direct children of a span[data-name="system.health"].
+    // Pale squares live inside a span[data-name=""] — walk up one more level
+    // to the wrapping span that has no data-name, then check the sibling.
+    // Simpler: just look for the closest ancestor with a non-empty data-name.
+    const counter = step.closest(".resource-counter[data-name]");
+    const dataName = counter?.dataset?.name ?? "";   // e.g. "system.health"
+
+    // Derive the resource key from the data-name path.
+    // "system.health"    → "health"
+    // "system.willpower" → "willpower"
+    // Pale-square counters have data-name="" — resolve via the id attribute
+    // on the step itself as a fallback (id="health" / id="willpower").
+    let resource = dataName.split(".").pop();
+    if (!resource && step.id) resource = step.id;
+    if (!resource || !doc.system[resource]) return;
+
+    const isPale = step.classList.contains("pale");
+    const live   = doc.system[resource];
+    const currentMax  = Number(live.max  ?? 0);
+    const currentPale = Number(live.pale ?? 0);
+
+    if (isPale) {
+      // Restore one pale pip back to the active pool.
+      if (currentPale <= 0) return;
+      await doc.update({
+        [`system.${resource}.max`]:  currentMax + 1,
+        [`system.${resource}.pale`]: currentPale - 1,
+      });
+    } else {
+      // Convert one active square to pale.
+      if (currentMax <= 0) return;
+      await doc.update({
+        [`system.${resource}.max`]:  currentMax - 1,
+        [`system.${resource}.pale`]: currentPale + 1,
+      });
+    }
+  });
 };
 
 // ---------------------------------------------------------------------------
