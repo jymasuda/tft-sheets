@@ -329,6 +329,8 @@
 }
 .lobcorp .combat-add-btn:hover { color: var(--header-color); }
 
+
+
 /* =========================================================
    RIGHT PANEL
    ========================================================= */
@@ -861,3 +863,4 @@
   border-color: var(--notched-border-color);
 }
 .lobcorp select option { background: #1a1a10; }
+

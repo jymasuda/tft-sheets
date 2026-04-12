@@ -203,22 +203,32 @@ export const prepareBaseContext = async function (context, actor) {
   }
 
   // ── Combat skills ─────────────────────────────────────────────────────
+  // Index counts only attack-type skills; Defense/Corrosion/Panic don't increment it.
+  let attackIndex = 0;
   context.combatSkills = actor.items
     .filter(i => i.type === "customRoll")
-    .map((item, idx) => {
+    .map((item) => {
       const skillType = item.getFlag(scope, "skillType") ?? "attack";
+      const isAttack = skillType === "attack";
+      if (isAttack) attackIndex++;
+
+      // Pull description; strip trailing empty <p> tags left by ProseMirror.
+      const rawDesc = item.system?.description
+        ?? item.system?.action?.toChat?.content
+        ?? item.system?.details?.description
+        ?? "";
+      const description = rawDesc
+        .replace(/<p>(\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, "")
+        .trim();
+
       return {
         id: item.id,
         name: item.name,
         img: item.img,
-        index: idx + 1,
+        index: isAttack ? attackIndex : null,
         uuid: item.uuid,
         _id: item._id,
-        // Pull description from whichever path WoD5E uses
-        description: item.system?.description
-          ?? item.system?.action?.toChat?.content
-          ?? item.system?.details?.description
-          ?? "",
+        description,
         skillType,
         skillTypeLabel: SKILL_TYPE_LABELS[skillType] ?? "",
       };

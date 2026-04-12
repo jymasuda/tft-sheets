@@ -162,12 +162,14 @@
             <img src="{{skill.img}}" alt="{{skill.name}}" />
           </div>
 
-          {{!-- Header: index label + type badge + title + controls --}}
+          {{!-- Header: index/type label + title + controls --}}
           <div class="combat-skill-header">
             <div class="combat-skill-meta">
-              <span class="skill-index">Skill {{skill.index}}</span>
+              {{!-- Show type label when non-default; otherwise show "Skill N" --}}
               {{#if skill.skillTypeLabel}}
-              <span class="skill-type-badge skill-type-badge--{{skill.skillType}}">{{skill.skillTypeLabel}}</span>
+              <span class="skill-index skill-type-badge skill-type-badge--{{skill.skillType}}">{{skill.skillTypeLabel}}</span>
+              {{else}}
+              <span class="skill-index">Skill {{skill.index}}</span>
               {{/if}}
             </div>
             <div class="combat-skill-title-row">
@@ -180,10 +182,7 @@
                   data-current-type="{{skill.skillType}}"
                   title="Skill type">
                   {{#each ../combatSkillTypes as |typeOpt|}}
-                  <option value="{{typeOpt.value}}"
-                    {{#if (eq typeOpt.value ../skillType)}}selected{{/if}}>
-                    {{typeOpt.label}}
-                  </option>
+                  <option value="{{typeOpt.value}}">{{typeOpt.label}}</option>
                   {{/each}}
                 </select>
                 <a class="item-control item-edit" data-action="itemEdit"
@@ -199,9 +198,9 @@
             </div>
           </div>
 
-          {{!-- Description --}}
+          {{!-- Description — triple-stash renders HTML from WoD5E's rich text editor --}}
           {{#if skill.description}}
-          <div class="combat-skill-desc">{{skill.description}}</div>
+          <div class="combat-skill-desc">{{{skill.description}}}</div>
           {{/if}}
 
         </div>
