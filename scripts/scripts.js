@@ -29,6 +29,23 @@ export const RP_TYPES = [
 ];
 
 // ---------------------------------------------------------------------------
+// Combat skill type options
+// ---------------------------------------------------------------------------
+export const COMBAT_SKILL_TYPES = [
+  { value: "attack",    label: "Attack (default)" },
+  { value: "defense",   label: "Defense" },
+  { value: "corrosion", label: "Corrosion Skill" },
+  { value: "panic",     label: "Panic" },
+];
+
+const SKILL_TYPE_LABELS = {
+  attack:    "",
+  defense:   "Defense",
+  corrosion: "Corrosion Skill",
+  panic:     "Panic",
+};
+
+// ---------------------------------------------------------------------------
 // inputCreate — text / select input injected into unlocked/locked targets
 // ---------------------------------------------------------------------------
 export const inputCreate = async function (
@@ -185,17 +202,29 @@ export const prepareBaseContext = async function (context, actor) {
     }
   }
 
-// ── Combat skills ─────────────────────────────────────────────────────
+  // ── Combat skills ─────────────────────────────────────────────────────
   context.combatSkills = actor.items
     .filter(i => i.type === "customRoll")
-    .map((item, idx) => ({
-      id: item.id,
-      name: item.name,
-      img: item.img,
-      index: idx + 1,
-      uuid: item.uuid,
-      _id: item._id,
-    }));
+    .map((item, idx) => {
+      const skillType = item.getFlag(scope, "skillType") ?? "attack";
+      return {
+        id: item.id,
+        name: item.name,
+        img: item.img,
+        index: idx + 1,
+        uuid: item.uuid,
+        _id: item._id,
+        // Pull description from whichever path WoD5E uses
+        description: item.system?.description
+          ?? item.system?.action?.toChat?.content
+          ?? item.system?.details?.description
+          ?? "",
+        skillType,
+        skillTypeLabel: SKILL_TYPE_LABELS[skillType] ?? "",
+      };
+    });
+
+  context.combatSkillTypes = COMBAT_SKILL_TYPES;
 
   // ── RP entries (dynamic array) ────────────────────────────────────────
   context.rpEntries = actor.getFlag(scope, "rpEntries") ?? [];
@@ -233,34 +262,21 @@ export const prepareBaseContext = async function (context, actor) {
   context.locked = actor.getFlag(scope, "sheetLocked") ?? false;
 
   // ── Stat Groups (Fortitude / Prudence / Temperance / Justice) ─────────
-  //
-  // We pull attribute rows directly from actorData.sortedAttributes so the
-  // structure matches exactly what WoD5E exposes — no intermediate mapping.
-  // Each group object has:
-  //   key, label, color, iconFlag, iconSrc, defaultIcon
-  //   attributes  — array of { key, displayName, value, isSystem }
-  //   rating      — highest single attribute value in this group
-  //   romanRating — Roman numeral of rating
-
   const buildSystemGroup = (srcKey, indices, label, color, iconFlag, defaultIcon) => {
     const group = actorData.sortedAttributes?.[srcKey];
     if (!group) return null;
 
-    // sortedAttributes[srcKey] is the group object; its attributes live
-    // directly as named properties (strength, dexterity, etc.) — NOT under
-    // a nested .attributes key. We sort by the order WoD5E provides them.
     const rawAttrs = group.attributes ?? group;
     const allEntries = Object.entries(rawAttrs)
       .filter(([k]) => k !== "label")
       .map(([k, v]) => ({
         key: k,
-        id: v.id ?? k,          // ← the WoD5E canonical attribute ID
+        id: v.id ?? k,
         displayName: v.displayName ?? v.label ?? k,
         value: Number(v.value ?? 0),
         isSystem: true,
       }));
 
-    // indices = which entries to pick (e.g. [0,1] for Fortitude from physical)
     const entries = indices.map(i => allEntries[i]).filter(Boolean);
     const rating = entries.reduce((max, a) => Math.max(max, a.value), 0);
 
@@ -278,9 +294,6 @@ export const prepareBaseContext = async function (context, actor) {
     };
   };
 
-  // Justice — hybrid group: physical[2] (stamina) + mental[2] (resolve).
-  // Both are real WoD5E system attributes, so dots, rolls, and values all
-  // flow through the normal system paths — no flag overrides needed.
   const buildHybridEntry = (srcKey, idx) => {
     const group = actorData.sortedAttributes?.[srcKey];
     if (!group) return null;
@@ -289,7 +302,7 @@ export const prepareBaseContext = async function (context, actor) {
       .filter(([k]) => k !== "label")
       .map(([k, v]) => ({
         key: k,
-        id: v.id ?? k,  // ← add this
+        id: v.id ?? k,
         displayName: v.displayName ?? v.label ?? k,
         value: Number(v.value ?? 0),
         isSystem: true,
@@ -298,8 +311,8 @@ export const prepareBaseContext = async function (context, actor) {
   };
 
   const jEntries = [
-    buildHybridEntry("physical", 2), // stamina
-    buildHybridEntry("mental", 2), // resolve
+    buildHybridEntry("physical", 2),
+    buildHybridEntry("mental", 2),
   ].filter(Boolean);
 
   const jRating = jEntries.reduce((max, a) => Math.max(max, a.value), 0);
@@ -317,10 +330,6 @@ export const prepareBaseContext = async function (context, actor) {
     isSystem: true,
   };
 
-  // indices select which attrs from the WoD5E sorted list belong to each virtue.
-  // Physical: [strength, dexterity, stamina] → Fortitude = [0,1] (strength, dexterity)
-  // Mental:   [intelligence, wits, resolve]  → Prudence   = [0,1] (intelligence, wits)
-  // Social:   [charisma, manipulation, composure] → Temperance = [0,1,2] (all three)
   context.statGroups = [
     buildSystemGroup("physical", [0, 1], "Fortitude", "red", "iconFortitude", "https://lobotomycorporation.wiki.gg/images/FortitudeIcon.png?9dcd99"),
     buildSystemGroup("mental", [0, 1], "Prudence", "white", "iconPrudence", "https://lobotomycorporation.wiki.gg/images/PrudenceIcon.png?f10fb2"),

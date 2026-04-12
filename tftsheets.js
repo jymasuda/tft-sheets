@@ -33,13 +33,10 @@ const RESIST_OPTIONS = {
 
 // ---------------------------------------------------------------------------
 // Attempt to trigger a WoD5E attribute roll via every known API surface.
-// overridePool: pass an explicit dice count (used for flag-based justice attrs
-//               whose values are not stored in system.attributes).
 // ---------------------------------------------------------------------------
 async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
   const actor = app.document;
 
-  // ── Method 1: WoD5E v5 system API ────────────────────────────────────────
   const api = game.system?.api ?? game.wod5e;
   if (api?.Rolls?.handleRoll) {
     try {
@@ -57,7 +54,6 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
     } catch (e) { console.warn("[TFT] api.Rolls.handleRoll failed:", e); }
   }
 
-  // ── Method 2: WoD5E RollHandler ───────────────────────────────────────────
   if (api?.RollHandler?.rollAttribute) {
     try {
       await api.RollHandler.rollAttribute(actor, attributeKey);
@@ -65,7 +61,6 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
     } catch (e) { console.warn("[TFT] RollHandler.rollAttribute failed:", e); }
   }
 
-  // ── Method 3: Direct WoD5E roll function from its module scope ───────────
   if (game.wod5e?.rolls?.rollAttribute) {
     try {
       await game.wod5e.rolls.rollAttribute({ actor, attribute: attributeKey });
@@ -73,7 +68,6 @@ async function triggerAttributeRoll(app, attributeKey, overridePool = null) {
     } catch (e) { console.warn("[TFT] game.wod5e.rolls.rollAttribute failed:", e); }
   }
 
-  // ── Method 4: Fallback — open the standard Foundry roll dialog ────────────
   const attrValue = overridePool
     ?? foundry.utils.getProperty(actor, `system.attributes.${attributeKey}.value`)
     ?? foundry.utils.getProperty(actor, `system.${attributeKey}.value`)
@@ -167,11 +161,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Attribute dots — system attributes ───────────────────────────────────
-  // NOTE: system-rollable spans carry data-action="rollAttribute" which is
-  // handled by LobcorpHunter.#onRollAttribute via ApplicationV2's dispatcher.
-  // No duplicate click listener is added here.
-
   // ── Attribute dots — click to set value ──────────────────────────────────
   html.querySelectorAll(".attr-dots").forEach(dotContainer => {
     dotContainer.querySelectorAll(".attr-dot").forEach(dot => {
@@ -185,6 +174,18 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
           [`system.attributes.${attrId}.value`]: newValue,
         });
       });
+    });
+  });
+
+  // ── Combat skill type selects ─────────────────────────────────────────────
+  html.querySelectorAll(".combat-skill-type-select").forEach(sel => {
+    // Set current value from data attribute (HBS can't easily set selected=)
+    sel.value = sel.dataset.currentType ?? "attack";
+    sel.addEventListener("change", async () => {
+      const itemId = sel.dataset.itemId;
+      const item = app.document.items.get(itemId);
+      if (!item) return;
+      await item.setFlag(scope, "skillType", sel.value);
     });
   });
 
@@ -255,16 +256,15 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 });
+
 // ---------------------------------------------------------------------------
 // Build display-name lookup from the most recently opened LobcorpHunter sheet.
-// Maps canonical WoD5E key (e.g. "strength") → custom display name.
 // ---------------------------------------------------------------------------
 const _displayNames = { attributes: {}, skills: {} };
 
 function _rebuildDisplayNames(actor) {
   if (!actor?.system) return;
 
-  // Attributes
   for (const group of Object.values(actor.system.sortedAttributes ?? {})) {
     const rawAttrs = group.attributes ?? group;
     for (const [k, v] of Object.entries(rawAttrs)) {
@@ -274,7 +274,6 @@ function _rebuildDisplayNames(actor) {
     }
   }
 
-  // Skills
   for (const group of Object.values(actor.system.sortedSkills ?? {})) {
     for (const [k, v] of Object.entries(group)) {
       if (k === "label" || !v || typeof v !== "object") continue;
@@ -284,7 +283,6 @@ function _rebuildDisplayNames(actor) {
   }
 }
 
-// Populate on ready and on every sheet render
 Hooks.once("ready", () => {
   const actor = game.actors.find(a => a.type === "hunter");
   if (actor) _rebuildDisplayNames(actor);
@@ -294,53 +292,3 @@ Hooks.on("renderLobcorpHunter", (app) => {
   _rebuildDisplayNames(app.document);
 });
 
-// ---------------------------------------------------------------------------
-// After the select-dice-dialog renders, rewrite its <option> text to use
-// our custom display names.  We hook renderApplication (fires for every app)
-// and bail out immediately if it's not the dialog we care about.
-// ---------------------------------------------------------------------------
-function _rewriteDialogOptions(html) {
-  // html may be an Element, HTMLCollection, or jQuery — normalise to Element
-  const root = html instanceof HTMLElement ? html
-    : html[0] instanceof HTMLElement     ? html[0]
-    : html.get?.(0)                      ?? html;
-
-  if (!root) return;
-
-  // Target every <select> inside the dialog
-  const selects = root.querySelectorAll
-    ? root.querySelectorAll("select")
-    : [];
-
-  for (const sel of selects) {
-    for (const opt of sel.options) {
-      if (!opt.value) continue; // skip the blank "None" option
-
-      const key = opt.value.toLowerCase();
-
-      // Try attributes first, then skills
-      const replacement =
-        _displayNames.attributes[key] ??
-        _displayNames.skills[key];
-
-      if (replacement) opt.text = replacement;
-    }
-  }
-}
-
-// Generic hook — fires for every Application that renders
-Hooks.on("renderApplication", (_app, html) => {
-  // Only act on the select-dice-dialog by checking for its distinctive selects
-  const root = html instanceof HTMLElement ? html : html[0] ?? html;
-  if (!root) return;
-  if (!root.querySelector?.("#attributeSelect, #skillSelect, #attributeSelect2")) return;
-  _rewriteDialogOptions(root);
-});
-
-// ApplicationV2 fires this instead — covers Foundry v12+
-Hooks.on("renderApplicationV2", (_app, html) => {
-  const root = html instanceof HTMLElement ? html : html[0] ?? html;
-  if (!root) return;
-  if (!root.querySelector?.("#attributeSelect, #skillSelect, #attributeSelect2")) return;
-  _rewriteDialogOptions(root);
-});

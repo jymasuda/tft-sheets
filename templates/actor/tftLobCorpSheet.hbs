@@ -145,51 +145,76 @@
       </div>
     </div>
 
+    {{!-- ═══════════════════════════════════════════════════════════
+    COMBAT PANEL
+    ═══════════════════════════════════════════════════════════ --}}
     <div class="notched combat-panel">
-  <div class="headertext">Combat Skills</div>
+      <div class="headertext">Combat Skills</div>
 
-  <div class="combat-skills-grid">
-    {{#each combatSkills as |skill|}}
-    <div class="combat-skill" data-item-id="{{skill.id}}" data-drag="true"
-      data-document-uuid="{{skill.uuid}}" data-type="Item">
+      <div class="combat-skills-grid">
+        {{#each combatSkills as |skill|}}
+        <div class="combat-skill" data-item-id="{{skill.id}}" data-drag="true"
+          data-document-uuid="{{skill.uuid}}" data-type="Item">
 
-      {{!-- Image — click to roll, matching rollItem behaviour --}}
-      <div class="combat-skill-image rollable-item" data-action="rollItem"
-        data-item-uuid="{{skill.uuid}}">
-        <img src="{{skill.img}}" alt="{{skill.name}}" />
-      </div>
+          {{!-- Image — click to roll --}}
+          <div class="combat-skill-image rollable-item" data-action="rollItem"
+            data-item-uuid="{{skill.uuid}}">
+            <img src="{{skill.img}}" alt="{{skill.name}}" />
+          </div>
 
-      {{!-- Content --}}
-      <div class="combat-skill-content">
-        <div class="combat-skill-header">
-          <span class="skill-index">Skill {{skill.index}}</span>
-          <div class="combat-skill-title-row">
-            <span class="skill-title">{{skill.name}}</span>
-            <div class="combat-skill-controls">
-              <a class="item-control item-edit" data-action="itemEdit"
-                data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Edit'}}">
-                <i class="fas fa-edit"></i>
-              </a>
-              <a class="item-control item-delete" data-action="itemDelete"
-                data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Delete'}}">
-                <i class="fas fa-trash"></i>
-              </a>
+          {{!-- Header: index label + type badge + title + controls --}}
+          <div class="combat-skill-header">
+            <div class="combat-skill-meta">
+              <span class="skill-index">Skill {{skill.index}}</span>
+              {{#if skill.skillTypeLabel}}
+              <span class="skill-type-badge skill-type-badge--{{skill.skillType}}">{{skill.skillTypeLabel}}</span>
+              {{/if}}
+            </div>
+            <div class="combat-skill-title-row">
+              <span class="skill-title">{{skill.name}}</span>
+              <div class="combat-skill-controls">
+                {{#unless ../locked}}
+                {{!-- Skill type selector --}}
+                <select class="combat-skill-type-select"
+                  data-item-id="{{skill.id}}"
+                  data-current-type="{{skill.skillType}}"
+                  title="Skill type">
+                  {{#each ../combatSkillTypes as |typeOpt|}}
+                  <option value="{{typeOpt.value}}"
+                    {{#if (eq typeOpt.value ../skillType)}}selected{{/if}}>
+                    {{typeOpt.label}}
+                  </option>
+                  {{/each}}
+                </select>
+                <a class="item-control item-edit" data-action="itemEdit"
+                  data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Edit'}}">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a class="item-control item-delete" data-action="itemDelete"
+                  data-item-id="{{skill._id}}" title="{{localize 'WOD5E.Delete'}}">
+                  <i class="fas fa-trash"></i>
+                </a>
+                {{/unless}}
+              </div>
             </div>
           </div>
+
+          {{!-- Description --}}
+          {{#if skill.description}}
+          <div class="combat-skill-desc">{{skill.description}}</div>
+          {{/if}}
+
+        </div>
+        {{/each}}
+
+        {{!-- Add card --}}
+        <div class="combat-skill combat-skill-add item-create"
+          data-action="createItem" data-type="customRoll">
+          <div class="combat-add-icon"><i class="fas fa-plus"></i></div>
+          <div class="combat-add-label">Add Skill</div>
         </div>
       </div>
-
     </div>
-    {{/each}}
-
-    {{!-- Add card --}}
-    <div class="combat-skill combat-skill-add item-create"
-      data-action="createItem" data-type="customRoll">
-      <div class="combat-add-icon"><i class="fas fa-plus"></i></div>
-      <div class="combat-add-label">Add Skill</div>
-    </div>
-  </div>
-</div>
 
     <div class="notched right-panel">
 
@@ -449,7 +474,7 @@
               {{/if}}
             </div>
 
-            {{!-- Native WoD5E dot counter — dotCounterChange / dotCounterEmpty handled by parent sheet --}}
+            {{!-- Native WoD5E dot counter --}}
             <div class="resource-value skill-dots-native" data-value="{{skill.value}}"
               data-name="system.skills.{{skill.id}}.value">
               <span class="resource-value-empty" data-action="dotCounterEmpty"></span>
