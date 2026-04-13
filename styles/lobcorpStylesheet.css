@@ -76,7 +76,8 @@
    ========================================================= */
 .lobcorp .gridcontainer {
   display: grid;
-  grid-template-columns: 300px 1fr 1fr 1fr 260px;
+  /* Slightly narrowed 3 combat columns, wider right panel for armor portrait */
+  grid-template-columns: 300px 1fr 1fr 1fr 300px;
   grid-template-rows: 35pc auto;
   gap: 8px;
   margin: 4px 8px;
@@ -235,7 +236,7 @@
 
 /* ── Scrollable conditions list ── */
 .lobcorp .stats-container .items-list {
-  max-height: 50px;      /* adjust to taste */
+  max-height: 50px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -280,7 +281,7 @@
 .lobcorp .combat-skill-image img {
   width: 100%;
   max-width: 120px;
-  height: 100px;
+  height: 90px; /* slightly reduced from 100px to keep panel tighter */
   object-fit: cover;
   border: 1px solid var(--notched-border-color);
   display: block;
@@ -297,7 +298,7 @@
 }
 .lobcorp .skill-title {
   font-family: "Norwester", Arial;
-  font-size: 20px;
+  font-size: 18px; /* slightly reduced from 20px */
   color: var(--header-color);
   text-shadow: 0 0 3px var(--header-glow);
 }
@@ -344,8 +345,6 @@
 }
 .lobcorp .combat-add-btn:hover { color: var(--header-color); }
 
-
-
 /* =========================================================
    RIGHT PANEL
    ========================================================= */
@@ -359,7 +358,7 @@
 }
 
 /* =========================================================
-   RESISTANCE SECTION — TWO COLUMNS
+   RESISTANCE SECTION — armor portrait + two columns
    ========================================================= */
 .lobcorp .resistance-section {
   display: flex;
@@ -371,6 +370,95 @@
   padding-bottom: 8px;
 }
 
+/* ── Armor portrait column ───────────────────────────────── */
+.lobcorp .resistance-armor-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 100px;
+}
+
+/* Armor title: small text above image */
+.lobcorp .armor-title-wrap {
+  width: 100%;
+  text-align: center;
+}
+
+/* Locked display — max 2 lines then ellipsis */
+.lobcorp .armor-title-display {
+  font-size: 10px;
+  font-family: "Norwester", Arial;
+  letter-spacing: 0.5px;
+  color: var(--header-color);
+  text-shadow: 0 0 3px var(--header-glow);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+  min-height: 14px;
+  word-break: break-word;
+  padding-left: 7px;
+}
+
+/* Unlocked input — injected by inputCreate */
+.lobcorp .armor-title-input {
+  display: block;
+  width: 100%;
+}
+.lobcorp .armor-title-input input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--notched-border-color);
+  color: var(--header-color);
+  font-size: 10px;
+  font-family: "Norwester", Arial;
+  letter-spacing: 0.5px;
+  text-align: center;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+/* Armor portrait image */
+.lobcorp .armor-img {
+  margin: 10px 0px;
+  width: 62px;
+  height: 90px;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  background-color: #0c0c0a;
+  transition: filter 0.15s, border-color 0.15s;
+}
+.lobcorp .armor-img.clickable:hover {
+  border-color: var(--header-color);
+  filter: brightness(1.15) drop-shadow(0 0 4px var(--notched-border-color));
+  cursor: pointer;
+}
+
+/* Divider between portrait col and resist tables */
+.lobcorp .resist-divider--portrait {
+  width: 1px;
+  align-self: stretch;
+  background-color: var(--notched-border-color);
+  margin: 16px 0 0;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* Wrapper that holds the two resist columns side-by-side */
+.lobcorp .resistance-cols-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+/* ── Column headers ──────────────────────────────────────── */
 .lobcorp .resist-col-header {
   font-family: "Norwester", Arial;
   font-size: 11px;
@@ -389,15 +477,15 @@
   opacity: 0.5;
 }
 
-/* Shared label */
+/* Shared resist row label */
 .lobcorp .resist-label {
-  flex: 0 0 42px;
-  font-size: 11px;
+  flex: 0 0 38px;
+  font-size: 10px;
   color: var(--main-text-color);
   opacity: 0.75;
 }
 
-/* Colour damage column — slightly wider to fit icon */
+/* Colour damage column */
 .lobcorp .resistance-list--color .resist-row {
   gap: 4px;
 }
@@ -408,59 +496,34 @@
 .lobcorp .resist-label--color.BLACK { color: #9c69b2; opacity: 1; }
 .lobcorp .resist-label--color.PALE  { color: #56b4c9; opacity: 1; }
 
-/* Icon placeholder — swap src in HBS when you have your assets */
+/* Damage type icons */
 .lobcorp .dmg-type-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   object-fit: contain;
   flex-shrink: 0;
   border: none;
 }
 
 /* Tighten selects inside the colour column */
-.lobcorp .resistance-list--color select {
-  font-size: 10px;
-  max-width: 62px;
-}
-/* Armor title row — sits below the four physical resist rows */
-.lobcorp .resist-armor-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px solid var(--notched-border-color);
+.lobcorp .resistance-list--color select,
+.lobcorp .resistance-list select {
+  font-size: 9px;
+  max-width: 56px;
 }
 
-.lobcorp .resist-armor-label {
-  flex: 0 0 42px;
-  font-size: 11px;
-  color: var(--main-text-color);
-  opacity: 0.75;
+/* Locked resistance value labels */
+.lobcorp [class^="resist-display-"],
+.lobcorp [class*=" resist-display-"] {
+  font-size: 9px;
+  opacity: 0.85;
 }
 
-/* Armor title display (locked) */
-.lobcorp .armor-title-display {
-  font-size: 12px;
-  color: var(--header-color);
-}
-
-/* Armor title input (unlocked) — injected by inputCreate */
-.lobcorp .armor-title-input input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px dashed var(--notched-border-color);
-  color: var(--header-color);
-  font-size: 12px;
-  font-family: "GillSansMT", Arial;
-  width: 100%;
-  padding: 0 2px;
-}
 /* =========================================================
    RP ENTRIES — inner scroll
    ========================================================= */
 .lobcorp .rp-entries {
-  max-height: 60%;   /* ← was flex: 1 with no cap */
+  max-height: 60%;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -473,7 +536,6 @@
 .lobcorp .rp-entries::-webkit-scrollbar-track { background: transparent; }
 .lobcorp .rp-entries::-webkit-scrollbar-thumb { background: var(--notched-border-color); border-radius: 2px; }
 
-/* Empty state */
 .lobcorp .rp-empty {
   font-size: 11px;
   opacity: 0.4;
@@ -481,11 +543,10 @@
   padding: 12px 0;
 }
 
-/* RP entry cards */
 .lobcorp .rp-entry {
   padding: 6px 8px;
   font-size: 12px;
-  flex-shrink: 0;       /* cards never compress themselves, they scroll instead */
+  flex-shrink: 0;
 }
 
 .lobcorp .rp-entry-header {
@@ -498,7 +559,6 @@
   margin-left: 12px;
 }
 
-/* Type select — unlocked */
 .lobcorp .rp-type-select {
   flex: 0 0 auto;
   background: transparent;
@@ -514,7 +574,6 @@
 }
 .lobcorp .rp-type-select option { background: #1a1a10; }
 
-/* Type label — locked */
 .lobcorp .rp-type {
   font-size: 10px;
   color: var(--main-text-color);
@@ -524,7 +583,6 @@
   flex-shrink: 0;
 }
 
-/* Name input — unlocked */
 .lobcorp .rp-name-field {
   flex: 1;
   background: transparent;
@@ -538,7 +596,6 @@
 }
 .lobcorp .rp-name-field::placeholder { color: rgba(163,160,117,0.3); }
 
-/* Name display — locked */
 .lobcorp .rp-name {
   flex: 1;
   color: var(--header-color);
@@ -546,7 +603,6 @@
   text-align: right;
 }
 
-/* Delete button */
 .lobcorp .rp-delete-btn {
   flex-shrink: 0;
   color: var(--main-text-color);
@@ -556,7 +612,6 @@
 }
 .lobcorp .rp-delete-btn:hover { opacity: 1; color: #da4c33; }
 
-/* Ping button */
 .lobcorp .rp-ping-btn {
   flex-shrink: 0;
   color: var(--main-text-color);
@@ -567,7 +622,6 @@
 }
 .lobcorp .rp-ping-btn:hover { opacity: 1; color: var(--header-color); }
 
-/* Description */
 .lobcorp .rp-desc {
   font-size: 11px;
   color: var(--main-text-color);
@@ -587,7 +641,6 @@
   box-sizing: border-box;
 }
 
-/* Add button */
 .lobcorp .rp-add-btn {
   display: block;
   text-align: center;
@@ -610,7 +663,6 @@
   padding: 0 10px 12px 10px;
 }
 
-/* 2-column grid — Fortitude | Prudence / Temperance | Justice */
 .lobcorp .stats-groups {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -618,7 +670,6 @@
   padding: 8px 4px 4px;
 }
 
-/* Each virtue block: icon-wrap on the left, attrs on the right */
 .lobcorp .stat-category {
   display: flex;
   flex-direction: row;
@@ -629,13 +680,11 @@
   position: relative;
 }
 
-/* Virtue accent borders */
 .lobcorp .stat-category--red    { border-color: var(--virtue-red);    }
 .lobcorp .stat-category--white  { border-color: var(--virtue-white);  }
 .lobcorp .stat-category--purple { border-color: var(--virtue-purple); }
 .lobcorp .stat-category--cyan   { border-color: var(--virtue-cyan);   }
 
-/* Subtle dark inner bg so it reads against the notched panel */
 .lobcorp .stat-category::before {
   content: "";
   position: absolute;
@@ -665,7 +714,6 @@
   cursor: pointer;
 }
 
-/* Roman numeral beneath icon — coloured per virtue */
 .lobcorp .stat-cat-rating {
   font-family: "Norwester", Arial;
   font-size: 22px;
@@ -686,7 +734,6 @@
   gap: 0;
 }
 
-/* Virtue name title above the attribute rows */
 .lobcorp .stat-cat-label {
   font-family: "Norwester", Arial;
   font-size: 13px;
@@ -699,7 +746,7 @@
 .lobcorp .stat-cat-label--purple { color: var(--virtue-purple); text-shadow: 0 0 3px var(--virtue-purple); }
 .lobcorp .stat-cat-label--cyan   { color: var(--virtue-cyan);   text-shadow: 0 0 3px var(--virtue-cyan);   }
 
-/* ── Attribute rows (shared with old panel, enhanced here) ─ */
+/* ── Attribute rows ─────────────────────────────────────── */
 .lobcorp .attr-row {
   display: flex;
   align-items: center;
@@ -728,7 +775,6 @@
   flex-shrink: 0;
 }
 
-/* Filled dots use the virtue colour of their parent category */
 .lobcorp .attr-dot.filled           { background-color: var(--dot-filled); border-color: var(--dot-filled); }
 .lobcorp .attr-dot.filled--red      { background-color: var(--virtue-red);    border-color: var(--virtue-red);    box-shadow: 0 0 2px var(--virtue-red);    }
 .lobcorp .attr-dot.filled--white    { background-color: var(--virtue-white);  border-color: var(--virtue-white);  box-shadow: 0 0 2px var(--virtue-white);  }
@@ -761,7 +807,6 @@
   min-width: 0;
 }
 
-/* ── Skill row ───────────────────────────────────────────── */
 .lobcorp .skill-row {
   display: flex;
   align-items: center;
@@ -772,7 +817,6 @@
   min-width: 0;
 }
 
-/* ── Label group: edit + name + S badge ─────────────────── */
 .lobcorp .skill-label-group {
   display: flex;
   align-items: center;
@@ -806,7 +850,6 @@
 .lobcorp .skill-name:hover            { color: var(--header-color); }
 .lobcorp .skill-name.specialty-available { color: var(--header-color); }
 
-/* Specialty "S" badge */
 .lobcorp .skill-spec-s {
   flex-shrink: 0;
   font-family: "Norwester", Arial;
@@ -818,28 +861,23 @@
   text-align: center;
 }
 .lobcorp .skill-spec-s--empty {
-  width: 10px;         /* reserve same space as "S" so columns align */
+  width: 10px;
   display: inline-block;
 }
 
-/* ── Native WoD5E dot counter override ──────────────────── */
-/* The system JS owns the interaction; we just re-theme the pixels. */
 .lobcorp .skill-dots-native {
   display: flex;
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
-  /* override any system padding/margin */
   margin: 0;
   padding: 0;
 }
 
-/* The "empty" span is a zero-size click target for clearing all dots */
 .lobcorp .skill-dots-native .resource-value-empty {
-  display: none;   /* hidden; right-click or click-on-active-dot clears */
+  display: none;
 }
 
-/* Individual dot steps */
 .lobcorp .skill-dots-native .resource-value-step {
   width: 8px;
   height: 8px;
@@ -849,13 +887,11 @@
   display: inline-block;
   cursor: pointer;
   transition: background-color 0.12s, border-color 0.12s;
-  /* reset any system sizing that may bleed in */
   min-width: unset;
   min-height: unset;
   flex-shrink: 0;
 }
 
-/* Filled state — system adds .active via its dotCounterChange handler */
 .lobcorp .skill-dots-native .resource-value-step.active {
   background-color: var(--dot-filled);
   border-color: var(--dot-filled);
@@ -890,4 +926,3 @@
   border-color: var(--notched-border-color);
 }
 .lobcorp select option { background: #1a1a10; }
-

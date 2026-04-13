@@ -116,7 +116,6 @@
       <div class="stat-panel-section">
         <label class="resource-header">Status Effects</label>
         <div class="stats-container">
-          {{!-- BUG FIX 1: Add button hidden when locked --}}
           {{#unless locked}}
           <a class="item-control item-create" data-action="createItem" title="{{localize 'WOD5E.Add'}}"
             data-type="condition">
@@ -132,8 +131,6 @@
                   alt="{{condition.name}}" />
               </div>
               <div class="item-name">{{condition.name}}</div>
-              {{!-- BUG FIX 1: Edit/Delete controls hidden when locked --}}
-              {{!-- BUG FIX 2: Added missing </a> closing tag on delete button --}}
               {{#unless ../locked}}
               <div class="item-controls">
                 <a class="item-control item-edit" data-action="itemEdit" data-item-id="{{condition._id}}"
@@ -172,7 +169,6 @@
           {{!-- Header: index/type label + title + controls --}}
           <div class="combat-skill-header">
             <div class="combat-skill-meta">
-              {{!-- Show type label when non-default; otherwise show "Skill N" --}}
               {{#if skill.skillTypeLabel}}
               <span
                 class="skill-index skill-type-badge skill-type-badge--{{skill.skillType}}">{{skill.skillTypeLabel}}</span>
@@ -184,7 +180,6 @@
               <span class="skill-title">{{skill.name}}</span>
               <div class="combat-skill-controls">
                 {{#unless ../locked}}
-                {{!-- Skill type selector --}}
                 <select class="combat-skill-type-select" data-item-id="{{skill.id}}"
                   data-current-type="{{skill.skillType}}" title="Skill type">
                   {{#each ../combatSkillTypes as |typeOpt|}}
@@ -204,7 +199,6 @@
             </div>
           </div>
 
-          {{!-- Description — triple-stash renders HTML from WoD5E's rich text editor --}}
           {{#if skill.description}}
           <div class="combat-skill-desc">{{{skill.description}}}</div>
           {{/if}}
@@ -222,117 +216,152 @@
       </div>
     </div>
 
+    {{!-- ═══════════════════════════════════════════════════════════
+    RIGHT PANEL
+    ═══════════════════════════════════════════════════════════ --}}
     <div class="notched right-panel">
 
-      {{!-- Resistance section --}}
+      {{!-- ── Resistance section ──────────────────────────────────── --}}
       <div class="resistance-section">
 
-        {{!-- Column 1 : physical damage types --}}
-        <div class="resistance-list">
-          <div class="resist-col-header">Form</div>
+        {{!-- Armor portrait column --}}
+        <div class="resistance-armor-col">
 
-          {{!-- Slash --}}
-          <div class="resist-row">
-            <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-              src="{{#if iconSlash}}{{iconSlash}}{{else}}icons/svg/sword.svg{{/if}}" data-icon-flag="iconSlash"
-              alt="Slash" title="{{#unless locked}}Click to change icon{{/unless}}" />
-            <span class="resist-label">Slash</span>
+          {{!-- Armor title: editable textbox when unlocked, plain text when locked --}}
+          <div class="armor-title-wrap">
             {{#if locked}}
-            <span class="resist-display-1"></span>
+            <span class="armor-title-display">{{#if armorTitle}}{{else}}&nbsp;{{/if}}</span>
             {{else}}
-            <span class="resist-input-1"></span>
+            <span class="armor-title-input"></span>
             {{/if}}
           </div>
 
-          {{!-- Pierce --}}
-          <div class="resist-row">
-            <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-              src="{{#if iconPierce}}{{iconPierce}}{{else}}icons/svg/arrow.svg{{/if}}" data-icon-flag="iconPierce"
-              alt="Pierce" title="{{#unless locked}}Click to change icon{{/unless}}" />
-            <span class="resist-label">Pierce</span>
-            {{#if locked}}
-            <span class="resist-display-2"></span>
-            {{else}}
-            <span class="resist-input-2"></span>
-            {{/if}}
-          </div>
+          {{!-- Armor portrait image — click to change when unlocked --}}
+          <img
+            class="armor-img {{#unless locked}}clickable{{/unless}}"
+            src="{{#if armorImage}}{{armorImage}}{{else}}icons/svg/mystery-man.svg{{/if}}"
+            data-icon-flag="armorImage"
+            alt="Armor"
+            title="{{#unless locked}}Click to change armor image{{/unless}}" />
 
-          {{!-- Blunt --}}
-          <div class="resist-row">
-            <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-              src="{{#if iconBlunt}}{{iconBlunt}}{{else}}icons/svg/shield.svg{{/if}}" data-icon-flag="iconBlunt"
-              alt="Blunt" title="{{#unless locked}}Click to change icon{{/unless}}" />
-            <span class="resist-label">Blunt</span>
-            {{#if locked}}
-            <span class="resist-display-3"></span>
-            {{else}}
-            <span class="resist-input-3"></span>
-            {{/if}}
-          </div>
+        </div>{{!-- /resistance-armor-col --}}
 
-        </div>{{!-- /resistance-list col-1 --}}
+        {{!-- Thin vertical divider between portrait and resist tables --}}
+        <div class="resist-divider resist-divider--portrait"></div>
 
-        {{!-- Divider --}}
-        <div class="resist-divider"></div>
+        {{!-- Right side: Form + Type columns --}}
+        <div class="resistance-cols-wrap">
 
-        {{!-- Column 2 : colour damage types --}}
-        <div class="resistance-list resistance-list--color">
-          <div class="resist-col-header">Type</div>
+          {{!-- Column 1: physical damage types --}}
+          <div class="resistance-list">
+            <div class="resist-col-header">Form</div>
 
-          {{!-- RED --}}
-          <div class="resist-row">
-            <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-              src="{{#if iconRed}}{{iconRed}}{{else}}icons/svg/blood.svg{{/if}}" data-icon-flag="iconRed" alt="RED"
-              title="{{#unless locked}}Click to change icon{{/unless}}" />
-            <span class="resist-label resist-label--color RED">RED</span>
-            {{#if locked}}
-            <span class="resist-display-red"></span>
-            {{else}}
-            <span class="resist-input-red"></span>
-            {{/if}}
-          </div>
+            {{!-- Slash --}}
+            <div class="resist-row">
+              <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+                src="{{#if iconSlash}}{{iconSlash}}{{else}}icons/svg/sword.svg{{/if}}" data-icon-flag="iconSlash"
+                alt="Slash" title="{{#unless locked}}Click to change icon{{/unless}}" />
+              <span class="resist-label">Slash</span>
+              {{#if locked}}
+              <span class="resist-display-1"></span>
+              {{else}}
+              <span class="resist-input-1"></span>
+              {{/if}}
+            </div>
 
-          {{!-- WHITE --}}
-          <div class="resist-row">
-            <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-              src="{{#if iconWhite}}{{iconWhite}}{{else}}icons/svg/ice-aura.svg{{/if}}" data-icon-flag="iconWhite"
-              alt="WHITE" title="{{#unless locked}}Click to change icon{{/unless}}" />
-            <span class="resist-label resist-label--color WHITE">WHITE</span>
-            {{#if locked}}
-            <span class="resist-display-white"></span>
-            {{else}}
-            <span class="resist-input-white"></span>
-            {{/if}}
-          </div>
+            {{!-- Pierce --}}
+            <div class="resist-row">
+              <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+                src="{{#if iconPierce}}{{iconPierce}}{{else}}icons/svg/arrow.svg{{/if}}" data-icon-flag="iconPierce"
+                alt="Pierce" title="{{#unless locked}}Click to change icon{{/unless}}" />
+              <span class="resist-label">Pierce</span>
+              {{#if locked}}
+              <span class="resist-display-2"></span>
+              {{else}}
+              <span class="resist-input-2"></span>
+              {{/if}}
+            </div>
 
-          {{!-- BLACK --}}
-          <div class="resist-row">
-            <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-              src="{{#if iconBlack}}{{iconBlack}}{{else}}icons/svg/dread.svg{{/if}}" data-icon-flag="iconBlack"
-              alt="BLACK" title="{{#unless locked}}Click to change icon{{/unless}}" />
-            <span class="resist-label resist-label--color BLACK">BLACK</span>
-            {{#if locked}}
-            <span class="resist-display-black"></span>
-            {{else}}
-            <span class="resist-input-black"></span>
-            {{/if}}
-          </div>
+            {{!-- Blunt --}}
+            <div class="resist-row">
+              <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+                src="{{#if iconBlunt}}{{iconBlunt}}{{else}}icons/svg/shield.svg{{/if}}" data-icon-flag="iconBlunt"
+                alt="Blunt" title="{{#unless locked}}Click to change icon{{/unless}}" />
+              <span class="resist-label">Blunt</span>
+              {{#if locked}}
+              <span class="resist-display-3"></span>
+              {{else}}
+              <span class="resist-input-3"></span>
+              {{/if}}
+            </div>
 
-          {{!-- PALE --}}
-          <div class="resist-row">
-            <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-              src="{{#if iconPale}}{{iconPale}}{{else}}icons/svg/skull.svg{{/if}}" data-icon-flag="iconPale" alt="PALE"
-              title="{{#unless locked}}Click to change icon{{/unless}}" />
-            <span class="resist-label resist-label--color PALE">PALE</span>
-            {{#if locked}}
-            <span class="resist-display-pale"></span>
-            {{else}}
-            <span class="resist-input-pale"></span>
-            {{/if}}
-          </div>
+          </div>{{!-- /resistance-list col-1 --}}
 
-        </div>{{!-- /resistance-list col-2 --}}
+          {{!-- Column divider --}}
+          <div class="resist-divider"></div>
+
+          {{!-- Column 2: colour damage types --}}
+          <div class="resistance-list resistance-list--color">
+            <div class="resist-col-header">Type</div>
+
+            {{!-- RED --}}
+            <div class="resist-row">
+              <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+                src="{{#if iconRed}}{{iconRed}}{{else}}icons/svg/blood.svg{{/if}}" data-icon-flag="iconRed" alt="RED"
+                title="{{#unless locked}}Click to change icon{{/unless}}" />
+              <span class="resist-label resist-label--color RED">RED</span>
+              {{#if locked}}
+              <span class="resist-display-red"></span>
+              {{else}}
+              <span class="resist-input-red"></span>
+              {{/if}}
+            </div>
+
+            {{!-- WHITE --}}
+            <div class="resist-row">
+              <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+                src="{{#if iconWhite}}{{iconWhite}}{{else}}icons/svg/ice-aura.svg{{/if}}" data-icon-flag="iconWhite"
+                alt="WHITE" title="{{#unless locked}}Click to change icon{{/unless}}" />
+              <span class="resist-label resist-label--color WHITE">WHITE</span>
+              {{#if locked}}
+              <span class="resist-display-white"></span>
+              {{else}}
+              <span class="resist-input-white"></span>
+              {{/if}}
+            </div>
+
+            {{!-- BLACK --}}
+            <div class="resist-row">
+              <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+                src="{{#if iconBlack}}{{iconBlack}}{{else}}icons/svg/dread.svg{{/if}}" data-icon-flag="iconBlack"
+                alt="BLACK" title="{{#unless locked}}Click to change icon{{/unless}}" />
+              <span class="resist-label resist-label--color BLACK">BLACK</span>
+              {{#if locked}}
+              <span class="resist-display-black"></span>
+              {{else}}
+              <span class="resist-input-black"></span>
+              {{/if}}
+            </div>
+
+            {{!-- PALE --}}
+            <div class="resist-row">
+              <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
+                src="{{#if iconPale}}{{iconPale}}{{else}}icons/svg/skull.svg{{/if}}" data-icon-flag="iconPale" alt="PALE"
+                title="{{#unless locked}}Click to change icon{{/unless}}" />
+              <span class="resist-label resist-label--color PALE">PALE</span>
+              {{#if locked}}
+              <span class="resist-display-pale"></span>
+              {{else}}
+              <span class="resist-input-pale"></span>
+              {{/if}}
+            </div>
+
+          </div>{{!-- /resistance-list col-2 --}}
+
+        </div>{{!-- /resistance-cols-wrap --}}
+
       </div>{{!-- /resistance-section --}}
+
       {{!-- RP entries — scrollable, dynamic list --}}
       <div class="rp-entries">
 
@@ -381,7 +410,6 @@
 
         </div>{{!-- /rp-entry --}}
         {{else}}
-        {{!-- Empty state --}}
         <div class="rp-empty">No entries yet.</div>
         {{/each}}
 
@@ -392,7 +420,7 @@
         <i class="fas fa-plus"></i> Add Entry
       </a>
       {{/unless}}
-    </div>
+    </div>{{!-- /right-panel --}}
 
     {{!-- ═══════════════════════════════════════════════════════════
     STATS AND TRAITS PANEL
@@ -422,7 +450,6 @@
                 {{attr.displayName}}
               </span>
 
-              {{!-- Use WoD5E's native dot counter structure --}}
               {{#unless ../../../locked}}
               <div class="attr-dots resource-value" data-value="{{attr.value}}"
                 data-name="system.attributes.{{attr.id}}.value">
@@ -458,7 +485,6 @@
           {{#each type as |skill skillKey|}}
           <div class="skill-row">
 
-            {{!-- Label group: edit pencil + rollable name + specialty badge --}}
             <div class="skill-label-group">
               {{#unless ../locked}}
               <a class="skill-edit-btn" data-action="editSkill" data-skill="{{skill.id}}" title="Edit specialty">
@@ -474,7 +500,6 @@
                 {{skill.displayName}}
               </label>
 
-              {{!-- Specialty badge: always reserve space so columns stay aligned --}}
               {{#if ../../hasSpecialties}}
               {{#if skill.bonuses}}
               <span class="skill-spec-s"
@@ -485,7 +510,6 @@
               {{/if}}
             </div>
 
-            {{!-- Native WoD5E dot counter --}}
             <div class="resource-value skill-dots-native" data-value="{{skill.value}}"
               data-name="system.skills.{{skill.id}}.value">
               <span class="resource-value-empty" data-action="dotCounterEmpty"></span>

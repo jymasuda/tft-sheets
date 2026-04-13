@@ -75,22 +75,7 @@ export const inputCreate = async function (
 
 // ---------------------------------------------------------------------------
 // paleDamage — right-click health pips to toggle a faded "pale damage" look.
-//
-// Visual state is applied via INLINE STYLES directly on the pip span so that
-// no CSS selector specificity battle with WoD5E can interfere.
-//
-// Disabled pip appearance:  background + border set to the health red at
-// reduced opacity — the box stays visible but clearly "spent / pale".
-//
-// State persisted in flags["tft-sheets"].disabledPips  →  string[]
-// e.g. ["health-0", "health-3"]
-//
-// No WoD5E system fields (max / pale / superficial) are ever touched.
-// Listener is bound directly on each pip span in capture phase so
-// stopImmediatePropagation kills WoD5E's squareCounterChange before it fires.
 // ---------------------------------------------------------------------------
-
-// Inline style applied to a disabled (pale-damage) pip.
 const PALE_STYLE = {
   backgroundColor: "rgba(255, 77, 77, 0.30)",
   borderColor:     "rgba(255, 77, 77, 0.50)",
@@ -98,7 +83,6 @@ const PALE_STYLE = {
   outline:         "none",
 };
 
-// Reset — returns pip to whatever WoD5E's stylesheet says (clears inline).
 const clearPaleStyle = (step) => {
   step.style.removeProperty("background-color");
   step.style.removeProperty("border-color");
@@ -114,7 +98,6 @@ export const paleDamage = function (app, html) {
   const doc   = app.document;
   const scope = "tft-sheets";
 
-  // ── 1. Re-apply stored disabled state to current DOM ──────────────────
   const applyDisabledPips = () => {
     const disabled     = new Set(doc.getFlag(scope, "disabledPips") ?? []);
     const healthCounter = html.querySelector(".resource-counter[data-name='system.health']");
@@ -134,21 +117,18 @@ export const paleDamage = function (app, html) {
 
   applyDisabledPips();
 
-  // ── 2. Bind directly to each pip ──────────────────────────────────────
   const healthCounter = html.querySelector(".resource-counter[data-name='system.health']");
   if (!healthCounter) return;
 
   healthCounter.querySelectorAll(".resource-counter-step").forEach(step => {
-    // Block left-click on already-disabled pips so WoD5E can't mark damage on them.
     step.addEventListener("click", (e) => {
       if (!step.classList.contains("tft-pale-disabled")) return;
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
-    }, true /* capture */);
+    }, true);
 
     step.addEventListener("contextmenu", async (e) => {
-      // Kill WoD5E's squareCounterChange before it can remove the pip.
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -160,16 +140,16 @@ export const paleDamage = function (app, html) {
 
       if (existingIdx === -1) {
         current.push(pipKey);
-        applyPaleStyle(step);          // instant feedback
+        applyPaleStyle(step);
         step.classList.add("tft-pale-disabled");
       } else {
         current.splice(existingIdx, 1);
-        clearPaleStyle(step);          // instant feedback
+        clearPaleStyle(step);
         step.classList.remove("tft-pale-disabled");
       }
 
       await doc.setFlag(scope, "disabledPips", current);
-    }, true /* capture — beats WoD5E's bubble handler */);
+    }, true);
   });
 };
 
@@ -302,6 +282,7 @@ export const prepareBaseContext = async function (context, actor) {
   context.iconPale   = f("iconPale",   "https://lobotomycorporation.wiki.gg/images/PaleDamageTypeIcon.png?63725d");
 
   context.armorTitle = f("armorTitle", "");
+  context.armorImage = f("armorImage", ""); // ← NEW: changeable armor portrait
   context.sinCurrent = actor.getFlag(scope, "sinCurrent") ?? 0;
   context.sinMax     = actor.getFlag(scope, "sinMax")     ?? 10;
   context.locked     = actor.getFlag(scope, "sheetLocked") ?? false;

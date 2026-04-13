@@ -81,8 +81,8 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     );
   }
 
-  // ── Changeable icons ──────────────────────────────────────────────────────
-  html.querySelectorAll(".dmg-type-icon.clickable, .stat-cat-icon.clickable").forEach(img => {
+  // ── Changeable icons (dmg type icons, stat category icons, armor portrait) ─
+  html.querySelectorAll(".dmg-type-icon.clickable, .stat-cat-icon.clickable, .armor-img.clickable").forEach(img => {
     img.addEventListener("click", () => {
       const iconFlag = img.dataset.iconFlag;
       if (!iconFlag) return;
