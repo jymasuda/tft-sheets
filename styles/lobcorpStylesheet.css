@@ -875,7 +875,23 @@
 }
 
 .lobcorp .skill-dots-native .resource-value-empty {
-  display: none;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px dashed var(--notched-border-color);
+  background-color: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.lobcorp .skill-row:hover .skill-dots-native .resource-value-empty {
+  opacity: 0.5;
+}
+.lobcorp .skill-dots-native .resource-value-empty:hover {
+  opacity: 1 !important;
+  border-color: var(--virtue-red);
 }
 
 .lobcorp .skill-dots-native .resource-value-step {
