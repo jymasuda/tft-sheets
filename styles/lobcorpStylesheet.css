@@ -4,20 +4,25 @@
 @font-face {
   font-family: "Railway";
   src: url("railway-webfont.woff2") format("woff2"),
-       url("railway-webfont.woff")  format("woff");
-  font-weight: normal; font-style: normal;
+    url("railway-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
+
 @font-face {
   font-family: "Norwester";
   src: url("norwester-webfont.woff2") format("woff2"),
-       url("norwester-webfont.woff")  format("woff");
-  font-weight: normal; font-style: normal;
+    url("norwester-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
+
 @font-face {
   font-family: "GillSansMT";
   src: url("gil_____-webfont.woff2") format("woff2"),
-       url("gil_____-webfont.woff")  format("woff");
-  font-weight: normal; font-style: normal;
+    url("gil_____-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
 }
 
 /* =========================================================
@@ -25,40 +30,65 @@
    ========================================================= */
 .lobcorp {
   --actor-background-dark: black;
-  --notched-border-color:  #777459;
-  --main-text-color:       #a3a075;
-  --header-glow:           #ff9442;
-  --header-color:          #ffffa0;
-  --panel-bg:              #0c0c08;
-  --panel-inner-bg:        #1e1e14;
-  --hr-color:              #5f5d44;
-  --dot-empty:             #3a3826;
-  --dot-filled:            #a3a075;
-  --sin-active-color:      #da4c33; /* overridden per-actor in JS */
-
+  --notched-border-color: #777459;
+  --main-text-color: #a3a075;
+  --header-glow: #ff9442;
+  --header-color: #ffffa0;
+  --panel-bg: #0c0c08;
+  --panel-inner-bg: #1e1e14;
+  --hr-color: #5f5d44;
+  --dot-empty: #3a3826;
+  --dot-filled: #a3a075;
+  --sin-active-color: #da4c33;
+  
   /* Virtue palette */
-  --virtue-red:    #da4c33;
-  --virtue-white:  #ffffa0;
+  --virtue-red: #da4c33;
+  --virtue-white: #ffffa0;
   --virtue-purple: #9c69b2;
-  --virtue-cyan:   #56b4c9;
+  --virtue-cyan: #56b4c9;
 }
 
 /* =========================================================
    SIN TYPE COLORS
    ========================================================= */
-.lobcorp .WRATH    { color: #da4c33; }
-.lobcorp .LUST     { color: #f0a33f; }
-.lobcorp .SLOTH    { color: #fcd700; }
-.lobcorp .GLUTTONY { color: #b3d42f; }
-.lobcorp .GLOOM    { color: #56b4c9; }
-.lobcorp .PRIDE    { color: #2887cf; }
-.lobcorp .ENVY     { color: #9c69b2; }
+.lobcorp .WRATH {
+  color: #da4c33;
+}
+
+.lobcorp .LUST {
+  color: #f0a33f;
+}
+
+.lobcorp .SLOTH {
+  color: #fcd700;
+}
+
+.lobcorp .GLUTTONY {
+  color: #b3d42f;
+}
+
+.lobcorp .GLOOM {
+  color: #56b4c9;
+}
+
+.lobcorp .PRIDE {
+  color: #2887cf;
+}
+
+.lobcorp .ENVY {
+  color: #9c69b2;
+}
 
 /* =========================================================
    RESOURCE COLORS
    ========================================================= */
-.lobcorp .health  { --system-dark-color-4: #ff4d4d; }
-.lobcorp .sanity  { --system-dark-color-4: #39a6df; }
+.lobcorp .health {
+  --system-dark-color-4: #ff4d4d;
+}
+
+.lobcorp .sanity {
+  --system-dark-color-4: #39a6df;
+}
 
 /* =========================================================
    BASE
@@ -69,14 +99,16 @@
   font-size: 16px;
   background-color: var(--actor-background-dark);
 }
-.lobcorp .clickable { cursor: pointer; }
+
+.lobcorp .clickable {
+  cursor: pointer;
+}
 
 /* =========================================================
    GRID LAYOUT
    ========================================================= */
 .lobcorp .gridcontainer {
   display: grid;
-  /* Slightly narrowed 3 combat columns, wider right panel for armor portrait */
   grid-template-columns: 300px 1fr 1fr 1fr 300px;
   grid-template-rows: 35pc auto;
   gap: 8px;
@@ -84,11 +116,30 @@
 }
 
 /* Grid area assignments */
-.lobcorp .agent        { grid-column: 1;     grid-row: 1; }
-.lobcorp .combat-panel { grid-column: 2 / 5; grid-row: 1; }
-.lobcorp .right-panel  { grid-column: 5;     grid-row: 1; }
-.lobcorp .stats-panel  { grid-column: 1 / 3; grid-row: 2; }
-.lobcorp .skills-panel { grid-column: 3 / 6; grid-row: 2; }
+.lobcorp .agent {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.lobcorp .combat-panel {
+  grid-column: 2 / 5;
+  grid-row: 1;
+}
+
+.lobcorp .right-panel {
+  grid-column: 5;
+  grid-row: 1;
+}
+
+.lobcorp .stats-panel {
+  grid-column: 1 / 3;
+  grid-row: 2;
+}
+
+.lobcorp .skills-panel {
+  grid-column: 3 / 6;
+  grid-row: 2;
+}
 
 /* =========================================================
    NOTCHED CORNER STYLE
@@ -99,13 +150,11 @@
     linear-gradient(var(--notched-border-color), var(--notched-border-color)),
     linear-gradient(var(--notched-border-color), var(--notched-border-color)),
     linear-gradient(var(--notched-border-color), var(--notched-border-color)),
-    linear-gradient(
-      to bottom right,
-      transparent          calc(50% - 1px),
+    linear-gradient(to bottom right,
+      transparent calc(50% - 1px),
       var(--notched-border-color) calc(50% - 1px),
       var(--notched-border-color) calc(50% + 1px),
-      black                calc(50% + 1px)
-    ),
+      black calc(50% + 1px)),
     linear-gradient(black, black),
     linear-gradient(black, black);
   background-size:
@@ -139,15 +188,34 @@
   overflow-y: auto;
   max-height: calc(100vh - 120px);
 }
+
 .lobcorp .profile {
   background-color: var(--panel-inner-bg);
   margin: 8px;
 }
-.lobcorp .inner-profile   { padding: 8px 8px 4px 8px; }
-.lobcorp .profile-img     { border: none; }
-.lobcorp .charname        { margin: 8px 0 0 0; text-align: center; }
-.lobcorp hr               { margin: 2px 0; background: var(--hr-color); }
-.lobcorp .blurbsintext    { display: flex; justify-content: space-between; }
+
+.lobcorp .inner-profile {
+  padding: 8px 8px 4px 8px;
+}
+
+.lobcorp .profile-img {
+  border: none;
+}
+
+.lobcorp .charname {
+  margin: 8px 0 0 0;
+  text-align: center;
+}
+
+.lobcorp hr {
+  margin: 2px 0;
+  background: var(--hr-color);
+}
+
+.lobcorp .blurbsintext {
+  display: flex;
+  justify-content: space-between;
+}
 
 /* =========================================================
    POINT CONTAINERS (Health / Sanity / Sin)
@@ -158,6 +226,7 @@
   text-align: center;
   position: static;
 }
+
 .lobcorp .point-container label:first-child {
   position: relative;
   padding: 0 4px;
@@ -165,6 +234,7 @@
   font-size: 90%;
   background-color: black;
 }
+
 .lobcorp .point-container div:has(.resource-counter) {
   display: grid;
   grid-template-columns: repeat(10, auto);
@@ -172,67 +242,77 @@
   column-gap: 4px;
   padding: 0 16.5px 2px 16.5px;
 }
-.lobcorp .point-container span:has(.resource-counter-step) { display: contents; }
+
+.lobcorp .point-container span:has(.resource-counter-step) {
+  display: contents;
+}
+
 .lobcorp .point-container .resource-counter-step {
-  width: 20px; height: 20px;
-  position: relative; bottom: 7px;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  bottom: 7px;
   margin: 2px 0;
 }
+
 .lobcorp .pale {
   background-color: var(--system-dark-color-4);
   opacity: 25%;
 }
 
 /* ── Sin Points ─────────────────────────────────────────── */
-.lobcorp .sin-max-input {
-  width: 28px;
-  background: transparent;
-  border: 1px solid var(--notched-border-color);
-  color: var(--main-text-color);
-  font-size: 11px;
-  text-align: center;
-  padding: 0;
-}
+
 .lobcorp .sin-tracker {
   padding: 0 16.5px 2px 16.5px;
 }
+
 .lobcorp .sin-pip-track {
   display: flex;
   gap: 3px;
   justify-content: flex-start;
   padding-bottom: 8px;
 }
+
 .lobcorp .sin-pip {
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   background-color: #1a1a12;
   border: 1px solid var(--sin-active-color);
   display: inline-block;
   cursor: pointer;
   transition: background-color 0.15s;
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   position: relative;
   bottom: 7px;
   margin: 2px 0;
 }
+
 .lobcorp .sin-pip.active {
   background-color: var(--sin-active-color);
   box-shadow: 0 0 4px var(--sin-active-color);
 }
+
 .lobcorp .sin-pip:hover {
   background-color: color-mix(in srgb, var(--sin-active-color) 40%, transparent);
 }
-.lobcorp .sin-minus,
-.lobcorp .sin-plus {
-  color: var(--main-text-color);
-  font-size: 11px;
-}
+
 
 /* =========================================================
    STATUS EFFECTS
    ========================================================= */
-.lobcorp .stat-panel-section { margin: 8px 12px; }
-.lobcorp .resource-header    { font-size: 90%; color: var(--header-color); }
-.lobcorp .stats-container    { font-size: 90%; }
+.lobcorp .stat-panel-section {
+  margin: 8px 12px;
+}
+
+.lobcorp .resource-header {
+  font-size: 90%;
+  color: var(--header-color);
+}
+
+.lobcorp .stats-container {
+  font-size: 90%;
+}
 
 /* ── Scrollable conditions list ── */
 .lobcorp .stats-container .items-list {
@@ -244,8 +324,15 @@
   scrollbar-width: thin;
   scrollbar-color: var(--notched-border-color) transparent;
 }
-.lobcorp .stats-container .items-list::-webkit-scrollbar       { width: 4px; }
-.lobcorp .stats-container .items-list::-webkit-scrollbar-track { background: transparent; }
+
+.lobcorp .stats-container .items-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lobcorp .stats-container .items-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .lobcorp .stats-container .items-list::-webkit-scrollbar-thumb {
   background: var(--notched-border-color);
   border-radius: 2px;
@@ -259,6 +346,7 @@
   display: flex;
   flex-direction: column;
 }
+
 .lobcorp .combat-skills-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -266,6 +354,7 @@
   gap: 8px;
   padding: 4px 0;
 }
+
 .lobcorp .combat-skill {
   display: flex;
   flex-direction: column;
@@ -273,44 +362,44 @@
   padding: 8px;
   min-width: 0;
 }
-.lobcorp .combat-skill:first-child { border-left: none; padding-left: 0; }
+
+.lobcorp .combat-skill:first-child {
+  border-left: none;
+  padding-left: 0;
+}
 
 .lobcorp .combat-skill-image {
   cursor: pointer;
 }
+
 .lobcorp .combat-skill-image img {
   width: 100%;
   max-width: 120px;
-  height: 90px; /* slightly reduced from 100px to keep panel tighter */
+  height: 90px;
   object-fit: cover;
   border: 1px solid var(--notched-border-color);
   display: block;
 }
+
 .lobcorp .combat-skill-header {
   display: flex;
   flex-direction: column;
   line-height: 1.1;
 }
+
 .lobcorp .skill-index {
   font-size: 12px;
   color: var(--main-text-color);
   opacity: 0.7;
 }
+
 .lobcorp .skill-title {
   font-family: "Norwester", Arial;
-  font-size: 18px; /* slightly reduced from 20px */
+  font-size: 18px;
   color: var(--header-color);
   text-shadow: 0 0 3px var(--header-glow);
 }
-.lobcorp .combat-skill-summary {
-  font-size: 12px;
-  font-style: italic;
-  color: var(--main-text-color);
-  opacity: 0.8;
-  border-left: 2px solid var(--notched-border-color);
-  padding-left: 6px;
-  margin: 2px 0;
-}
+
 .lobcorp .combat-skill-desc {
   font-size: 13px;
   color: var(--main-text-color);
@@ -318,32 +407,14 @@
   overflow-y: auto;
   max-height: 160px;
 }
+
 .lobcorp .combat-skill-controls {
   display: flex;
   gap: 6px;
   font-size: 12px;
   margin-top: auto;
 }
-.lobcorp .combat-skills-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  opacity: 0.5;
-  font-size: 13px;
-}
-.lobcorp .combat-add-btn {
-  display: block;
-  text-align: right;
-  font-size: 12px;
-  padding: 2px 4px;
-  color: var(--main-text-color);
-  cursor: pointer;
-  margin-top: 4px;
-}
-.lobcorp .combat-add-btn:hover { color: var(--header-color); }
+
 
 /* =========================================================
    RIGHT PANEL
@@ -407,6 +478,7 @@
   display: block;
   width: 100%;
 }
+
 .lobcorp .armor-title-input input {
   width: 100%;
   background: transparent;
@@ -432,6 +504,7 @@
   background-color: #0c0c0a;
   transition: filter 0.15s, border-color 0.15s;
 }
+
 .lobcorp .armor-img.clickable:hover {
   border-color: var(--header-color);
   filter: brightness(1.15) drop-shadow(0 0 4px var(--notched-border-color));
@@ -491,10 +564,25 @@
 }
 
 /* Colour name labels inherit sin-type colours */
-.lobcorp .resist-label--color.RED   { color: #da4c33; opacity: 1; }
-.lobcorp .resist-label--color.WHITE { color: #e8e8d8; opacity: 1; }
-.lobcorp .resist-label--color.BLACK { color: #9c69b2; opacity: 1; }
-.lobcorp .resist-label--color.PALE  { color: #56b4c9; opacity: 1; }
+.lobcorp .resist-label--color.RED {
+  color: #da4c33;
+  opacity: 1;
+}
+
+.lobcorp .resist-label--color.WHITE {
+  color: #e8e8d8;
+  opacity: 1;
+}
+
+.lobcorp .resist-label--color.BLACK {
+  color: #9c69b2;
+  opacity: 1;
+}
+
+.lobcorp .resist-label--color.PALE {
+  color: #56b4c9;
+  opacity: 1;
+}
 
 /* Damage type icons */
 .lobcorp .dmg-type-icon {
@@ -532,9 +620,19 @@
   scrollbar-color: var(--notched-border-color) transparent;
   margin: 15px 0px;
 }
-.lobcorp .rp-entries::-webkit-scrollbar       { width: 4px; }
-.lobcorp .rp-entries::-webkit-scrollbar-track { background: transparent; }
-.lobcorp .rp-entries::-webkit-scrollbar-thumb { background: var(--notched-border-color); border-radius: 2px; }
+
+.lobcorp .rp-entries::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lobcorp .rp-entries::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lobcorp .rp-entries::-webkit-scrollbar-thumb {
+  background: var(--notched-border-color);
+  border-radius: 2px;
+}
 
 .lobcorp .rp-empty {
   font-size: 11px;
@@ -572,7 +670,10 @@
   padding: 0 2px;
   max-width: 110px;
 }
-.lobcorp .rp-type-select option { background: #1a1a10; }
+
+.lobcorp .rp-type-select option {
+  background: #1a1a10;
+}
 
 .lobcorp .rp-type {
   font-size: 10px;
@@ -594,7 +695,10 @@
   padding: 0 2px;
   min-width: 0;
 }
-.lobcorp .rp-name-field::placeholder { color: rgba(163,160,117,0.3); }
+
+.lobcorp .rp-name-field::placeholder {
+  color: rgba(163, 160, 117, 0.3);
+}
 
 .lobcorp .rp-name {
   flex: 1;
@@ -610,7 +714,11 @@
   font-size: 10px;
   transition: opacity 0.15s, color 0.15s;
 }
-.lobcorp .rp-delete-btn:hover { opacity: 1; color: #da4c33; }
+
+.lobcorp .rp-delete-btn:hover {
+  opacity: 1;
+  color: #da4c33;
+}
 
 .lobcorp .rp-ping-btn {
   flex-shrink: 0;
@@ -620,7 +728,11 @@
   transition: opacity 0.15s, color 0.15s;
   margin-right: 2px;
 }
-.lobcorp .rp-ping-btn:hover { opacity: 1; color: var(--header-color); }
+
+.lobcorp .rp-ping-btn:hover {
+  opacity: 1;
+  color: var(--header-color);
+}
 
 .lobcorp .rp-desc {
   font-size: 11px;
@@ -628,9 +740,10 @@
   line-height: 1.4;
   opacity: 0.85;
 }
+
 .lobcorp .rp-desc-textarea {
   width: 100%;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--notched-border-color);
   color: var(--main-text-color);
   font-size: 11px;
@@ -654,7 +767,11 @@
   flex-shrink: 0;
   transition: opacity 0.15s, color 0.15s;
 }
-.lobcorp .rp-add-btn:hover { opacity: 1; color: var(--header-color); }
+
+.lobcorp .rp-add-btn:hover {
+  opacity: 1;
+  color: var(--header-color);
+}
 
 /* =========================================================
    STATS AND TRAITS PANEL — four-virtue 2×2 grid
@@ -680,16 +797,27 @@
   position: relative;
 }
 
-.lobcorp .stat-category--red    { border-color: var(--virtue-red);    }
-.lobcorp .stat-category--white  { border-color: var(--virtue-white);  }
-.lobcorp .stat-category--purple { border-color: var(--virtue-purple); }
-.lobcorp .stat-category--cyan   { border-color: var(--virtue-cyan);   }
+.lobcorp .stat-category--red {
+  border-color: var(--virtue-red);
+}
+
+.lobcorp .stat-category--white {
+  border-color: var(--virtue-white);
+}
+
+.lobcorp .stat-category--purple {
+  border-color: var(--virtue-purple);
+}
+
+.lobcorp .stat-category--cyan {
+  border-color: var(--virtue-cyan);
+}
 
 .lobcorp .stat-category::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   pointer-events: none;
 }
 
@@ -709,6 +837,7 @@
   border: none;
   transition: filter 0.15s;
 }
+
 .lobcorp .stat-cat-icon.clickable:hover {
   filter: brightness(1.25) saturate(1.4) drop-shadow(0 0 6px currentColor);
   cursor: pointer;
@@ -720,10 +849,22 @@
   line-height: 1;
   text-shadow: 0 0 4px currentColor;
 }
-.lobcorp .stat-cat-rating--red    { color: var(--virtue-red);    }
-.lobcorp .stat-cat-rating--white  { color: var(--virtue-white);  }
-.lobcorp .stat-cat-rating--purple { color: var(--virtue-purple); }
-.lobcorp .stat-cat-rating--cyan   { color: var(--virtue-cyan);   }
+
+.lobcorp .stat-cat-rating--red {
+  color: var(--virtue-red);
+}
+
+.lobcorp .stat-cat-rating--white {
+  color: var(--virtue-white);
+}
+
+.lobcorp .stat-cat-rating--purple {
+  color: var(--virtue-purple);
+}
+
+.lobcorp .stat-cat-rating--cyan {
+  color: var(--virtue-cyan);
+}
 
 /* ── Attributes column ───────────────────────────────────── */
 .lobcorp .stat-cat-attrs {
@@ -741,10 +882,26 @@
   margin-bottom: 5px;
   line-height: 1;
 }
-.lobcorp .stat-cat-label--red    { color: var(--virtue-red);    text-shadow: 0 0 3px var(--virtue-red);    }
-.lobcorp .stat-cat-label--white  { color: var(--virtue-white);  text-shadow: 0 0 3px var(--header-glow);   }
-.lobcorp .stat-cat-label--purple { color: var(--virtue-purple); text-shadow: 0 0 3px var(--virtue-purple); }
-.lobcorp .stat-cat-label--cyan   { color: var(--virtue-cyan);   text-shadow: 0 0 3px var(--virtue-cyan);   }
+
+.lobcorp .stat-cat-label--red {
+  color: var(--virtue-red);
+  text-shadow: 0 0 3px var(--virtue-red);
+}
+
+.lobcorp .stat-cat-label--white {
+  color: var(--virtue-white);
+  text-shadow: 0 0 3px var(--header-glow);
+}
+
+.lobcorp .stat-cat-label--purple {
+  color: var(--virtue-purple);
+  text-shadow: 0 0 3px var(--virtue-purple);
+}
+
+.lobcorp .stat-cat-label--cyan {
+  color: var(--virtue-cyan);
+  text-shadow: 0 0 3px var(--virtue-cyan);
+}
 
 /* ── Attribute rows ─────────────────────────────────────── */
 .lobcorp .attr-row {
@@ -755,19 +912,23 @@
   margin: 2px 0;
   font-size: 12px;
 }
+
 .lobcorp .attr-name {
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .lobcorp .attr-dots {
   display: flex;
   align-items: center;
   gap: 3px;
 }
+
 .lobcorp .attr-dot {
-  width: 9px; height: 9px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   border: 1px solid var(--notched-border-color);
   background-color: var(--dot-empty);
@@ -775,11 +936,34 @@
   flex-shrink: 0;
 }
 
-.lobcorp .attr-dot.filled           { background-color: var(--dot-filled); border-color: var(--dot-filled); }
-.lobcorp .attr-dot.filled--red      { background-color: var(--virtue-red);    border-color: var(--virtue-red);    box-shadow: 0 0 2px var(--virtue-red);    }
-.lobcorp .attr-dot.filled--white    { background-color: var(--virtue-white);  border-color: var(--virtue-white);  box-shadow: 0 0 2px var(--virtue-white);  }
-.lobcorp .attr-dot.filled--purple   { background-color: var(--virtue-purple); border-color: var(--virtue-purple); box-shadow: 0 0 2px var(--virtue-purple); }
-.lobcorp .attr-dot.filled--cyan     { background-color: var(--virtue-cyan);   border-color: var(--virtue-cyan);   box-shadow: 0 0 2px var(--virtue-cyan);   }
+.lobcorp .attr-dot.filled {
+  background-color: var(--dot-filled);
+  border-color: var(--dot-filled);
+}
+
+.lobcorp .attr-dot.filled--red {
+  background-color: var(--virtue-red);
+  border-color: var(--virtue-red);
+  box-shadow: 0 0 2px var(--virtue-red);
+}
+
+.lobcorp .attr-dot.filled--white {
+  background-color: var(--virtue-white);
+  border-color: var(--virtue-white);
+  box-shadow: 0 0 2px var(--virtue-white);
+}
+
+.lobcorp .attr-dot.filled--purple {
+  background-color: var(--virtue-purple);
+  border-color: var(--virtue-purple);
+  box-shadow: 0 0 2px var(--virtue-purple);
+}
+
+.lobcorp .attr-dot.filled--cyan {
+  background-color: var(--virtue-cyan);
+  border-color: var(--virtue-cyan);
+  box-shadow: 0 0 2px var(--virtue-cyan);
+}
 
 .lobcorp .attr-edit-btn {
   font-size: 10px;
@@ -788,7 +972,10 @@
   margin-left: 2px;
   color: var(--main-text-color);
 }
-.lobcorp .attr-row:hover .attr-edit-btn { opacity: 0.7; }
+
+.lobcorp .attr-row:hover .attr-edit-btn {
+  opacity: 0.7;
+}
 
 /* =========================================================
    SKILLS AND TALENTS PANEL
@@ -796,12 +983,14 @@
 .lobcorp .skills-panel {
   padding: 0 10px 0px 10px;
 }
+
 .lobcorp .skills-columns {
   display: flex;
   flex-direction: row;
   gap: 6px;
   padding-top: 4px;
 }
+
 .lobcorp .skill-group-col {
   flex: 1;
   min-width: 0;
@@ -834,8 +1023,15 @@
   transition: opacity 0.15s;
   line-height: 1;
 }
-.lobcorp .skill-row:hover .skill-edit-btn { opacity: 0.6; }
-.lobcorp .skill-edit-btn:hover            { opacity: 1 !important; color: var(--header-color); }
+
+.lobcorp .skill-row:hover .skill-edit-btn {
+  opacity: 0.6;
+}
+
+.lobcorp .skill-edit-btn:hover {
+  opacity: 1 !important;
+  color: var(--header-color);
+}
 
 .lobcorp .skill-name {
   flex: 1;
@@ -847,8 +1043,14 @@
   cursor: pointer;
   transition: color 0.15s;
 }
-.lobcorp .skill-name:hover            { color: var(--header-color); }
-.lobcorp .skill-name.specialty-available { color: var(--header-color); }
+
+.lobcorp .skill-name:hover {
+  color: var(--header-color);
+}
+
+.lobcorp .skill-name.specialty-available {
+  color: var(--header-color);
+}
 
 .lobcorp .skill-spec-s {
   flex-shrink: 0;
@@ -860,6 +1062,7 @@
   width: 10px;
   text-align: center;
 }
+
 .lobcorp .skill-spec-s--empty {
   width: 10px;
   display: inline-block;
@@ -886,9 +1089,11 @@
   opacity: 0;
   transition: opacity 0.15s, border-color 0.15s;
 }
+
 .lobcorp .skill-row:hover .skill-dots-native .resource-value-empty {
   opacity: 0.5;
 }
+
 .lobcorp .skill-dots-native .resource-value-empty:hover {
   opacity: 1 !important;
   border-color: var(--virtue-red);
@@ -912,6 +1117,7 @@
   background-color: var(--dot-filled);
   border-color: var(--dot-filled);
 }
+
 .lobcorp .skill-dots-native .resource-value-step:hover {
   border-color: var(--header-color);
 }
@@ -921,7 +1127,8 @@
    ========================================================= */
 .lobcorp .lock-btn {
   position: absolute;
-  top: 6px; right: 6px;
+  top: 6px;
+  right: 6px;
   background: transparent;
   border: 1px solid var(--notched-border-color);
   color: var(--main-text-color);
@@ -929,7 +1136,10 @@
   cursor: pointer;
   font-size: 12px;
 }
-.lobcorp .lock-btn:hover { color: var(--header-color); }
+
+.lobcorp .lock-btn:hover {
+  color: var(--header-color);
+}
 
 /* =========================================================
    FORM INPUTS — global overrides for all text inputs
@@ -941,4 +1151,7 @@
   color: var(--main-text-color);
   border-color: var(--notched-border-color);
 }
-.lobcorp select option { background: #1a1a10; }
+
+.lobcorp select option {
+  background: #1a1a10;
+}

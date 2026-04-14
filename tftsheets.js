@@ -4,7 +4,6 @@ import {
   paleDamage,
   sinPointsRender,
   updateRpEntry,
-  RP_TYPES,
 } from "./scripts/scripts.js";
 
 // ---------------------------------------------------------------------------
@@ -96,22 +95,6 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Attribute dots — click to set value ──────────────────────────────────
-  html.querySelectorAll(".attr-dots").forEach(dotContainer => {
-    dotContainer.querySelectorAll(".attr-dot").forEach(dot => {
-      dot.addEventListener("click", async () => {
-        const attrId = dotContainer.dataset.attrId;
-        if (!attrId) return;
-        const clickedIndex = parseInt(dot.dataset.dotIndex);
-        const currentValue = parseInt(dotContainer.dataset.attrValue) || 0;
-        const newValue = currentValue === clickedIndex ? clickedIndex - 1 : clickedIndex;
-        await app.document.update({
-          [`system.attributes.${attrId}.value`]: newValue,
-        });
-      });
-    });
-  });
-
   // ── Combat skill type selects ─────────────────────────────────────────────
   html.querySelectorAll(".combat-skill-type-select").forEach(sel => {
     sel.value = sel.dataset.currentType ?? "attack";
@@ -192,16 +175,16 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
       const actor = app.document;
 
       const typeColors = {
-        "Core Passive":       "#ffffa0",
-        "EGO Gift":           "#f0a33f",
-        "Passive":            "#a3a075",
-        "Flaw":               "#da4c33",
+        "Core Passive": "#ffffa0",
+        "EGO Gift": "#f0a33f",
+        "Passive": "#a3a075",
+        "Flaw": "#da4c33",
         "Reputation Passive": "#9c69b2",
-        "Reputation Flaw":    "#da4c33",
-        "Ally Passive":       "#56b4c9",
-        "Ally Flaw":          "#da4c33",
-        "EGO Resonance":      "#b3d42f",
-        "Resonance":          "#b3d42f",
+        "Reputation Flaw": "#da4c33",
+        "Ally Passive": "#56b4c9",
+        "Ally Flaw": "#da4c33",
+        "EGO Resonance": "#b3d42f",
+        "Resonance": "#b3d42f",
       };
       const typeColor = typeColors[entry.type] ?? "#a3a075";
 
@@ -253,12 +236,4 @@ Hooks.on("renderLobcorpHunter", (app, html, context, options) => {
     });
   });
 
-  // ── Justice attribute — name inputs ───────────────────────────────────────
-  html.querySelectorAll(".justice-name-input").forEach(input => {
-    input.addEventListener("change", async () => {
-      const flagKey = input.dataset.nameFlag;
-      if (!flagKey) return;
-      await app.document.setFlag(scope, flagKey, input.value);
-    });
-  });
 });

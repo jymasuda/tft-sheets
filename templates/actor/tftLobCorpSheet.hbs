@@ -75,7 +75,7 @@
 
       {{!-- Sanity Points --}}
       <div class="point-container">
-        <div><label {{#if locked}}style="bottom: 0px;"{{/if}}>
+        <div><label {{#if locked}}style="bottom: 0px;" {{/if}}>
             {{#unless locked}}<i class="fas fa-minus resource-control resource-minus" data-action="resourceChange"
               data-resource="willpower" data-resource-action="minus"></i>{{/unless}}
             <label for="willpower" class="system-rollable willpower-roll" data-action="willpowerRoll"
@@ -237,12 +237,9 @@
           </div>
 
           {{!-- Armor portrait image — click to change when unlocked --}}
-          <img
-            class="armor-img {{#unless locked}}clickable{{/unless}}"
-            src="{{#if armorImage}}{{armorImage}}{{else}}icons/svg/mystery-man.svg{{/if}}"
-            data-icon-flag="armorImage"
-            alt="Armor"
-            title="{{#unless locked}}Click to change armor image{{/unless}}" />
+          <img class="armor-img {{#unless locked}}clickable{{/unless}}"
+            src="{{#if armorImage}}{{armorImage}}{{else}}icons/svg/mystery-man.svg{{/if}}" data-icon-flag="armorImage"
+            alt="Armor" title="{{#unless locked}}Click to change armor image{{/unless}}" />
 
         </div>{{!-- /resistance-armor-col --}}
 
@@ -346,8 +343,8 @@
             {{!-- PALE --}}
             <div class="resist-row">
               <img class="dmg-type-icon {{#unless locked}}clickable{{/unless}}"
-                src="{{#if iconPale}}{{iconPale}}{{else}}icons/svg/skull.svg{{/if}}" data-icon-flag="iconPale" alt="PALE"
-                title="{{#unless locked}}Click to change icon{{/unless}}" />
+                src="{{#if iconPale}}{{iconPale}}{{else}}icons/svg/skull.svg{{/if}}" data-icon-flag="iconPale"
+                alt="PALE" title="{{#unless locked}}Click to change icon{{/unless}}" />
               <span class="resist-label resist-label--color PALE">PALE</span>
               {{#if locked}}
               <span class="resist-display-pale"></span>
