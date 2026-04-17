@@ -1,0 +1,246 @@
+<div class="lobcorp-enemy">
+
+  <div class="notched enemy-panel">
+
+    {{!-- ═══════════════════════════════════════════════════════════
+    HEADER
+    ═══════════════════════════════════════════════════════════ --}}
+    <div class="enemy-headertext">Enemy Basic Information</div>
+
+    {{!-- ═══════════════════════════════════════════════════════════
+    TOP SECTION — portrait + identity + vitals
+    ═══════════════════════════════════════════════════════════ --}}
+    <div class="enemy-top">
+
+      {{!-- Portrait --}}
+      <div class="enemy-portrait-col">
+        {{#if locked}}
+        <img class="enemy-portrait-img" src="{{img}}" title="{{name}}" />
+        {{else}}
+        <img class="enemy-portrait-img clickable" data-action="editImage" data-edit="img"
+          src="{{img}}" title="{{name}}" />
+        {{/if}}
+      </div>
+
+      {{!-- Identity + vitals --}}
+      <div class="enemy-info-col">
+
+        {{!-- Name + Abno ID --}}
+        <div class="enemy-name-box">
+          {{#if locked}}
+          <span class="enemy-name-display">{{name}}</span>
+          {{else}}
+          <input class="enemy-name-input" name="name" type="text" value="{{name}}"
+            placeholder="Enemy Name" />
+          {{/if}}
+          <span class="enemy-abnoid-wrap">
+            ({{#if locked}}<span class="enemy-abnoid-display"></span>{{else}}<span
+              class="enemy-abnoid-input"></span>{{/if}})
+          </span>
+        </div>
+
+        {{!-- Stats summary (free-text line) --}}
+        <div class="enemy-statsline-wrap">
+          {{#if locked}}
+          <span class="enemy-statsline-display"></span>
+          {{else}}
+          <textarea class="enemy-statsline-input"
+            placeholder="Challenge X/Y – HP # – SP # – (Tough) – Armor # – Speed # – # Slot(s) – (Class) – (Phase #)"></textarea>
+          {{/if}}
+        </div>
+
+        {{!-- ── Health ── --}}
+        <div class="enemy-vital-row enemy-vital-hp">
+          <span class="enemy-vital-label">
+            {{#unless locked}}<i class="fas fa-minus resource-control resource-minus"
+              data-action="resourceChange" data-resource="health"
+              data-resource-action="minus"></i>{{/unless}}
+            HP
+            {{#unless locked}}<i class="fas fa-plus resource-control resource-plus"
+              data-action="resourceChange" data-resource="health"
+              data-resource-action="plus"></i>{{/unless}}
+          </span>
+          <div class="enemy-pips-wrap">
+            <span class="resource-counter editable"
+              data-states="/:superficial,x:aggravated"
+              data-max="{{health.max}}"
+              data-superficial="{{health.superficial}}"
+              data-aggravated="{{health.aggravated}}"
+              data-pale="{{health.pale}}"
+              data-name="system.health">
+              {{#numLoop health.max}}
+              <span class="resource-counter-step enemy-pip" data-action="squareCounterChange"
+                data-index="{{this}}" data-state=""></span>
+              {{/numLoop}}
+            </span>
+            {{#if health.pale}}
+            <span class="resource-counter" data-states=":" data-name="">
+              {{#numLoop health.pale}}
+              <span class="resource-counter-step enemy-pip pale"></span>
+              {{/numLoop}}
+            </span>
+            {{/if}}
+          </div>
+        </div>
+
+        {{!-- ── Sanity ── --}}
+        <div class="enemy-vital-row enemy-vital-sp">
+          <span class="enemy-vital-label">
+            {{#unless locked}}<i class="fas fa-minus resource-control resource-minus"
+              data-action="resourceChange" data-resource="willpower"
+              data-resource-action="minus"></i>{{/unless}}
+            SP
+            {{#unless locked}}<i class="fas fa-plus resource-control resource-plus"
+              data-action="resourceChange" data-resource="willpower"
+              data-resource-action="plus"></i>{{/unless}}
+          </span>
+          <div class="enemy-pips-wrap">
+            <span class="resource-counter editable"
+              data-states="/:superficial,x:aggravated"
+              data-max="{{willpower.max}}"
+              data-superficial="{{willpower.superficial}}"
+              data-aggravated="{{willpower.aggravated}}"
+              data-name="system.willpower">
+              {{#numLoop willpower.max}}
+              <span class="resource-counter-step enemy-pip" data-action="squareCounterChange"
+                data-index="{{this}}" data-state=""></span>
+              {{/numLoop}}
+            </span>
+          </div>
+        </div>
+
+        {{!-- ── Sin Points ── --}}
+        <div class="enemy-vital-row sin-points-container">
+          <span class="enemy-vital-label">Sin</span>
+          <div class="enemy-pips-wrap">
+            <div class="sin-pip-track enemy-sin-track"></div>
+          </div>
+        </div>
+
+      </div>{{!-- /enemy-info-col --}}
+    </div>{{!-- /enemy-top --}}
+
+    {{!-- ═══════════════════════════════════════════════════════════
+    SKILLS & PASSIVES SECTION
+    ═══════════════════════════════════════════════════════════ --}}
+    <div class="enemy-section-divider"></div>
+    <div class="enemy-skills-section">
+
+      {{!-- ── RP entries (passives, flaws, resonance…) ── --}}
+      {{#each rpEntries as |entry|}}
+      <div class="enemy-entry-row enemy-rp-row" data-entry-id="{{entry.id}}">
+
+        {{!-- Ping to chat --}}
+        <a class="enemy-ping-btn rp-ping-btn clickable" data-entry-id="{{entry.id}}"
+          title="Send to chat"><i class="fas fa-comment"></i></a>
+
+        {{!-- Type badge / select --}}
+        {{#if ../locked}}
+        <span class="enemy-entry-badge">{{entry.type}}</span>
+        {{else}}
+        <select class="enemy-rp-type-select rp-type-select" data-entry-id="{{entry.id}}"
+          data-current-type="{{entry.type}}">
+          {{#each ../rpTypes as |typeObj|}}
+          <option value="{{typeObj.value}}">{{typeObj.label}}</option>
+          {{/each}}
+        </select>
+        {{/if}}
+
+        {{!-- Name --}}
+        <div class="enemy-entry-body">
+          {{#if ../locked}}
+          <span class="enemy-entry-name">{{entry.name}}</span>
+          {{else}}
+          <input class="rp-name-field enemy-rp-name" type="text" data-entry-id="{{entry.id}}"
+            value="{{entry.name}}" placeholder="Name…" />
+          {{/if}}
+
+          {{!-- Description --}}
+          {{#if ../locked}}
+          <div class="enemy-entry-desc">{{{entry.desc}}}</div>
+          {{else}}
+          <textarea class="rp-desc-textarea enemy-rp-desc" data-entry-id="{{entry.id}}"
+            placeholder="Description…">{{entry.desc}}</textarea>
+          {{/if}}
+        </div>
+
+        {{!-- Delete --}}
+        {{#unless ../locked}}
+        <a class="enemy-del-btn rp-delete-btn clickable" data-entry-id="{{entry.id}}"
+          title="Remove entry"><i class="fas fa-times"></i></a>
+        {{/unless}}
+
+      </div>
+      {{/each}}
+
+      {{!-- ── Combat skills (compact, no images) ── --}}
+      {{#each combatSkills as |skill|}}
+      <div class="enemy-entry-row enemy-skill-row" data-item-id="{{skill.id}}" data-drag="true"
+        data-document-uuid="{{skill.uuid}}" data-type="Item">
+
+        {{!-- Type badge --}}
+        <span class="enemy-entry-badge enemy-skill-badge enemy-skill-badge--{{skill.skillType}}">
+          {{#if skill.skillTypeLabel}}{{skill.skillTypeLabel}}{{else}}Skill {{skill.index}}{{/if}}
+        </span>
+
+        {{!-- Name + desc --}}
+        <div class="enemy-entry-body">
+          <span class="enemy-entry-name enemy-skill-name rollable-item"
+            data-action="rollItem" data-item-uuid="{{skill.uuid}}"
+            title="Click to roll {{skill.name}}">
+            {{skill.name}}
+          </span>
+          {{#if skill.description}}
+          <div class="enemy-entry-desc">{{{skill.description}}}</div>
+          {{/if}}
+        </div>
+
+        {{!-- Controls --}}
+        {{#unless ../locked}}
+        <div class="enemy-skill-controls">
+          <select class="combat-skill-type-select" data-item-id="{{skill.id}}"
+            data-current-type="{{skill.skillType}}" title="Skill type">
+            {{#each ../combatSkillTypes as |typeOpt|}}
+            <option value="{{typeOpt.value}}">{{typeOpt.label}}</option>
+            {{/each}}
+          </select>
+          <a class="item-control item-edit" data-action="itemEdit" data-item-id="{{skill._id}}"
+            title="{{localize 'WOD5E.Edit'}}"><i class="fas fa-edit"></i></a>
+          <a class="item-control item-delete" data-action="itemDelete" data-item-id="{{skill._id}}"
+            title="{{localize 'WOD5E.Delete'}}"><i class="fas fa-trash"></i></a>
+        </div>
+        {{/unless}}
+
+      </div>
+      {{/each}}
+
+      {{!-- Empty state --}}
+      {{#unless combatSkills.length}}
+      {{#unless rpEntries.length}}
+      <div class="enemy-empty">No skills or passives yet.</div>
+      {{/unless}}
+      {{/unless}}
+
+      {{!-- Add buttons --}}
+      {{#unless locked}}
+      <div class="enemy-add-row">
+        <a class="enemy-add-btn clickable item-create" data-action="createItem"
+          data-type="customRoll" title="Add combat skill">
+          <i class="fas fa-plus"></i> Add Skill
+        </a>
+        <a class="enemy-add-btn enemy-add-passive clickable" title="Add passive entry">
+          <i class="fas fa-plus"></i> Add Passive
+        </a>
+      </div>
+      {{/unless}}
+
+    </div>{{!-- /enemy-skills-section --}}
+  </div>{{!-- /enemy-panel --}}
+
+  {{#if isOwner}}
+  <button type="button" class="lock-btn" data-action="toggleLock">
+    {{#if locked}}<i class="fa fa-lock"></i>{{else}}<i class="fa fa-lock-open"></i>{{/if}}
+  </button>
+  {{/if}}
+
+</div>

@@ -1,0 +1,573 @@
+/* =========================================================
+   ENEMY SHEET — append to lobcorpStylesheet.css
+   ========================================================= */
+
+/* ── Root & variables ────────────────────────────────────── */
+.lobcorp-enemy {
+  /* Shift the palette to the deeper navy/gold of the mockup */
+  --notched-border-color: #c8a416;
+  --main-text-color: #c2c2a8;
+  --header-glow: #ffd700;
+  --header-color: #ffd700;
+  --panel-bg: #080a14;
+  --panel-inner-bg: #0d1020;
+  --hr-color: #4a4830;
+  --dot-empty: #1a1e30;
+  --dot-filled: #c2c2a8;
+  --sin-active-color: #da4c33;
+
+  /* Virtue palette (reuse for pips) */
+  --virtue-red: #da4c33;
+  --virtue-white: #ffffa0;
+  --virtue-purple: #9c69b2;
+  --virtue-cyan: #56b4c9;
+
+  font-family: "GillSansMT", Arial;
+  color: var(--main-text-color);
+  font-size: 14px;
+  background-color: #05070f;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.lobcorp-enemy .clickable {
+  cursor: pointer;
+}
+
+/* ── Enemy panel (fills sheet, scrollable) ───────────────── */
+.lobcorp-enemy .enemy-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 14px 14px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--notched-border-color) transparent;
+}
+
+.lobcorp-enemy .enemy-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lobcorp-enemy .enemy-panel::-webkit-scrollbar-thumb {
+  background: var(--notched-border-color);
+  border-radius: 2px;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.lobcorp-enemy .enemy-headertext {
+  font-family: "Norwester", Arial;
+  font-size: 22px;
+  text-align: right;
+  color: var(--header-color);
+  text-shadow: 0 0 6px var(--header-glow), 0 0 14px var(--header-glow);
+  letter-spacing: 1.5px;
+  padding: 2px 4px 8px;
+  border-bottom: 1px solid var(--notched-border-color);
+  margin-bottom: 10px;
+}
+
+/* ── Top section ─────────────────────────────────────────── */
+.lobcorp-enemy .enemy-top {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+/* Portrait column */
+.lobcorp-enemy .enemy-portrait-col {
+  flex: 0 0 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lobcorp-enemy .enemy-portrait-img {
+  width: 100px;
+  height: 140px;
+  object-fit: cover;
+  object-position: top center;
+  border: 1px solid var(--notched-border-color);
+  display: block;
+  background-color: #05070f;
+  transition: filter 0.15s, border-color 0.15s;
+}
+
+.lobcorp-enemy .enemy-portrait-img.clickable:hover {
+  border-color: var(--header-color);
+  filter: brightness(1.1) drop-shadow(0 0 5px var(--notched-border-color));
+}
+
+/* Info column */
+.lobcorp-enemy .enemy-info-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* ── Name + Abno ID ──────────────────────────────────────── */
+.lobcorp-enemy .enemy-name-box {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background-color: #0d1020;
+  border: 1px solid #2a2e4a;
+  padding: 4px 8px;
+}
+
+.lobcorp-enemy .enemy-name-display {
+  font-family: "Norwester", Arial;
+  font-size: 18px;
+  color: var(--header-color);
+  text-shadow: 0 0 4px var(--header-glow);
+  flex: 1;
+}
+
+.lobcorp-enemy .enemy-name-input {
+  font-family: "Norwester", Arial;
+  font-size: 18px;
+  color: var(--header-color);
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--notched-border-color);
+  flex: 1;
+  min-width: 0;
+  padding: 0 2px;
+}
+
+.lobcorp-enemy .enemy-abnoid-wrap {
+  font-size: 12px;
+  color: var(--main-text-color);
+  opacity: 0.7;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lobcorp-enemy .enemy-abnoid-display,
+.lobcorp-enemy .enemy-abnoid-input input {
+  font-size: 12px;
+  color: var(--main-text-color);
+}
+
+.lobcorp-enemy .enemy-abnoid-input input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed #444;
+  width: 80px;
+  padding: 0 2px;
+}
+
+/* ── Stats summary line ──────────────────────────────────── */
+.lobcorp-enemy .enemy-statsline-wrap {
+  width: 100%;
+}
+
+.lobcorp-enemy .enemy-statsline-display {
+  display: block;
+  font-size: 11px;
+  color: var(--main-text-color);
+  opacity: 0.85;
+  line-height: 1.5;
+  background: #0a0c18;
+  border: 1px solid #1e2038;
+  padding: 4px 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.lobcorp-enemy .enemy-statsline-input {
+  display: block;
+  width: 100%;
+}
+
+.lobcorp-enemy .enemy-statsline-input textarea,
+.lobcorp-enemy textarea.enemy-statsline-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #0a0c18;
+  border: 1px solid #2a2e4a;
+  color: var(--main-text-color);
+  font-size: 11px;
+  font-family: "GillSansMT", Arial;
+  line-height: 1.5;
+  resize: none;
+  min-height: 40px;
+  padding: 4px 6px;
+}
+
+/* ── Vital rows (HP / SP / Sin) ──────────────────────────── */
+.lobcorp-enemy .enemy-vital-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lobcorp-enemy .enemy-vital-label {
+  flex: 0 0 28px;
+  font-family: "Norwester", Arial;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--main-text-color);
+  opacity: 0.75;
+  text-align: right;
+  user-select: none;
+}
+
+.lobcorp-enemy .enemy-pips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+}
+
+/* Compact pips */
+.lobcorp-enemy .enemy-pip {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: unset !important;
+  min-height: unset !important;
+  flex-shrink: 0;
+}
+
+/* HP colour */
+.lobcorp-enemy .enemy-vital-hp .resource-counter {
+  --system-dark-color-4: #ff4d4d;
+}
+
+/* SP colour */
+.lobcorp-enemy .enemy-vital-sp .resource-counter {
+  --system-dark-color-4: #39a6df;
+}
+
+/* Sin pips — reuse .sin-pip sizing */
+.lobcorp-enemy .enemy-sin-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.lobcorp-enemy .enemy-sin-track .sin-pip {
+  width: 16px;
+  height: 16px;
+  position: static;
+  margin: 0;
+  bottom: 0;
+}
+
+/* resource control +/- icons */
+.lobcorp-enemy .resource-control {
+  font-size: 9px;
+  opacity: 0.5;
+  cursor: pointer;
+  margin: 0 2px;
+  transition: opacity 0.15s;
+}
+
+.lobcorp-enemy .resource-control:hover {
+  opacity: 1;
+}
+
+/* ── Section divider ─────────────────────────────────────── */
+.lobcorp-enemy .enemy-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--notched-border-color) 20%,
+    var(--notched-border-color) 80%,
+    transparent
+  );
+  margin: 8px 0;
+  opacity: 0.6;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SKILLS SECTION
+   ═══════════════════════════════════════════════════════════ */
+.lobcorp-enemy .enemy-skills-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Entry row (shared by RP entries + combat skills) ─────── */
+.lobcorp-enemy .enemy-entry-row {
+  display: grid;
+  grid-template-columns: auto 90px 1fr auto;
+  align-items: start;
+  gap: 6px 8px;
+  padding: 5px 4px;
+  border-bottom: 1px solid rgba(74, 72, 48, 0.35);
+  transition: background 0.12s;
+}
+
+.lobcorp-enemy .enemy-entry-row:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Hide ping btn column when not an RP row */
+.lobcorp-enemy .enemy-skill-row {
+  grid-template-columns: 90px 1fr auto;
+}
+
+/* ── Ping button ─────────────────────────────────────────── */
+.lobcorp-enemy .enemy-ping-btn {
+  color: var(--main-text-color);
+  opacity: 0.3;
+  font-size: 10px;
+  align-self: center;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.lobcorp-enemy .enemy-ping-btn:hover {
+  opacity: 1;
+  color: var(--header-color);
+}
+
+/* ── Type badge ──────────────────────────────────────────── */
+.lobcorp-enemy .enemy-entry-badge {
+  display: inline-block;
+  font-family: "Norwester", Arial;
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+  color: var(--main-text-color);
+  opacity: 0.8;
+  align-self: start;
+  margin-top: 2px;
+}
+
+/* RP type select (unlocked) */
+.lobcorp-enemy .enemy-rp-type-select {
+  font-family: "Norwester", Arial;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  background: transparent;
+  border: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  padding: 1px 2px;
+  max-width: 90px;
+  cursor: pointer;
+}
+
+.lobcorp-enemy .enemy-rp-type-select option {
+  background: #0d1020;
+}
+
+/* ── Skill badge colours by type ─────────────────────────── */
+.lobcorp-enemy .enemy-skill-badge--attack {
+  color: var(--virtue-white);
+  border-color: var(--virtue-white);
+  opacity: 1;
+}
+
+.lobcorp-enemy .enemy-skill-badge--defense {
+  color: var(--virtue-cyan);
+  border-color: var(--virtue-cyan);
+  opacity: 1;
+}
+
+.lobcorp-enemy .enemy-skill-badge--corrosion {
+  color: var(--virtue-purple);
+  border-color: var(--virtue-purple);
+  opacity: 1;
+}
+
+.lobcorp-enemy .enemy-skill-badge--panic {
+  color: var(--virtue-red);
+  border-color: var(--virtue-red);
+  opacity: 1;
+}
+
+/* ── Entry body (name + desc stacked) ───────────────────── */
+.lobcorp-enemy .enemy-entry-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lobcorp-enemy .enemy-entry-name {
+  font-family: "Norwester", Arial;
+  font-size: 14px;
+  color: var(--header-color);
+  text-shadow: 0 0 3px var(--header-glow);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Rollable skill name */
+.lobcorp-enemy .enemy-skill-name {
+  cursor: pointer;
+  transition: color 0.12s;
+}
+
+.lobcorp-enemy .enemy-skill-name:hover {
+  color: #ffffff;
+  text-shadow: 0 0 6px var(--header-glow);
+}
+
+.lobcorp-enemy .enemy-entry-desc {
+  font-size: 11px;
+  color: var(--main-text-color);
+  line-height: 1.4;
+  opacity: 0.85;
+  word-break: break-word;
+}
+
+.lobcorp-enemy .enemy-entry-desc p {
+  margin: 0;
+}
+
+/* ── RP name / desc editable fields ─────────────────────── */
+.lobcorp-enemy .enemy-rp-name {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--notched-border-color);
+  color: var(--header-color);
+  font-family: "Norwester", Arial;
+  font-size: 14px;
+  padding: 0 2px;
+  min-width: 0;
+}
+
+.lobcorp-enemy .enemy-rp-name::placeholder {
+  color: rgba(194, 194, 168, 0.3);
+  font-size: 11px;
+}
+
+.lobcorp-enemy .enemy-rp-desc {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #2a2e4a;
+  color: var(--main-text-color);
+  font-size: 11px;
+  font-family: "GillSansMT", Arial;
+  resize: vertical;
+  min-height: 38px;
+  padding: 2px 4px;
+}
+
+/* ── Skill controls (type select + edit + delete) ────────── */
+.lobcorp-enemy .enemy-skill-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  flex-shrink: 0;
+  align-self: start;
+  margin-top: 2px;
+}
+
+.lobcorp-enemy .enemy-skill-controls select {
+  font-size: 9px;
+  background: transparent;
+  border: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  padding: 1px 2px;
+  max-width: 80px;
+}
+
+.lobcorp-enemy .enemy-skill-controls .item-control {
+  color: var(--main-text-color);
+  opacity: 0.45;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.lobcorp-enemy .enemy-skill-controls .item-control:hover {
+  opacity: 1;
+  color: var(--header-color);
+}
+
+.lobcorp-enemy .enemy-skill-controls .item-delete:hover {
+  color: var(--virtue-red);
+}
+
+/* ── Delete button ───────────────────────────────────────── */
+.lobcorp-enemy .enemy-del-btn {
+  color: var(--main-text-color);
+  opacity: 0.3;
+  font-size: 10px;
+  align-self: start;
+  margin-top: 4px;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.lobcorp-enemy .enemy-del-btn:hover {
+  opacity: 1;
+  color: var(--virtue-red);
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.lobcorp-enemy .enemy-empty {
+  text-align: center;
+  font-size: 11px;
+  opacity: 0.35;
+  padding: 14px 0;
+}
+
+/* ── Add row ─────────────────────────────────────────────── */
+.lobcorp-enemy .enemy-add-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 6px 0 2px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(74, 72, 48, 0.4);
+}
+
+.lobcorp-enemy .enemy-add-btn {
+  font-size: 11px;
+  color: var(--main-text-color);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.lobcorp-enemy .enemy-add-btn:hover {
+  opacity: 1;
+  color: var(--header-color);
+}
+
+/* ── Lock button (reuse .lock-btn from agent sheet) ──────── */
+.lobcorp-enemy .lock-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.lobcorp-enemy .lock-btn:hover {
+  color: var(--header-color);
+}
+
+/* ── Global input overrides ──────────────────────────────── */
+.lobcorp-enemy input[type="text"],
+.lobcorp-enemy input[type="number"],
+.lobcorp-enemy select,
+.lobcorp-enemy textarea {
+  background: transparent;
+  color: var(--main-text-color);
+  border-color: var(--notched-border-color);
+}
+
+.lobcorp-enemy select option {
+  background: #0d1020;
+}
