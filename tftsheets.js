@@ -249,7 +249,7 @@ Hooks.on("renderLobcorpEnemy", (app, html, context, options) => {
     ta.rows = 2;
     ta.style.width = "100%";
     ta.style.boxSizing = "border-box";
-    ta.value = app.document.getFlag(scope, "enemyStatsLine") ?? "";
+    ta.value = app.document.getFlag(scope, "enemyStatsLine") ?? "Challenge X/Y – HP # – SP # – (Tough) – Armor # – Speed # – # Slot(s) – (Class) – (Phase #)";
     statsInput.appendChild(ta);
     ta.addEventListener("change", async () => {
       await app.document.setFlag(scope, "enemyStatsLine", ta.value);

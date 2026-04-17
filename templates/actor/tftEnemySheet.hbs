@@ -8,8 +8,9 @@
     <div class="enemy-headertext">Enemy Basic Information</div>
 
     {{!-- ═══════════════════════════════════════════════════════════
-    TOP SECTION — portrait + identity + vitals
+    TOP SECTION — portrait | identity + stats + HP + sin
     ═══════════════════════════════════════════════════════════ --}}
+    
     <div class="enemy-top">
 
       {{!-- Portrait --}}
@@ -42,16 +43,15 @@
         {{!-- Stats summary (free-text line) --}}
         <div class="enemy-statsline-wrap">
           {{#if locked}}
-          <span class="enemy-statsline-display"></span>
+          <span class="enemy-statsline-display notched"></span>
           {{else}}
-          <textarea class="enemy-statsline-input"
-            placeholder="Challenge X/Y – HP # – SP # – (Tough) – Armor # – Speed # – # Slot(s) – (Class) – (Phase #)"></textarea>
+          <div class="enemy-statsline-input notched"></div>
           {{/if}}
         </div>
 
-        {{!-- ── Health ── --}}
+        {{!-- ── Health pips ── --}}
         <div class="enemy-vital-row enemy-vital-hp">
-          <span class="enemy-vital-label">
+          <span class="enemy-vital-label health">
             {{#unless locked}}<i class="fas fa-minus resource-control resource-minus"
               data-action="resourceChange" data-resource="health"
               data-resource-action="minus"></i>{{/unless}}
@@ -69,20 +69,21 @@
               data-pale="{{health.pale}}"
               data-name="system.health">
               {{#numLoop health.max}}
-              <span class="resource-counter-step enemy-pip" data-action="squareCounterChange"
+              <span class="resource-counter-step" data-action="squareCounterChange"
                 data-index="{{this}}" data-state=""></span>
               {{/numLoop}}
             </span>
             {{#if health.pale}}
             <span class="resource-counter" data-states=":" data-name="">
               {{#numLoop health.pale}}
-              <span class="resource-counter-step enemy-pip pale"></span>
+              <span class="resource-counter-step pale"></span>
               {{/numLoop}}
             </span>
             {{/if}}
           </div>
         </div>
 
+       
         {{!-- ── Sanity ── --}}
         <div class="enemy-vital-row enemy-vital-sp">
           <span class="enemy-vital-label">
@@ -106,14 +107,6 @@
                 data-index="{{this}}" data-state=""></span>
               {{/numLoop}}
             </span>
-          </div>
-        </div>
-
-        {{!-- ── Sin Points ── --}}
-        <div class="enemy-vital-row sin-points-container">
-          <span class="enemy-vital-label">Sin</span>
-          <div class="enemy-pips-wrap">
-            <div class="sin-pip-track enemy-sin-track"></div>
           </div>
         </div>
 
@@ -146,7 +139,7 @@
         </select>
         {{/if}}
 
-        {{!-- Name --}}
+        {{!-- Name + desc --}}
         <div class="enemy-entry-body">
           {{#if ../locked}}
           <span class="enemy-entry-name">{{entry.name}}</span>
@@ -155,7 +148,6 @@
             value="{{entry.name}}" placeholder="Name…" />
           {{/if}}
 
-          {{!-- Description --}}
           {{#if ../locked}}
           <div class="enemy-entry-desc">{{{entry.desc}}}</div>
           {{else}}
@@ -173,17 +165,15 @@
       </div>
       {{/each}}
 
-      {{!-- ── Combat skills (compact, no images) ── --}}
+      {{!-- ── Combat skills ── --}}
       {{#each combatSkills as |skill|}}
       <div class="enemy-entry-row enemy-skill-row" data-item-id="{{skill.id}}" data-drag="true"
         data-document-uuid="{{skill.uuid}}" data-type="Item">
 
-        {{!-- Type badge --}}
         <span class="enemy-entry-badge enemy-skill-badge enemy-skill-badge--{{skill.skillType}}">
           {{#if skill.skillTypeLabel}}{{skill.skillTypeLabel}}{{else}}Skill {{skill.index}}{{/if}}
         </span>
 
-        {{!-- Name + desc --}}
         <div class="enemy-entry-body">
           <span class="enemy-entry-name enemy-skill-name rollable-item"
             data-action="rollItem" data-item-uuid="{{skill.uuid}}"
@@ -195,7 +185,6 @@
           {{/if}}
         </div>
 
-        {{!-- Controls --}}
         {{#unless ../locked}}
         <div class="enemy-skill-controls">
           <select class="combat-skill-type-select" data-item-id="{{skill.id}}"
@@ -214,14 +203,12 @@
       </div>
       {{/each}}
 
-      {{!-- Empty state --}}
       {{#unless combatSkills.length}}
       {{#unless rpEntries.length}}
       <div class="enemy-empty">No skills or passives yet.</div>
       {{/unless}}
       {{/unless}}
 
-      {{!-- Add buttons --}}
       {{#unless locked}}
       <div class="enemy-add-row">
         <a class="enemy-add-btn clickable item-create" data-action="createItem"

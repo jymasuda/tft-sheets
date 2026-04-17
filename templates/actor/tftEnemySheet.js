@@ -3,8 +3,7 @@ import { prepareBaseContext } from "../../scripts/scripts.js";
 
 export class LobcorpEnemy extends HunterActorSheet {
   static DEFAULT_OPTIONS = {
-    classes: ["lobcorp-enemy"],
-    position: { width: 680, height: 700 },
+    classes: ["lobcorp-enemy", "lobcorp"],
     actions: {
       ...HunterActorSheet.DEFAULT_OPTIONS?.actions,
       toggleLock: LobcorpEnemy.#onToggleLock,
