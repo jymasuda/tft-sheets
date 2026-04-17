@@ -32,6 +32,7 @@ const RESIST_OPTIONS = {
   Weak: "Weak",
   Normal: "Normal",
   Endured: "Endured",
+  Resistant: "Resistant",
   Immune: "Immune",
 };
 
@@ -243,7 +244,6 @@ Hooks.on("renderLobcorpEnemy", (app, html, context, options) => {
   const statsDisplay = html.querySelector(".enemy-statsline-display");
 
   if (statsInput) {
-    // Inject a textarea into the wrapper span
     const ta = document.createElement("textarea");
     ta.placeholder = "Challenge X/Y – HP # – SP # – (Tough) – Armor # – Speed # – # Slot(s) – (Class) – (Phase #)";
     ta.rows = 2;
@@ -260,6 +260,40 @@ Hooks.on("renderLobcorpEnemy", (app, html, context, options) => {
     const val = app.document.getFlag(scope, "enemyStatsLine") ?? "";
     statsDisplay.textContent = val;
   }
+
+  // ── Physical resistance dropdowns (Form: Slash / Pierce / Blunt) ──────────
+  for (let n = 1; n <= 3; n++) {
+    inputCreate(app, options, "base", `resist${n}`, "Normal",
+      html.querySelector(`.enemy-resist-input-${n}`),
+      html.querySelector(`.enemy-resist-display-${n}`),
+      RESIST_OPTIONS
+    );
+  }
+
+  // ── Colour resistance dropdowns (Type: RED / WHITE / BLACK / PALE) ────────
+  for (const color of ["red", "white", "black", "pale"]) {
+    const cap = color.charAt(0).toUpperCase() + color.slice(1);
+    inputCreate(app, options, "base", `resist${cap}`, "Normal",
+      html.querySelector(`.enemy-resist-input-${color}`),
+      html.querySelector(`.enemy-resist-display-${color}`),
+      RESIST_OPTIONS
+    );
+  }
+
+  // ── Clickable damage-type icons in the resist panel ───────────────────────
+  html.querySelectorAll(".enemy-dmg-icon.clickable").forEach(img => {
+    img.addEventListener("click", () => {
+      const iconFlag = img.dataset.iconFlag;
+      if (!iconFlag) return;
+      new FilePicker({
+        type: "image",
+        current: app.document.getFlag(scope, iconFlag) ?? "",
+        callback: async (path) => {
+          await app.document.setFlag(scope, iconFlag, path);
+        },
+      }).browse();
+    });
+  });
 
   // ── "Add Passive" button (separate from .rp-add-btn on enemy sheet) ───────
   html.querySelector(".enemy-add-passive")?.addEventListener("click", async () => {

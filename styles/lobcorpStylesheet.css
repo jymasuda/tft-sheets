@@ -1422,7 +1422,134 @@
   );
   opacity: 0.6;
 }
-
+ 
+/* ═══════════════════════════════════════════════════════════
+   VITALS + RESISTANCE ROW
+   ═══════════════════════════════════════════════════════════ */
+ 
+/* Outer flex row: vitals on left, resist panel on right */
+.lobcorp-enemy .enemy-vitals-resist {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+ 
+/* Left column — HP + SP stacked */
+.lobcorp-enemy .enemy-vitals-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+ 
+/* Thin vertical separator between vitals and resistance */
+.lobcorp-enemy .enemy-resist-divider {
+  width: 1px;
+  align-self: stretch;
+  background-color: var(--notched-border-color);
+  opacity: 0.45;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+ 
+/* Resistance panel container — two columns side by side */
+.lobcorp-enemy .enemy-resist-panel {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+ 
+/* Each resist column (Form / Type) */
+.lobcorp-enemy .enemy-resist-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+ 
+/* Column header label */
+.lobcorp-enemy .enemy-resist-col-header {
+  font-family: "Norwester", Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--header-color);
+  text-shadow: 0 0 3px var(--header-glow);
+  text-align: center;
+  margin-bottom: 2px;
+}
+ 
+/* Thin vertical divider between Form and Type columns */
+.lobcorp-enemy .enemy-resist-inner-divider {
+  width: 1px;
+  align-self: stretch;
+  background-color: var(--notched-border-color);
+  opacity: 0.35;
+  flex-shrink: 0;
+  margin-top: 18px; /* clear the header */
+}
+ 
+/* A single resistance row: icon + label + value */
+.lobcorp-enemy .enemy-resist-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+ 
+/* Damage type icon */
+.lobcorp-enemy .enemy-dmg-icon {
+  width: 13px;
+  height: 13px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border: none;
+}
+ 
+.lobcorp-enemy .enemy-dmg-icon.clickable:hover {
+  filter: brightness(1.4) drop-shadow(0 0 3px var(--notched-border-color));
+  cursor: pointer;
+}
+ 
+/* Resist type label */
+.lobcorp-enemy .enemy-resist-label {
+  flex: 0 0 34px;
+  font-size: 9px;
+  color: var(--main-text-color);
+  opacity: 0.75;
+  white-space: nowrap;
+}
+ 
+/* Colour damage label colours */
+.lobcorp-enemy .enemy-resist-label--RED   { color: #da4c33; opacity: 1; }
+.lobcorp-enemy .enemy-resist-label--WHITE { color: #e8e8d8; opacity: 1; }
+.lobcorp-enemy .enemy-resist-label--BLACK { color: #9c69b2; opacity: 1; }
+.lobcorp-enemy .enemy-resist-label--PALE  { color: #56b4c9; opacity: 1; }
+ 
+/* Locked display value */
+.lobcorp-enemy .enemy-resist-display {
+  font-size: 9px;
+  color: var(--main-text-color);
+  opacity: 0.85;
+  white-space: nowrap;
+}
+ 
+/* Unlocked select wrapper — inputCreate injects a <select> here */
+.lobcorp-enemy .enemy-resist-input select {
+  font-size: 9px;
+  max-width: 58px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--notched-border-color);
+  color: var(--main-text-color);
+  padding: 0 2px;
+  cursor: pointer;
+}
+ 
+.lobcorp-enemy .enemy-resist-input select option {
+  background: #0d1020;
+}
 /* ═══════════════════════════════════════════════════════════
    SKILLS & PASSIVES SECTION
    ═══════════════════════════════════════════════════════════ */

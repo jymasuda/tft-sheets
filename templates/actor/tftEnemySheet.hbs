@@ -49,66 +49,186 @@
           {{/if}}
         </div>
 
-        {{!-- ── Health pips ── --}}
-        <div class="enemy-vital-row enemy-vital-hp">
-          <span class="enemy-vital-label health">
-            {{#unless locked}}<i class="fas fa-minus resource-control resource-minus"
-              data-action="resourceChange" data-resource="health"
-              data-resource-action="minus"></i>{{/unless}}
-            HP
-            {{#unless locked}}<i class="fas fa-plus resource-control resource-plus"
-              data-action="resourceChange" data-resource="health"
-              data-resource-action="plus"></i>{{/unless}}
-          </span>
-          <div class="enemy-pips-wrap">
-            <span class="resource-counter editable"
-              data-states="/:superficial,x:aggravated"
-              data-max="{{health.max}}"
-              data-superficial="{{health.superficial}}"
-              data-aggravated="{{health.aggravated}}"
-              data-pale="{{health.pale}}"
-              data-name="system.health">
-              {{#numLoop health.max}}
-              <span class="resource-counter-step" data-action="squareCounterChange"
-                data-index="{{this}}" data-state=""></span>
-              {{/numLoop}}
-            </span>
-            {{#if health.pale}}
-            <span class="resource-counter" data-states=":" data-name="">
-              {{#numLoop health.pale}}
-              <span class="resource-counter-step pale"></span>
-              {{/numLoop}}
-            </span>
-            {{/if}}
-          </div>
-        </div>
+        {{!-- ── Vitals + Resistance row ── --}}
+        <div class="enemy-vitals-resist">
 
-       
-        {{!-- ── Sanity ── --}}
-        <div class="enemy-vital-row enemy-vital-sp">
-          <span class="enemy-vital-label">
-            {{#unless locked}}<i class="fas fa-minus resource-control resource-minus"
-              data-action="resourceChange" data-resource="willpower"
-              data-resource-action="minus"></i>{{/unless}}
-            SP
-            {{#unless locked}}<i class="fas fa-plus resource-control resource-plus"
-              data-action="resourceChange" data-resource="willpower"
-              data-resource-action="plus"></i>{{/unless}}
-          </span>
-          <div class="enemy-pips-wrap">
-            <span class="resource-counter editable"
-              data-states="/:superficial,x:aggravated"
-              data-max="{{willpower.max}}"
-              data-superficial="{{willpower.superficial}}"
-              data-aggravated="{{willpower.aggravated}}"
-              data-name="system.willpower">
-              {{#numLoop willpower.max}}
-              <span class="resource-counter-step enemy-pip" data-action="squareCounterChange"
-                data-index="{{this}}" data-state=""></span>
-              {{/numLoop}}
-            </span>
-          </div>
-        </div>
+          {{!-- Left: HP + SP stacked --}}
+          <div class="enemy-vitals-col">
+
+            <div class="enemy-vital-row enemy-vital-hp">
+              <span class="enemy-vital-label health">
+                {{#unless locked}}<i class="fas fa-minus resource-control resource-minus"
+                  data-action="resourceChange" data-resource="health"
+                  data-resource-action="minus"></i>{{/unless}}
+                HP
+                {{#unless locked}}<i class="fas fa-plus resource-control resource-plus"
+                  data-action="resourceChange" data-resource="health"
+                  data-resource-action="plus"></i>{{/unless}}
+              </span>
+              <div class="enemy-pips-wrap">
+                <span class="resource-counter editable"
+                  data-states="/:superficial,x:aggravated"
+                  data-max="{{health.max}}"
+                  data-superficial="{{health.superficial}}"
+                  data-aggravated="{{health.aggravated}}"
+                  data-pale="{{health.pale}}"
+                  data-name="system.health">
+                  {{#numLoop health.max}}
+                  <span class="resource-counter-step" data-action="squareCounterChange"
+                    data-index="{{this}}" data-state=""></span>
+                  {{/numLoop}}
+                </span>
+                {{#if health.pale}}
+                <span class="resource-counter" data-states=":" data-name="">
+                  {{#numLoop health.pale}}
+                  <span class="resource-counter-step pale"></span>
+                  {{/numLoop}}
+                </span>
+                {{/if}}
+              </div>
+            </div>
+
+            <div class="enemy-vital-row enemy-vital-sp">
+              <span class="enemy-vital-label">
+                {{#unless locked}}<i class="fas fa-minus resource-control resource-minus"
+                  data-action="resourceChange" data-resource="willpower"
+                  data-resource-action="minus"></i>{{/unless}}
+                SP
+                {{#unless locked}}<i class="fas fa-plus resource-control resource-plus"
+                  data-action="resourceChange" data-resource="willpower"
+                  data-resource-action="plus"></i>{{/unless}}
+              </span>
+              <div class="enemy-pips-wrap">
+                <span class="resource-counter editable"
+                  data-states="/:superficial,x:aggravated"
+                  data-max="{{willpower.max}}"
+                  data-superficial="{{willpower.superficial}}"
+                  data-aggravated="{{willpower.aggravated}}"
+                  data-name="system.willpower">
+                  {{#numLoop willpower.max}}
+                  <span class="resource-counter-step enemy-pip" data-action="squareCounterChange"
+                    data-index="{{this}}" data-state=""></span>
+                  {{/numLoop}}
+                </span>
+              </div>
+            </div>
+
+          </div>{{!-- /enemy-vitals-col --}}
+
+          {{!-- Divider --}}
+          <div class="enemy-resist-divider"></div>
+
+          {{!-- Right: Resistance panel --}}
+          <div class="enemy-resist-panel">
+
+            {{!-- Form column: Slash / Pierce / Blunt --}}
+            <div class="enemy-resist-col">
+              <div class="enemy-resist-col-header">Form</div>
+
+              <div class="enemy-resist-row">
+                <img class="enemy-dmg-icon {{#unless locked}}clickable{{/unless}}"
+                  src="{{#if iconSlash}}{{iconSlash}}{{else}}icons/svg/sword.svg{{/if}}"
+                  data-icon-flag="iconSlash" alt="Slash"
+                  title="{{#unless locked}}Click to change icon{{/unless}}" />
+                <span class="enemy-resist-label">Slash</span>
+                {{#if locked}}
+                <span class="enemy-resist-display enemy-resist-display-1"></span>
+                {{else}}
+                <span class="enemy-resist-input enemy-resist-input-1"></span>
+                {{/if}}
+              </div>
+
+              <div class="enemy-resist-row">
+                <img class="enemy-dmg-icon {{#unless locked}}clickable{{/unless}}"
+                  src="{{#if iconPierce}}{{iconPierce}}{{else}}icons/svg/arrow.svg{{/if}}"
+                  data-icon-flag="iconPierce" alt="Pierce"
+                  title="{{#unless locked}}Click to change icon{{/unless}}" />
+                <span class="enemy-resist-label">Pierce</span>
+                {{#if locked}}
+                <span class="enemy-resist-display enemy-resist-display-2"></span>
+                {{else}}
+                <span class="enemy-resist-input enemy-resist-input-2"></span>
+                {{/if}}
+              </div>
+
+              <div class="enemy-resist-row">
+                <img class="enemy-dmg-icon {{#unless locked}}clickable{{/unless}}"
+                  src="{{#if iconBlunt}}{{iconBlunt}}{{else}}icons/svg/shield.svg{{/if}}"
+                  data-icon-flag="iconBlunt" alt="Blunt"
+                  title="{{#unless locked}}Click to change icon{{/unless}}" />
+                <span class="enemy-resist-label">Blunt</span>
+                {{#if locked}}
+                <span class="enemy-resist-display enemy-resist-display-3"></span>
+                {{else}}
+                <span class="enemy-resist-input enemy-resist-input-3"></span>
+                {{/if}}
+              </div>
+
+            </div>{{!-- /enemy-resist-col form --}}
+
+            <div class="enemy-resist-inner-divider"></div>
+
+            {{!-- Type column: RED / WHITE / BLACK / PALE --}}
+            <div class="enemy-resist-col">
+              <div class="enemy-resist-col-header">Type</div>
+
+              <div class="enemy-resist-row">
+                <img class="enemy-dmg-icon {{#unless locked}}clickable{{/unless}}"
+                  src="{{#if iconRed}}{{iconRed}}{{else}}icons/svg/blood.svg{{/if}}"
+                  data-icon-flag="iconRed" alt="RED"
+                  title="{{#unless locked}}Click to change icon{{/unless}}" />
+                <span class="enemy-resist-label enemy-resist-label--RED">RED</span>
+                {{#if locked}}
+                <span class="enemy-resist-display enemy-resist-display-red"></span>
+                {{else}}
+                <span class="enemy-resist-input enemy-resist-input-red"></span>
+                {{/if}}
+              </div>
+
+              <div class="enemy-resist-row">
+                <img class="enemy-dmg-icon {{#unless locked}}clickable{{/unless}}"
+                  src="{{#if iconWhite}}{{iconWhite}}{{else}}icons/svg/ice-aura.svg{{/if}}"
+                  data-icon-flag="iconWhite" alt="WHITE"
+                  title="{{#unless locked}}Click to change icon{{/unless}}" />
+                <span class="enemy-resist-label enemy-resist-label--WHITE">WHITE</span>
+                {{#if locked}}
+                <span class="enemy-resist-display enemy-resist-display-white"></span>
+                {{else}}
+                <span class="enemy-resist-input enemy-resist-input-white"></span>
+                {{/if}}
+              </div>
+
+              <div class="enemy-resist-row">
+                <img class="enemy-dmg-icon {{#unless locked}}clickable{{/unless}}"
+                  src="{{#if iconBlack}}{{iconBlack}}{{else}}icons/svg/dread.svg{{/if}}"
+                  data-icon-flag="iconBlack" alt="BLACK"
+                  title="{{#unless locked}}Click to change icon{{/unless}}" />
+                <span class="enemy-resist-label enemy-resist-label--BLACK">BLACK</span>
+                {{#if locked}}
+                <span class="enemy-resist-display enemy-resist-display-black"></span>
+                {{else}}
+                <span class="enemy-resist-input enemy-resist-input-black"></span>
+                {{/if}}
+              </div>
+
+              <div class="enemy-resist-row">
+                <img class="enemy-dmg-icon {{#unless locked}}clickable{{/unless}}"
+                  src="{{#if iconPale}}{{iconPale}}{{else}}icons/svg/skull.svg{{/if}}"
+                  data-icon-flag="iconPale" alt="PALE"
+                  title="{{#unless locked}}Click to change icon{{/unless}}" />
+                <span class="enemy-resist-label enemy-resist-label--PALE">PALE</span>
+                {{#if locked}}
+                <span class="enemy-resist-display enemy-resist-display-pale"></span>
+                {{else}}
+                <span class="enemy-resist-input enemy-resist-input-pale"></span>
+                {{/if}}
+              </div>
+
+            </div>{{!-- /enemy-resist-col type --}}
+
+          </div>{{!-- /enemy-resist-panel --}}
+
+        </div>{{!-- /enemy-vitals-resist --}}
 
       </div>{{!-- /enemy-info-col --}}
     </div>{{!-- /enemy-top --}}

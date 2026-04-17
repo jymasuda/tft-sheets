@@ -20,7 +20,7 @@
   "flags": {
     "canUpload": true
   },
-  "styles": ["styles/lobcorpStylesheet.css", "styles/enemySheet.css"],
+  "styles": ["styles/lobcorpStylesheet.css"],
   "relationships": {
     "systems": [
       {
