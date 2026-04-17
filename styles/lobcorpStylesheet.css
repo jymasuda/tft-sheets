@@ -110,7 +110,7 @@
 .lobcorp .gridcontainer {
   display: grid;
   grid-template-columns: 300px 1fr 1fr 1fr 300px;
-  grid-template-rows: 35pc auto;
+  grid-template-rows: auto auto;
   gap: 8px;
   margin: 4px 8px;
 }
@@ -194,12 +194,14 @@
   margin: 8px;
 }
 
-.lobcorp .inner-profile {
-  padding: 8px 8px 4px 8px;
-}
+.lobcorp .inner-profile { padding: 5px 5px 2px 5px; }
 
 .lobcorp .profile-img {
   border: none;
+  max-height: 170px;
+  width: 100%;
+  object-fit:scale-down;
+  object-position: top center;
 }
 
 .lobcorp .charname {
@@ -222,7 +224,7 @@
    ========================================================= */
 .lobcorp .point-container {
   border: 1px solid var(--notched-border-color);
-  margin: 12px 12px 4px 12px;
+    margin: 6px 12px 4px 12px;
   text-align: center;
   position: static;
 }
@@ -359,7 +361,6 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 8px;
   min-width: 0;
 }
 
@@ -374,8 +375,7 @@
 
 .lobcorp .combat-skill-image img {
   width: 100%;
-  max-width: 120px;
-  height: 90px;
+  max-width: 88px;
   object-fit: cover;
   border: 1px solid var(--notched-border-color);
   display: block;
@@ -405,7 +405,7 @@
   color: var(--main-text-color);
   line-height: 1.4;
   overflow-y: auto;
-  max-height: 160px;
+  max-height: 100px;
 }
 
 .lobcorp .combat-skill-controls {
@@ -447,7 +447,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  flex: 0 0 100px;
+  flex: 0 0 78px;
 }
 
 /* Armor title: small text above image */
@@ -496,9 +496,9 @@
 /* Armor portrait image */
 .lobcorp .armor-img {
   margin: 10px 0px;
-  width: 62px;
-  height: 90px;
-  object-fit: cover;
+  width: 100px;
+  height: 115px;
+  object-fit: contain;
   object-position: top center;
   display: block;
   background-color: #0c0c0a;

@@ -17,6 +17,7 @@ const toRoman = (num) => {
 // ---------------------------------------------------------------------------
 export const RP_TYPES = [
   { value: "Core Passive", label: "Core Passive", maxOne: true },
+  { value: "Armor Passive", label: "Armor Passive", maxOne: true },
   { value: "EGO Gift", label: "EGO Gift", maxOne: false },
   { value: "Passive", label: "Passive", maxOne: false },
   { value: "Flaw", label: "Flaw", maxOne: false },
