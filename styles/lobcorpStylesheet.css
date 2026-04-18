@@ -1457,7 +1457,7 @@
 /* Resistance panel container — two columns side by side */
 .lobcorp-enemy .enemy-resist-panel {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 6px;
   flex-shrink: 0;
   align-items: flex-start;
@@ -1466,7 +1466,7 @@
 /* Each resist column (Form / Type) */
 .lobcorp-enemy .enemy-resist-col {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 3px;
 }
  
@@ -1533,6 +1533,7 @@
   color: var(--main-text-color);
   opacity: 0.85;
   white-space: nowrap;
+  margin-right: 10px;
 }
  
 /* Unlocked select wrapper — inputCreate injects a <select> here */
